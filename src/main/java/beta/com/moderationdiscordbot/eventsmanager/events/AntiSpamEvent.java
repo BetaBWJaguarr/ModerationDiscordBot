@@ -29,7 +29,12 @@ public class AntiSpamEvent extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (!antiSpamCommand.isAntiSpamEnabled()) {
+        if (!event.isFromGuild()) {
+            return;
+        }
+
+        String discorserverid = event.getGuild().getId();
+        if (!antiSpamCommand.isAntiSpamEnabled(discorserverid)) {
             return;
         }
         User user = event.getAuthor();
