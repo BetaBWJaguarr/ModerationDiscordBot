@@ -1,0 +1,40 @@
+commands:
+  ping:
+    time: "Ping süresi {0} ms"
+    pinging: "Pingleniyor..."
+    pong: "Pong!"
+  setlanguage:
+    title: "Dil Yöneticisi"
+    success: "Dil başarıyla güncellendi"
+    no_permissions: "Bu komutu kullanma izniniz yok"
+    error: "Dil güncellenirken bir hata oluştu"
+  antispam:
+    error:
+      title: "Hata"
+      description: "Antispam güncellenirken bir hata oluştu"
+    status:
+      title: "Spam Engelleyici Durum"
+      enabled: "Spam Engelleyici Etkin"
+      disabled: "Spam Engelliyici Devre dışı"
+    messagelimit:
+      title: "Spam Engelleyici Mesaj Limiti"
+      description: "Mesaj limiti sınırı başarılıyla {0} saniye olarak ayarlandı"
+    timelimit:
+      title: "Spam Engelleyici Zaman Limiti"
+      description: "Zaman sınırı başarılıyla  {0} saniye olarak ayarlandı"
+events:
+  joinquit:
+    user_action: "{0} {1} sunucuya katıldı"
+    is_bot: "Bot"
+    is_verified: "Doğrulanmış"
+    reliability:
+      low: "Düşük"
+      medium: "Orta"
+      high: "Yüksek"
+    titles:
+      mutual_guilds_title: "Ortak Sunucular"
+      role_count_title: "Rol Sayısı"
+      is_bot_title: "Bot mu?"
+      is_verified_title: "Doğrulanmış mı?"
+      event_time_title: "Olay Zaman Damgası"
+      reliability_title: "Güvenilirlik"

@@ -7,14 +7,17 @@ import beta.com.moderationdiscordbot.eventsmanager.RegisterEvents;
 import beta.com.moderationdiscordbot.eventsmanager.events.AntiSpamEvent;
 import beta.com.moderationdiscordbot.eventsmanager.events.BotJoinServer;
 import beta.com.moderationdiscordbot.eventsmanager.events.UserJoinLeaveEvents;
+import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RegisterSlashCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.AntiSpamCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.PingCommand;
+import beta.com.moderationdiscordbot.slashcommandsmanager.commands.SetLanguageCommand;
 import beta.com.moderationdiscordbot.startup.Information;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
@@ -25,13 +28,15 @@ public class Main {
         String token = env.getProperty("TOKEN");
 
         Information information = new Information();
+        LanguageManager languageManager = new LanguageManager();
 
         MongoDB db = new MongoDB(env);
         ServerSettings serverSettings = new ServerSettings(db.getCollection());
 
         //Commands
-        AntiSpamCommand antiSpamCommand = new AntiSpamCommand(serverSettings);
-        PingCommand pingCommand = new PingCommand();
+        AntiSpamCommand antiSpamCommand = new AntiSpamCommand(serverSettings,languageManager);
+        PingCommand pingCommand = new PingCommand(serverSettings,languageManager);
+        SetLanguageCommand setLanguageCommand = new SetLanguageCommand(serverSettings,languageManager);
         //Commands
 
         try {
@@ -40,10 +45,13 @@ public class Main {
                     .setActivity(Activity.watching("Watching something"))
                     .addEventListeners(pingCommand)
                     .addEventListeners(antiSpamCommand)
+                    .addEventListeners(setLanguageCommand)
                     .build();
 
             new RegisterSlashCommand(jda,information)
                     .register("ping", "A ping command")
+                    .register("setlanguage","Set the language of the bot",
+                            new OptionData(OptionType.STRING, "language", "The language to set", true))
                     .register("antispam", "AntiSpam Command",
                             new SubcommandData("messagelimit", "Set the anti-spam message limit")
                                     .addOption(OptionType.INTEGER, "value", "The new message limit", true),
@@ -54,7 +62,7 @@ public class Main {
                     );
 
              new RegisterEvents(jda,information)
-                     .register(new UserJoinLeaveEvents())
+                     .register(new UserJoinLeaveEvents(languageManager,serverSettings))
                      .register(new AntiSpamEvent(antiSpamCommand))
                      .register(new BotJoinServer(serverSettings));
 

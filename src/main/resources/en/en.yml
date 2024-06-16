@@ -1,0 +1,41 @@
+commands:
+  ping:
+    time: "Ping time {0} ms"
+    pinging: "Pinging..."
+    pong: "Pong!"
+  setlanguage:
+    title: "LanguageManager"
+    success: "Language sucessfully updated"
+    no_permissions: "You don't have permission to use this command"
+    error: "An error occurred while updating the language"
+  antispam:
+    error:
+      title: "Error"
+      description: "An error occurred while updating the antispam"
+    status:
+      title: "AntiSpam Status"
+      enabled: "AntiSpam Enabled"
+      disabled: "AntiSPam Disabled"
+    messagelimit:
+      title: "AntiSpam Message Limit"
+      description: "Message limit sucessfully set to  {0} seconds"
+    timelimit:
+      title: "AntiSpam Time Limit"
+      description: "Time limit successfully set to {0} seconds"
+events:
+  joinquit:
+    user_action: "{0} {1} the server"
+    is_bot: "Is Bot"
+    is_verified: "Is Verified"
+    reliability:
+      low: "Low"
+      medium: "Medium"
+      high: "High"
+    titles:
+      mutual_guilds_title: "Mutual Guilds"
+      role_count_title: "Role Count"
+      is_bot_title: "Is Bot?"
+      is_verified_title: "Is Verified?"
+      event_time_title: "Event Timestamp"
+      reliability_title: "Reliability"
+
