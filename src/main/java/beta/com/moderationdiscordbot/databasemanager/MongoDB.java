@@ -13,7 +13,6 @@ import beta.com.moderationdiscordbot.envmanager.Env;
 public class MongoDB {
     private MongoClient mongoClient;
     private MongoDatabase database;
-    private MongoCollection<Document> collection;
 
     public MongoDB(Env env) {
         try {
@@ -25,15 +24,13 @@ public class MongoDB {
                     .build());
 
             database = mongoClient.getDatabase(databaseName);
-
-            collection = database.getCollection("ServerSettings");
         } catch (MongoException e) {
             System.err.println("Error connecting to MongoDB: " + e.getMessage());
         }
     }
 
-    public MongoCollection<Document> getCollection() {
-        return collection;
+    public MongoCollection<Document> getCollection(String collectionName) {
+        return database.getCollection(collectionName);
     }
 
     public void close() {

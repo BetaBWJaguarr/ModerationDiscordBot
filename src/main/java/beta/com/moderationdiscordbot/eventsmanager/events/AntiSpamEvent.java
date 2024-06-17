@@ -1,6 +1,8 @@
 package beta.com.moderationdiscordbot.eventsmanager.events;
 
-import beta.com.moderationdiscordbot.slashcommandsmanager.commands.AntiSpamCommand;
+import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
+import beta.com.moderationdiscordbot.langmanager.LanguageManager;
+import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.AntiSpamCommand;
 import beta.com.moderationdiscordbot.utils.MessageDetails;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -9,6 +11,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.awt.*;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,13 +25,18 @@ public class AntiSpamEvent extends ListenerAdapter {
     private static final String MUTED_ROLE_NAME = "Muted";
 
     private final AntiSpamCommand antiSpamCommand;
+    private LanguageManager languageManager;
+    private ServerSettings serverSettings;
 
-    public AntiSpamEvent(AntiSpamCommand antiSpamCommand) {
+    public AntiSpamEvent(AntiSpamCommand antiSpamCommand, LanguageManager languageManager, ServerSettings serverSettings) {
         this.antiSpamCommand = antiSpamCommand;
+        this.languageManager = languageManager;
+        this.serverSettings = serverSettings;
     }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+
         if (!event.isFromGuild()) {
             return;
         }
@@ -44,9 +52,9 @@ public class AntiSpamEvent extends ListenerAdapter {
             MessageDetails details = messageCache.get(user);
             details.incrementCount();
             if (details.getCount() >= MESSAGE_LIMIT && (System.currentTimeMillis() - details.getTime()) / 1000 <= TIME_LIMIT) {
-                boolean muteSuccessful = muteUser(event, user);
+                boolean muteSuccessful = muteUser(event, user,discorserverid);
                 if (muteSuccessful) {
-                    event.getChannel().sendMessageEmbeds(createEmbed(user)).queue();
+                    event.getChannel().sendMessageEmbeds(createEmbed(user,discorserverid)).queue();
                 }
                 details.resetCount();
             }
@@ -54,15 +62,21 @@ public class AntiSpamEvent extends ListenerAdapter {
         }
     }
 
-    private MessageEmbed createEmbed(User user) {
+    private MessageEmbed createEmbed(User user,String serverid) {
         EmbedBuilder embed = new EmbedBuilder();
-        embed.setTitle("Anti Spam Warning");
+        //embed.setTitle("Anti Spam Warning");
+        embed.setTitle(languageManager.getMessage("events.antispam.warning_title",serverSettings.getLanguage(serverid)));
         embed.setColor(Color.RED);
-        embed.setDescription(user.getName() + ", Please stop spamming the chat.");
+        embed.setDescription(
+                MessageFormat.format(
+                        languageManager.getMessage("events.antispam.warning_description", serverSettings.getLanguage(serverid)),
+                        user.getName()
+                )
+        );
         return embed.build();
     }
 
-    private boolean muteUser(MessageReceivedEvent event, User user) {
+    private boolean muteUser(MessageReceivedEvent event, User user,String dcserverid) {
         List<Role> roles = event.getGuild().getRolesByName(MUTED_ROLE_NAME, true);
         if (roles.isEmpty()) {
             List<Member> admins = event.getGuild().getMembers().stream()
@@ -71,7 +85,8 @@ public class AntiSpamEvent extends ListenerAdapter {
             for (Member admin : admins) {
                 if (!admin.getUser().isBot()) {
                     admin.getUser().openPrivateChannel().queue(channel ->
-                            channel.sendMessage("The 'Muted' role does not exist. Please create it.").queue());
+                            //channel.sendMessage("The 'Muted' role does not exist. Please create it.").queue());
+                            channel.sendMessage(languageManager.getMessage("events.antispam.muted_role_not_exist", serverSettings.getLanguage(dcserverid))).queue());
                 }
             }
             return false;

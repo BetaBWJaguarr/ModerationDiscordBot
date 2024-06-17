@@ -22,19 +22,36 @@ commands:
     timelimit:
       title: "Spam Engelleyici Zaman Limiti"
       description: "Zaman sınırı başarılıyla  {0} saniye olarak ayarlandı"
+    ban:
+      no_permission: "Bu komutu kullanma izniniz yok"
+      tempban: "Kullanıcı geçici süreliğine yasaklandı"
+      permban: "Kullanıcı kalıcı yasaklandı"
+      success: "{0} başarıyla {1} yasaklandı"
+      user_not_found: "Kullanıcı bulunamadı"
+      invalid_duration: "Geçersiz süre"
+      log:
+        title: "Yasak Bilgisi"
+        user: "Kullanıcı"
+        reason: "Sebep"
+    modlog:
+        no_permission: "Bu komutu kullanma izniniz yok"
+        success: "Modlog kanalı başarıyla güncellendi"
 events:
   joinquit:
-    user_action: "{0} {1} sunucuya katıldı"
-    is_bot: "Bot"
-    is_verified: "Doğrulanmış"
     reliability:
       low: "Düşük"
       medium: "Orta"
       high: "Yüksek"
     titles:
+      leave_title: "Bir üye sunucudan ayrıldı"
+      join_title: "Bir üye sunucuya katıldı"
       mutual_guilds_title: "Ortak Sunucular"
       role_count_title: "Rol Sayısı"
       is_bot_title: "Bot mu?"
       is_verified_title: "Doğrulanmış mı?"
       event_time_title: "Olay Zaman Damgası"
       reliability_title: "Güvenilirlik"
+  antispam:
+    warning_title: "Spam Engelleyici Uyarı"
+    warning_description: "Uyarı {0}, çok fazla mesaj gönderiyorsunuz!"
+    muted_role_not_exist: "Susturulmuş rolü bulunamadı.Lütfen bir susturulmuş rol oluşturun ve tekrar deneyin."

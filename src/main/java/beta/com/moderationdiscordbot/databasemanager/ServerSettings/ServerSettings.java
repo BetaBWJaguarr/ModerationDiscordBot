@@ -108,4 +108,35 @@ public class ServerSettings {
     }
 
     // Language Feature
+
+
+    //Mod Log Feature
+    public void setModLogChannel(String discordServerId, String channelId) {
+        try {
+            var filter = Filters.eq("_id", discordServerId);
+            var update = Updates.set("settings.modLogChannel", channelId);
+            UpdateResult result = collection.updateOne(filter, update, new UpdateOptions().upsert(true));
+        } catch (MongoException e) {
+            System.err.println("Error updating document in MongoDB: " + e.getMessage());
+        }
+    }
+
+    public String getModLogChannel(String discordServerId) {
+        try {
+            var filter = Filters.eq("_id", discordServerId);
+            Document document = collection.find(filter).first();
+            if (document != null) {
+                Document settings = (Document) document.get("settings");
+                if (settings != null) {
+                    return settings.getString("modLogChannel");
+                }
+            }
+        } catch (MongoException e) {
+            System.err.println("Error retrieving document from MongoDB: " + e.getMessage());
+        }
+        return null;
+    }
+
+    //Mod Log Feature
+
 }
