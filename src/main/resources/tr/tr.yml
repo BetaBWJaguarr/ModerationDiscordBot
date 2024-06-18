@@ -29,6 +29,7 @@ commands:
       success: "{0} başarıyla {1} yasaklandı"
       user_not_found: "Kullanıcı bulunamadı"
       invalid_duration: "Geçersiz süre"
+      delete_history_duration_too_long: "Geçmiş silme süresi çok uzun"
       log:
         title: "Yasak Bilgisi"
         user: "Kullanıcı"
@@ -45,7 +46,6 @@ events:
     titles:
       leave_title: "Bir üye sunucudan ayrıldı"
       join_title: "Bir üye sunucuya katıldı"
-      mutual_guilds_title: "Ortak Sunucular"
       role_count_title: "Rol Sayısı"
       is_bot_title: "Bot mu?"
       is_verified_title: "Doğrulanmış mı?"

@@ -29,6 +29,7 @@ commands:
     success: "{0} banned successfully for {1}"
     user_not_found: "User not found"
     invalid_duration: "Invalid duration"
+    delete_history_duration_too_long: "Delete history duration too long"
     log:
       title: "Ban Information"
       user: "User"
@@ -45,7 +46,6 @@ events:
     titles:
       join_title: "A member joined the server"
       leave_title: "A member left the server"
-      mutual_guilds_title: "Mutual Guilds"
       role_count_title: "Role Count"
       is_bot_title: "Is Bot?"
       is_verified_title: "Is Verified?"

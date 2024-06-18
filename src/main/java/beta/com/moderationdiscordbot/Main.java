@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -61,6 +62,7 @@ public class Main {
                     .addEventListeners(setLanguageCommand)
                     .addEventListeners(banCommand)
                     .addEventListeners(modLogCommand)
+                    .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .build();
 
             UnbanScheduler unbanScheduler = new UnbanScheduler(banLog, jda);
@@ -85,9 +87,10 @@ public class Main {
                                     .addOption(OptionType.BOOLEAN, "value", "New value", true)
                     )
                     .register("ban", "Ban a user from the server",
-                            new OptionData(OptionType.STRING, "username", "The username of the user to ban", true),
+                            new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to ban", true),
                             new OptionData(OptionType.STRING, "duration", "The ban duration (e.g., 7d, 12h)", false),
-                            new OptionData(OptionType.STRING, "reason", "The reason for banning", false)
+                            new OptionData(OptionType.STRING, "reason", "The reason for banning", false),
+                            new OptionData(OptionType.INTEGER, "delete_history_message_duration", "The duration of deleting the message history", false)
                     )
                     .register("modlog", "Set the modlog channel",
                             new OptionData(OptionType.CHANNEL, "channel", "The channel to set as the modlog channel", true)

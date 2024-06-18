@@ -63,7 +63,13 @@ public class BanCommand extends ListenerAdapter {
 
                     String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : "No reason provided";
 
-                    event.getGuild().ban(UserSnowflake.fromId(userToBan.getId()),0, TimeUnit.SECONDS).queue();
+                    int deleteHistoryDuration = event.getOption("delete_history_message_duration") != null ? event.getOption("delete_history_message_duration").getAsInt() : 0;
+                    if (deleteHistoryDuration > 7) {
+                        event.replyEmbeds(embedBuilderManager.createEmbed("commands.ban.delete_history_duration_too_long", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
+                        return;
+                    }
+
+                    event.getGuild().ban(UserSnowflake.fromId(userToBan.getId()),deleteHistoryDuration, TimeUnit.DAYS).queue();
 
 
                     if (durationInSeconds == -2 ) {
