@@ -71,6 +71,21 @@ public class UserJoinLeaveEvents extends ListenerAdapter {
                     .orElse(0) : 0;
 
             sendMemberEventMessage(channel, action, eventTime, user.getAvatarUrl(), isBot,roleCount,hasGifAvatar, isVerified, discordServerId, hasProfilePicture,user);
+
+            String modLogChannelId = serverSettings.getModLogChannel(discordServerId);
+            if (modLogChannelId != null) {
+                TextChannel modLogChannel = channel.getJDA().getTextChannelById(modLogChannelId);
+                if (modLogChannel != null) {
+                    EmbedBuilder embedBuilder = new EmbedBuilder();
+                    embedBuilder.setTitle(languageManager.getMessage("events.joinquit.log.title", serverSettings.getLanguage(discordServerId)));
+                    embedBuilder.addField(languageManager.getMessage("events.joinquit.log.user", serverSettings.getLanguage(discordServerId)), user.getName(), false);
+                    embedBuilder.addField(languageManager.getMessage("events.joinquit.log.action", serverSettings.getLanguage(discordServerId)), action, false);
+                    embedBuilder.setColor(action.equals("Join") ? Color.GREEN : Color.RED);
+                    embedBuilder.setTimestamp(OffsetDateTime.now());
+
+                    modLogChannel.sendMessageEmbeds(embedBuilder.build()).queue();
+                }
+            }
         }
     }
 

@@ -39,6 +39,10 @@ commands:
         success: "Modlog kanalı başarıyla güncellendi"
 events:
   joinquit:
+    log:
+      title: "Sunucu Olayları"
+      user: "Kullanıcı: "
+      action: "Aksiyon: "
     reliability:
       low: "Düşük"
       medium: "Orta"

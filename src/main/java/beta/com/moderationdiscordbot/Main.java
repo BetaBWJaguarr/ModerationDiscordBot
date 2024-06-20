@@ -1,6 +1,8 @@
 package beta.com.moderationdiscordbot;
 
+import beta.com.moderationdiscordbot.advertisemanager.AdvertiseChecking;
 import beta.com.moderationdiscordbot.databasemanager.Logging.BanLog;
+import beta.com.moderationdiscordbot.databasemanager.Logging.MuteLog;
 import beta.com.moderationdiscordbot.databasemanager.MongoDB;
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.envmanager.Env;
@@ -14,6 +16,7 @@ import beta.com.moderationdiscordbot.slashcommandsmanager.RegisterSlashCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.AntiSpamCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.PingCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.BanCommand;
+import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.MuteCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.SetLanguageCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.modlogcommands.ModLogCommand;
 import beta.com.moderationdiscordbot.startup.Information;
@@ -42,6 +45,7 @@ public class Main {
         MongoDB db = new MongoDB(env);
         ServerSettings serverSettings = new ServerSettings(db.getCollection("ServerSettings"));
         BanLog banLog = new BanLog(db.getCollection("BanLog"));
+        MuteLog muteLog = new MuteLog(db.getCollection("MuteLog"));
 
 
 
@@ -51,24 +55,27 @@ public class Main {
         SetLanguageCommand setLanguageCommand = new SetLanguageCommand(serverSettings,languageManager);
         BanCommand banCommand = new BanCommand(serverSettings,languageManager,banLog);
         ModLogCommand modLogCommand = new ModLogCommand(serverSettings,languageManager);
+        MuteCommand muteCommand = new MuteCommand(serverSettings,languageManager,muteLog);
         //Commands
 
         try {
             JDA jda = JDABuilder.createDefault(token)
                     .enableIntents(GatewayIntent.GUILD_MEMBERS)
+                    .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                     .setActivity(Activity.watching("Watching something"))
                     .addEventListeners(pingCommand)
                     .addEventListeners(antiSpamCommand)
                     .addEventListeners(setLanguageCommand)
                     .addEventListeners(banCommand)
                     .addEventListeners(modLogCommand)
+                    .addEventListeners(muteCommand)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .build();
 
             UnbanScheduler unbanScheduler = new UnbanScheduler(banLog, jda);
 
             //Scheduler
-            ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+            ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
             scheduler.scheduleAtFixedRate(() -> {
                 unbanScheduler.checkAndUnbanUsersInAllGuilds();
             }, 0, 3, TimeUnit.SECONDS);
@@ -76,6 +83,10 @@ public class Main {
 
             new RegisterSlashCommand(jda, information)
                     .register("ping", "A ping command")
+                    .register("mute", "Mute a user from the server",
+                            new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to mute", true),
+                            new OptionData(OptionType.STRING, "duration", "The mute duration (e.g., 7d, 12h)", false),
+                            new OptionData(OptionType.STRING, "reason", "The reason for muting", false))
                     .register("setlanguage", "Set the language of the bot",
                             new OptionData(OptionType.STRING, "language", "The language to set", true))
                     .register("antispam", "AntiSpam Command",
@@ -99,7 +110,8 @@ public class Main {
              new RegisterEvents(jda,information)
                      .register(new UserJoinLeaveEvents(languageManager,serverSettings))
                      .register(new AntiSpamEvent(antiSpamCommand,languageManager,serverSettings))
-                     .register(new BotJoinServer(serverSettings));
+                     .register(new BotJoinServer(serverSettings))
+                     .register(new AdvertiseChecking());
 
              information.printInformation();
 

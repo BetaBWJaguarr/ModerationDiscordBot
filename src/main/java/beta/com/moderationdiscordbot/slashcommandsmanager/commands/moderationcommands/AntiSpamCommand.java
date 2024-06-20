@@ -38,37 +38,49 @@ public class AntiSpamCommand extends ListenerAdapter {
             if (subcommand != null) {
                 switch (subcommand) {
                     case "messagelimit":
-                        int messageLimit = event.getOption("value").getAsInt();
-                        serverSettings.setAntiSpamMessageLimit(discordServerId, messageLimit);
-                        event.replyEmbeds(embedManager.createEmbedWithColor(
-                                "commands.antispam.messagelimit.title",
-                                "commands.antispam.messagelimit.description",
-                                language,
-                                Color.GREEN,
-                                messageLimit).build()).queue();
+                        handleSetMessageLimit(event, discordServerId, language);
                         break;
                     case "timelimit":
-                        int timeLimit = event.getOption("value").getAsInt();
-                        serverSettings.setAntiSpamTimeLimit(discordServerId, timeLimit);
-                        event.replyEmbeds(embedManager.createEmbedWithColor(
-                                "commands.antispam.timelimit.title",
-                                "commands.antispam.timelimit.description",
-                                language,
-                                Color.GREEN,
-                                timeLimit).build()).queue();
+                        handleSetTimeLimit(event, discordServerId, language);
                         break;
                     default:
-                        boolean antiSpamEnabled = serverSettings.getAntiSpam(discordServerId);
-                        serverSettings.setAntiSpam(discordServerId, !antiSpamEnabled);
-                        String message = !antiSpamEnabled ? "commands.antispam.status.enabled" : "commands.antispam.status.disabled";
-                        event.replyEmbeds(embedManager.createEmbedWithColor(
-                                "commands.antispam.status.title",
-                                message,
-                                language,
-                                Color.GREEN).build()).queue();
+                        handleToggleAntiSpam(event, discordServerId, language);
                 }
             }
         }
+    }
+
+    private void handleSetMessageLimit(SlashCommandInteractionEvent event, String discordServerId, String language) {
+        int messageLimit = event.getOption("value").getAsInt();
+        serverSettings.setAntiSpamMessageLimit(discordServerId, messageLimit);
+        event.replyEmbeds(embedManager.createEmbedWithColor(
+                "commands.antispam.messagelimit.title",
+                "commands.antispam.messagelimit.description",
+                language,
+                Color.GREEN,
+                messageLimit).build()).queue();
+    }
+
+    private void handleSetTimeLimit(SlashCommandInteractionEvent event, String discordServerId, String language) {
+        int timeLimit = event.getOption("value").getAsInt();
+        serverSettings.setAntiSpamTimeLimit(discordServerId, timeLimit);
+        event.replyEmbeds(embedManager.createEmbedWithColor(
+                "commands.antispam.timelimit.title",
+                "commands.antispam.timelimit.description",
+                language,
+                Color.GREEN,
+                timeLimit).build()).queue();
+    }
+
+    private void handleToggleAntiSpam(SlashCommandInteractionEvent event, String discordServerId, String language) {
+        boolean antiSpamEnabled = serverSettings.getAntiSpam(discordServerId);
+        serverSettings.setAntiSpam(discordServerId, !antiSpamEnabled);
+        String message = !antiSpamEnabled ? "commands.antispam.status.enabled" : "commands.antispam.status.disabled";
+        event.replyEmbeds(embedManager.createEmbedWithColor(
+                "commands.antispam.status.title",
+                message,
+                language,
+                Color.GREEN).build()).queue();
     }
 
     public boolean isAntiSpamEnabled(String discordServerId) {

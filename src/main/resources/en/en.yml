@@ -39,6 +39,10 @@ commands:
     success: "Modlog channel successfully updated"
 events:
   joinquit:
+    log:
+      title: "Server Events"
+      user: "User: "
+      action: "Action: "
     reliability:
       low: "Low"
       medium: "Medium"

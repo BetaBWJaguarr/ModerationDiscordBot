@@ -4,6 +4,7 @@ import beta.com.moderationdiscordbot.databasemanager.Logging.BanLog;
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
+import beta.com.moderationdiscordbot.utils.ParseDuration;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.UserSnowflake;
@@ -54,7 +55,7 @@ public class BanCommand extends ListenerAdapter {
                     long durationInSeconds = -2;
                     if (event.getOption("duration") != null) {
                         String durationStr = event.getOption("duration").getAsString();
-                        durationInSeconds = parseDuration(durationStr);
+                        durationInSeconds = ParseDuration.parse(durationStr);
                         if (durationInSeconds == -1) {
                             event.replyEmbeds(embedBuilderManager.createEmbed("commands.ban.invalid_duration", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
                             return;
@@ -105,35 +106,4 @@ public class BanCommand extends ListenerAdapter {
             }
         }
     }
-
-
-
-    private long parseDuration(String durationStr) {
-        int durationInSeconds = 0;
-        String number = "";
-        for (int i = 0; i < durationStr.length(); i++) {
-            char c = durationStr.charAt(i);
-            if (Character.isDigit(c)) {
-                number += c;
-            } else if (Character.isLetter(c)) {
-                switch (c) {
-                    case 'd':
-                        durationInSeconds += Integer.parseInt(number) * 60 * 60 * 24;
-                        break;
-                    case 'h':
-                        durationInSeconds += Integer.parseInt(number) * 60 * 60;
-                        break;
-                    case 'm':
-                        durationInSeconds += Integer.parseInt(number) * 60;
-                        break;
-                    case 's':
-                        durationInSeconds += Integer.parseInt(number);
-                        break;
-                }
-                number = "";
-            }
-        }
-        return durationInSeconds;
-    }
-
 }
