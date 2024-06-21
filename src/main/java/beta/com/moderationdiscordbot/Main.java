@@ -1,8 +1,8 @@
 package beta.com.moderationdiscordbot;
 
 import beta.com.moderationdiscordbot.advertisemanager.AdvertiseChecking;
-import beta.com.moderationdiscordbot.databasemanager.Logging.BanLog;
-import beta.com.moderationdiscordbot.databasemanager.Logging.MuteLog;
+import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.BanLog;
+import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.MuteLog;
 import beta.com.moderationdiscordbot.databasemanager.MongoDB;
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.envmanager.Env;
@@ -12,6 +12,7 @@ import beta.com.moderationdiscordbot.eventsmanager.events.BotJoinServer;
 import beta.com.moderationdiscordbot.eventsmanager.events.UserJoinLeaveEvents;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.scheduler.UnbanScheduler;
+import beta.com.moderationdiscordbot.scheduler.UnmuteScheduler;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RegisterSlashCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.AntiSpamCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.PingCommand;
@@ -73,12 +74,19 @@ public class Main {
                     .build();
 
             UnbanScheduler unbanScheduler = new UnbanScheduler(banLog, jda);
+            UnmuteScheduler unmuteScheduler = new UnmuteScheduler(muteLog,jda);
 
             //Scheduler
-            ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+            ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
             scheduler.scheduleAtFixedRate(() -> {
                 unbanScheduler.checkAndUnbanUsersInAllGuilds();
             }, 0, 3, TimeUnit.SECONDS);
+
+            ScheduledExecutorService unmutescheduler = Executors.newScheduledThreadPool(1);
+            unmutescheduler.scheduleAtFixedRate(() -> {
+                unmuteScheduler.checkAndUnmuteUsersInAllGuilds();
+            }, 0, 3, TimeUnit.SECONDS);
+
             //Scheduler;
 
             new RegisterSlashCommand(jda, information)
@@ -95,7 +103,6 @@ public class Main {
                             new SubcommandData("timelimit", "Set the anti-spam time limit")
                                     .addOption(OptionType.INTEGER, "value", "The new time limit", true),
                             new SubcommandData("enable", "Set the anti-spam enable or false")
-                                    .addOption(OptionType.BOOLEAN, "value", "New value", true)
                     )
                     .register("ban", "Ban a user from the server",
                             new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to ban", true),
@@ -105,13 +112,14 @@ public class Main {
                     )
                     .register("modlog", "Set the modlog channel",
                             new OptionData(OptionType.CHANNEL, "channel", "The channel to set as the modlog channel", true)
-                    );
+                    )
+                    .register("antivirus", "AntiVirus Command");
 
              new RegisterEvents(jda,information)
                      .register(new UserJoinLeaveEvents(languageManager,serverSettings))
                      .register(new AntiSpamEvent(antiSpamCommand,languageManager,serverSettings))
                      .register(new BotJoinServer(serverSettings))
-                     .register(new AdvertiseChecking());
+                     .register(new AdvertiseChecking(languageManager,serverSettings));
 
              information.printInformation();
 

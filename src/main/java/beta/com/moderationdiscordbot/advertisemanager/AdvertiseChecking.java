@@ -1,7 +1,11 @@
 package beta.com.moderationdiscordbot.advertisemanager;
 
+import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
+import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageType;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.entities.Role;
@@ -20,14 +24,14 @@ public class AdvertiseChecking extends ListenerAdapter {
     );
 
     private static final List<String> WHITELISTED_URLS = List.of(
-            "trustedwebsite.com", "ourpartner.com"
+            "emlaktv24.com", "tunarasimocak.com","tunacraft.com"
     );
 
     private static final Pattern URL_PATTERN = Pattern.compile(
             "(http|https)://(\\w+\\.)?(\\w+\\.\\w+)(/\\w+)?"
     );
 
-    private static final int MIN_MESSAGE_LENGTH = 20;
+    private static final int MIN_MESSAGE_LENGTH = 10;
     private static final int MAX_MESSAGE_DUPLICATES = 3;
     private static final String ADVERTISEMENT_ROLE_EXEMPT = "AdvertiseExempt";
 
@@ -35,12 +39,25 @@ public class AdvertiseChecking extends ListenerAdapter {
     private final ConcurrentHashMap<String, Integer> messageCounts = new ConcurrentHashMap<>();
     private final Queue<Message> messageQueue = new ConcurrentLinkedQueue<>();
 
+    private final LanguageManager languageManager;
+    private final ServerSettings serverSettings;
+
+    public AdvertiseChecking(LanguageManager languageManager, ServerSettings serverSettings) {
+        this.languageManager = languageManager;
+        this.serverSettings = serverSettings;
+    }
+
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         Message message = event.getMessage();
         Member member = event.getMember();
 
         if (member == null || member.getUser().isBot()) {
+            return;
+        }
+
+
+        if (message.isFromType(ChannelType.TEXT) && message.getType() == MessageType.GUILD_MEMBER_JOIN) {
             return;
         }
 
@@ -65,17 +82,17 @@ public class AdvertiseChecking extends ListenerAdapter {
             String userName = member.getEffectiveName();
             String userId = member.getId();
 
-            if (isAdvertisement(messageContent) || isAdvertisement(userName)) {
+            if (isAdvertisement(userName, true) || isAdvertisement(messageContent, false)) {
                 deleteMessage(message);
-                message.getGuild().kick(member, "Advertising is not allowed").queue();
-                message.getChannel().sendMessage(member.getUser().getAsTag() + ", advertising is not allowed!").queue();
+                message.getGuild().kick(member, languageManager.getMessage("events.advertising.not_allowed", serverSettings.getLanguage(message.getGuildId()))).queue();
+                message.getChannel().sendMessage(member.getUser().getAsTag() + ", " + languageManager.getMessage("events.advertising.not_allowed", serverSettings.getLanguage(message.getGuildId()))).queue();
                 return;
             }
 
             if (isDuplicateMessage(userId, messageContent)) {
                 deleteMessage(message);
-                message.getGuild().kick(member, "Repeated advertising is not allowed").queue();
-                message.getChannel().sendMessage(member.getUser().getAsTag() + ", repeated advertising is not allowed!").queue();
+                message.getGuild().kick(member, languageManager.getMessage("events.advertising.repeated_not_allowed",serverSettings.getLanguage(message.getGuildId()) )).queue();
+                message.getChannel().sendMessage(member.getUser().getAsTag() + ", " + languageManager.getMessage("events.advertising.repeated_not_allowed", serverSettings.getLanguage(message.getGuildId()))).queue();
             }
         }
 
@@ -91,24 +108,23 @@ public class AdvertiseChecking extends ListenerAdapter {
     }
 
 
-    private boolean isAdvertisement(String content) {
-        if (content.length() < MIN_MESSAGE_LENGTH) {
+    private boolean isAdvertisement(String content, boolean isUsername) {
+        if (content == null || content.isEmpty()) {
+            return false;
+        }
+
+        String lowerCaseContent = content.toLowerCase();
+
+        if (!isUsername && lowerCaseContent.length() < MIN_MESSAGE_LENGTH) {
             return true;
         }
 
-        for (String keyword : ADVERTISEMENT_KEYWORDS) {
-            if (content.toLowerCase().contains(keyword.toLowerCase())) {
-                return true;
-            }
+        if (ADVERTISEMENT_KEYWORDS.stream().anyMatch(keyword -> lowerCaseContent.contains(keyword))) {
+            return true;
         }
 
-        if (URL_PATTERN.matcher(content).find()) {
-            for (String whitelistUrl : WHITELISTED_URLS) {
-                if (content.toLowerCase().contains(whitelistUrl.toLowerCase())) {
-                    return false;
-                }
-            }
-            return true;
+        if (URL_PATTERN.matcher(lowerCaseContent).find()) {
+            return !WHITELISTED_URLS.stream().anyMatch(whitelistUrl -> lowerCaseContent.contains(whitelistUrl));
         }
 
         return false;
@@ -124,16 +140,16 @@ public class AdvertiseChecking extends ListenerAdapter {
     }
 
     private boolean isDuplicateMessage(String userId, String messageContent) {
-        messageCounts.merge(userId, 1, Integer::sum);
-        messageCounts.put(userId + messageContent, messageCounts.getOrDefault(userId + messageContent, 0) + 1);
+        String key = userId + messageContent;
+        messageCounts.compute(key, (k, v) -> v == null ? 1 : v + 1);
 
-        int messageCount = messageCounts.get(userId + messageContent);
+        int messageCount = messageCounts.get(key);
         if (messageCount > MAX_MESSAGE_DUPLICATES) {
             return true;
         }
 
-        messageCounts.computeIfPresent(userId, (key, count) -> count > 1 ? count - 1 : null);
-        messageCounts.computeIfPresent(userId + messageContent, (key, count) -> count > 1 ? count - 1 : null);
+        messageCounts.computeIfPresent(userId, (k, v) -> v > 1 ? v - 1 : null);
+        messageCounts.computeIfPresent(key, (k, v) -> v > 1 ? v - 1 : null);
 
         return false;
     }

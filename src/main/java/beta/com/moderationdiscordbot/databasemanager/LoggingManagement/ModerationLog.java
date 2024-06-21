@@ -1,4 +1,4 @@
-package beta.com.moderationdiscordbot.databasemanager.Logging;
+package beta.com.moderationdiscordbot.databasemanager.LoggingManagement;
 
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
@@ -10,31 +10,31 @@ import org.bson.Document;
 import java.util.Date;
 import java.util.List;
 
-public class BanLog {
+public class ModerationLog {
     private final MongoCollection<Document> collection;
 
-    public BanLog(MongoCollection<Document> collection) {
+    public ModerationLog(MongoCollection<Document> collection) {
         this.collection = collection;
     }
 
-    public void addBanLog(String serverId, String userId, String reason, Date duration) {
+    public void addLog(String serverId, String userId, String reason, Date duration, String logType, String logKey) {
         try {
             var filter = Filters.eq("serverId", serverId);
-            var update = Updates.push("users", new Document("userId", userId)
-                    .append("ban", new Document("reason", reason).append("duration", duration)));
+            var update = Updates.push(logType, new Document(logKey, userId)
+                    .append("reason", reason).append("duration", duration));
             collection.updateOne(filter, update, new UpdateOptions().upsert(true));
         } catch (MongoException e) {
             System.err.println("Error updating document in MongoDB: " + e.getMessage());
         }
     }
 
-    public List<Document> getBanLogs(String serverId) {
+    public List<Document> getLogs(String serverId, String logType) {
         try {
             var filter = Filters.eq("serverId", serverId);
             Document document = collection.find(filter).first();
 
             if (document != null) {
-                return (List<Document>) document.get("users");
+                return (List<Document>) document.get(logType);
             }
         } catch (MongoException e) {
             System.err.println("Error retrieving document from MongoDB: " + e.getMessage());
@@ -43,14 +43,13 @@ public class BanLog {
         return null;
     }
 
-    public void removeBanLog(String serverId, String userId) {
+    public void removeLog(String serverId, String userId, String logType, String logKey) {
         try {
-            var filter = Filters.and(Filters.eq("serverId", serverId), Filters.eq("users.userId", userId));
-            var update = Updates.pull("users", new Document("userId", userId));
+            var filter = Filters.and(Filters.eq("serverId", serverId), Filters.eq(logType + "." + logKey, userId));
+            var update = Updates.pull(logType, new Document(logKey, userId));
             collection.updateOne(filter, update);
         } catch (MongoException e) {
             System.err.println("Error removing document from MongoDB: " + e.getMessage());
         }
     }
-
 }

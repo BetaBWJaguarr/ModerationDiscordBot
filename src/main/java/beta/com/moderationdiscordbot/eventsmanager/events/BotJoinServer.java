@@ -15,6 +15,6 @@ public class BotJoinServer extends ListenerAdapter {
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
         String discordServerId = event.getGuild().getId();
-        serverSettings.setServerSettings(discordServerId, true);
+        serverSettings.setServerSettings(discordServerId, true,true);
     }
 }

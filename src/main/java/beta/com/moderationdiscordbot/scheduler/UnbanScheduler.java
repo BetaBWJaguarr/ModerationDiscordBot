@@ -3,7 +3,7 @@ package beta.com.moderationdiscordbot.scheduler;
 import java.util.Date;
 import java.util.List;
 
-import beta.com.moderationdiscordbot.databasemanager.Logging.BanLog;
+import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.BanLog;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.UserSnowflake;
@@ -29,17 +29,15 @@ public class UnbanScheduler {
             return;
         }
 
-        for (Document user : banLogs) {
-            Document ban = (Document) user.get("ban");
-            Date banDuration = ban.getDate("duration");
+        for (Document banLog : banLogs) {
+            Date banDuration = banLog.getDate("duration");
             if (banDuration != null && new Date().after(banDuration)) {
-                String userId = user.getString("userId");
+                String userId = banLog.getString("userId");
                 guild.unban(UserSnowflake.fromId(userId)).queue();
-                banLog.removeBanLog(serverId, userId);
+                this.banLog.removeBanLog(serverId, userId);
             }
         }
     }
-
 
     public void checkAndUnbanUsersInAllGuilds() {
         List<Guild> guilds = jda.getGuilds();

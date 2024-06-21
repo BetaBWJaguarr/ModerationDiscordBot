@@ -34,9 +34,29 @@ commands:
       title: "Ban Information"
       user: "User"
       reason: "Reason"
+  mute:
+    no_permissions: "You don't have permission to use this command"
+    success: "{0} muted successfully for {1}"
+    user_not_found: "User not found"
+    invalid_duration: "Invalid duration"
+    dm_notification: "Mute Notification"
+    notification:
+      muted_by: "Muted By"
+      reason: "Reason"
+      duration: "Duration"
+      permanent: "Permanent"
+      description: "You have been muted in server %s"
   modlog:
     no_permissions: "You don't have permission to use this command"
     success: "Modlog channel successfully updated"
+  antivirus:
+    error:
+      title: "Error"
+      description: "You do not have permission to use this command."
+    status:
+      title: "Antivirus Status"
+      enabled: "Antivirus system has been enabled."
+      disabled: "Antivirus system has been disabled."
 events:
   joinquit:
     log:
@@ -55,8 +75,11 @@ events:
       is_verified_title: "Is Verified?"
       event_time_title: "Event Timestamp"
       reliability_title: "Reliability"
-    antispam:
-      warning_title: "Spam Engelleyici Uyarı"
-      warning_description: "Warning {0}, you are sending too many messages!"
-      muted_role_not_exist: "Muted role not found.Please create a muted role and try again."
+  advertising:
+    not_allowed: "Advertising is not allowed in this server"
+    repeated_not_allowed: "Repeated advertising is not allowed in this server"
+  antispam:
+    warning_title: "AntiSpam Warning Notification"
+    warning_description: "Warning {0}, you are sending too many messages!"
+    muted_role_not_exist: "Muted role not found.Please create a muted role and try again."
 

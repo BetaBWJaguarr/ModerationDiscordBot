@@ -1,8 +1,10 @@
 package beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands;
 
-import beta.com.moderationdiscordbot.databasemanager.Logging.BanLog;
+import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.BanLog;
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
+import beta.com.moderationdiscordbot.permissionsmanager.PermType;
+import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.utils.ParseDuration;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -38,7 +40,9 @@ public class BanCommand extends ListenerAdapter {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (event.getName().equals("ban")) {
             String dcserverid = event.getGuild().getId();
-            if (!event.getMember().hasPermission(Permission.BAN_MEMBERS)) {
+            PermissionsManager permissionsManager = new PermissionsManager();
+
+            if (!permissionsManager.hasPermission(event.getMember(), PermType.MANAGE_CHANNEL)) {
                 event.replyEmbeds(embedBuilderManager.createEmbed("commands.ban.no_permissions", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
                 return;
             }

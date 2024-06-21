@@ -24,10 +24,11 @@ public class ServerSettings {
 
     //Main method to set the server settings
 
-    public void setServerSettings(String discordServerId, boolean antiSpamEnabled) {
+    public void setServerSettings(String discordServerId, boolean antiSpamEnabled,boolean antiVirusEnabled) {
         var filter = Filters.eq("_id", discordServerId);
         var update = Updates.combine(
                 Updates.set("settings.antispam", antiSpamEnabled),
+                Updates.set("settings.antivirus", antiVirusEnabled),
                 Updates.set("settings.antiSpamTimeLimit", TIME_LIMIT_DEFAULT),
                 Updates.set("settings.antiSpamMessageLimit", MESSAGE_LIMIT_DEFAULT),
                 Updates.set("settings.language", DEFAULT_LANGUAGE)
@@ -138,5 +139,22 @@ public class ServerSettings {
     }
 
     //Mod Log Feature
+
+
+    //Anti Virus Feature
+
+    public void setAntiVirus(String discordServerId, boolean antiVirusEnabled) {
+        var filter = Filters.eq("_id", discordServerId);
+        var update = Updates.set("settings.antivirus", antiVirusEnabled);
+        collection.updateOne(filter, update, new UpdateOptions().upsert(true));
+    }
+
+    public boolean getAntiVirus(String discordServerId) {
+        var filter = Filters.eq("_id", discordServerId);
+        var document = collection.find(filter).first();
+        return document != null && document.getBoolean("settings.antivirus", false);
+    }
+
+    //Anti Virus Feature
 
 }

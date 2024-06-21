@@ -34,9 +34,29 @@ commands:
         title: "Yasak Bilgisi"
         user: "Kullanıcı"
         reason: "Sebep"
+    mute:
+      no_permission: "Bu komutu kullanma izniniz yok"
+      success: "{0} başarıyla {1} susturuldu"
+      user_not_found: "Kullanıcı bulunamadı"
+      invalid_duration: "Geçersiz süre"
+      dm_notification: "Sessiz Mod Bildirimi"
+      notification:
+        muted_by: "Sessize Alınan Kişi"
+        reason: "Sebep"
+        duration: "Süre"
+        permanent: "Süresiz"
+        description: "%s sunucusunda sessize alındınız"
     modlog:
         no_permission: "Bu komutu kullanma izniniz yok"
         success: "Modlog kanalı başarıyla güncellendi"
+    antivirus:
+      error:
+        title: "Hata"
+        description: "Bu komutu kullanma izniniz yok."
+      status:
+        title: "Antivirüs Durumu"
+        enabled: "Antivirüs sistemi etkinleştirildi."
+        disabled: "Antivirüs sistemi devre dışı bırakıldı."
 events:
   joinquit:
     log:
@@ -55,6 +75,9 @@ events:
       is_verified_title: "Doğrulanmış mı?"
       event_time_title: "Olay Zaman Damgası"
       reliability_title: "Güvenilirlik"
+  advertising:
+    not_allowed: "Bu sunucuda reklam yapmak yasaktır"
+    repeated_not_allowed: "Bu sunucuda tekrarlanan reklam yapmak yasaktır"
   antispam:
     warning_title: "Spam Engelleyici Uyarı"
     warning_description: "Uyarı {0}, çok fazla mesaj gönderiyorsunuz!"
