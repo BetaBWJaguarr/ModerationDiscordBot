@@ -34,6 +34,12 @@ commands:
         title: "Yasak Bilgisi"
         user: "Kullanıcı"
         reason: "Sebep"
+    unban:
+      no_permissions: "Bu komutu kullanma izniniz yok."
+      success: "Başarıyla yasak kaldırıldı."
+      user_unbanned: "kullanıcının yasağı kaldırıldı."
+      user_not_banned: "Kullanıcı yasaklı değil."
+      user_not_found: "Kullanıcı bulunamadı."
     mute:
       no_permission: "Bu komutu kullanma izniniz yok"
       success: "{0} başarıyla {1} susturuldu"
@@ -46,6 +52,12 @@ commands:
         duration: "Süre"
         permanent: "Süresiz"
         description: "%s sunucusunda sessize alındınız"
+    unmute:
+      no_permissions: "Bu komutu kullanma izniniz yok."
+      success: "Başarı"
+      user_unmuted: "Kullanıcının susturması kaldırıldı."
+      user_not_found: "Kullanıcı bulunamadı."
+      user_not_muted: "Kullanıcı sessiz değil."
     modlog:
         no_permission: "Bu komutu kullanma izniniz yok"
         success: "Modlog kanalı başarıyla güncellendi"
@@ -75,6 +87,9 @@ events:
       is_verified_title: "Doğrulanmış mı?"
       event_time_title: "Olay Zaman Damgası"
       reliability_title: "Güvenilirlik"
+  virus:
+    detected: "Dosyada virüs tespit edildi.Dosya silindi !"
+    error: "Dosya taranırken bir hata oluştu"
   advertising:
     not_allowed: "Bu sunucuda reklam yapmak yasaktır"
     repeated_not_allowed: "Bu sunucuda tekrarlanan reklam yapmak yasaktır"

@@ -34,6 +34,12 @@ commands:
       title: "Ban Information"
       user: "User"
       reason: "Reason"
+  unban:
+    no_permissions: "You do not have permission to use this command."
+    success: "Ban successfully removed."
+    user_unbanned: "has been unbanned."
+    user_not_banned: "User is not banned."
+    user_not_found: "User not found."
   mute:
     no_permissions: "You don't have permission to use this command"
     success: "{0} muted successfully for {1}"
@@ -46,6 +52,12 @@ commands:
       duration: "Duration"
       permanent: "Permanent"
       description: "You have been muted in server %s"
+  unmute:
+    no_permissions: "You do not have permission to use this command."
+    success: "Success"
+    user_unmuted: "User has been unmuted!."
+    user_not_found: "User not found."
+    user_not_muted: "User is not muted."
   modlog:
     no_permissions: "You don't have permission to use this command"
     success: "Modlog channel successfully updated"
@@ -75,6 +87,9 @@ events:
       is_verified_title: "Is Verified?"
       event_time_title: "Event Timestamp"
       reliability_title: "Reliability"
+  virus:
+    detected: "Virus detected in the file.File is removed !"
+    error: "An error occurred while scanning the file"
   advertising:
     not_allowed: "Advertising is not allowed in this server"
     repeated_not_allowed: "Repeated advertising is not allowed in this server"

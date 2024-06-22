@@ -8,17 +8,17 @@ import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettin
 import beta.com.moderationdiscordbot.envmanager.Env;
 import beta.com.moderationdiscordbot.eventsmanager.RegisterEvents;
 import beta.com.moderationdiscordbot.eventsmanager.events.AntiSpamEvent;
+import beta.com.moderationdiscordbot.eventsmanager.events.AntiVirusEvent;
 import beta.com.moderationdiscordbot.eventsmanager.events.BotJoinServer;
 import beta.com.moderationdiscordbot.eventsmanager.events.UserJoinLeaveEvents;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.scheduler.UnbanScheduler;
 import beta.com.moderationdiscordbot.scheduler.UnmuteScheduler;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RegisterSlashCommand;
-import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.AntiSpamCommand;
+import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.*;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.PingCommand;
-import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.BanCommand;
-import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.MuteCommand;
-import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.SetLanguageCommand;
+import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.undocommands.Unban;
+import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.undocommands.Unmute;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.modlogcommands.ModLogCommand;
 import beta.com.moderationdiscordbot.startup.Information;
 import net.dv8tion.jda.api.JDA;
@@ -57,6 +57,10 @@ public class Main {
         BanCommand banCommand = new BanCommand(serverSettings,languageManager,banLog);
         ModLogCommand modLogCommand = new ModLogCommand(serverSettings,languageManager);
         MuteCommand muteCommand = new MuteCommand(serverSettings,languageManager,muteLog);
+        AntiVirusCommand antiVirusCommand = new AntiVirusCommand(serverSettings,languageManager);
+
+        Unban unbanCommand = new Unban(serverSettings,languageManager,banLog);
+        Unmute unmuteCommand = new Unmute(serverSettings,languageManager,muteLog);
         //Commands
 
         try {
@@ -70,6 +74,9 @@ public class Main {
                     .addEventListeners(banCommand)
                     .addEventListeners(modLogCommand)
                     .addEventListeners(muteCommand)
+                    .addEventListeners(antiVirusCommand)
+                    .addEventListeners(unbanCommand)
+                    .addEventListeners(unmuteCommand)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .build();
 
@@ -113,13 +120,22 @@ public class Main {
                     .register("modlog", "Set the modlog channel",
                             new OptionData(OptionType.CHANNEL, "channel", "The channel to set as the modlog channel", true)
                     )
-                    .register("antivirus", "AntiVirus Command");
+                    .register("antivirus", "AntiVirus Command"
+                    )
+                    .register("unban", "Unban a user from the server",
+                            new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to unban", true)
+                    )
+                    .register("unmute", "Unmute a user from the server",
+                            new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to unmute", true)
+                    );
+
 
              new RegisterEvents(jda,information)
                      .register(new UserJoinLeaveEvents(languageManager,serverSettings))
                      .register(new AntiSpamEvent(antiSpamCommand,languageManager,serverSettings))
                      .register(new BotJoinServer(serverSettings))
-                     .register(new AdvertiseChecking(languageManager,serverSettings));
+                     .register(new AdvertiseChecking(languageManager,serverSettings))
+                     .register(new AntiVirusEvent(antiVirusCommand,languageManager,serverSettings));
 
              information.printInformation();
 
