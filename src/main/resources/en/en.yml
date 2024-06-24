@@ -38,6 +38,7 @@ commands:
     no_permissions: "You do not have permission to use this command."
     success: "Ban successfully removed."
     user_unbanned: "has been unbanned."
+    user_unbanned_reason: "User has been unbanned. Reason: {0}"
     user_not_banned: "User is not banned."
     user_not_found: "User not found."
   mute:
@@ -56,6 +57,7 @@ commands:
     no_permissions: "You do not have permission to use this command."
     success: "Success"
     user_unmuted: "User has been unmuted!."
+    user_unmuted_reason: "User has been unmuted. Reason: {0}"
     user_not_found: "User not found."
     user_not_muted: "User is not muted."
   modlog:

@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,18 +39,24 @@ public class Unmute extends ListenerAdapter {
             }
 
             String mention = event.getOption("username").getAsString();
+            String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : null;
+
             Pattern mentionPattern = Pattern.compile("<@!?(\\d+)>");
             Matcher matcher = mentionPattern.matcher(mention);
 
             if (matcher.find()) {
                 String userToUnmuteId = matcher.group(1);
                 event.getGuild().retrieveMemberById(userToUnmuteId).queue(userToUnmute -> {
-                    Role muteRole = event.getGuild().getRolesByName("Muted", true).get(0);
+                    Role muteRole = event.getGuild().getRolesByName("Muted", true).stream().findFirst().orElse(null);
                     if (muteRole != null && userToUnmute.getRoles().contains(muteRole)) {
                         event.getGuild().removeRoleFromMember(userToUnmute, muteRole).queue(
                                 success -> {
                                     muteLog.removeMuteLog(dcserverid, userToUnmuteId);
-                                    event.replyEmbeds(embedBuilderManager.createEmbed("commands.unmute.success", "commands.unmute.user_unmuted", serverSettings.getLanguage(dcserverid)).build()).queue();
+                                    if (reason != null) {
+                                        event.replyEmbeds(embedBuilderManager.createEmbed("commands.unmute.success", "commands.unmute.user_unmuted_reason", serverSettings.getLanguage(dcserverid), reason).build()).queue();
+                                    } else {
+                                        event.replyEmbeds(embedBuilderManager.createEmbed("commands.unmute.success", "commands.unmute.user_unmuted", serverSettings.getLanguage(dcserverid)).build()).queue();
+                                    }
                                 },
                                 error -> event.replyEmbeds(embedBuilderManager.createEmbed("commands.unmute.user_not_found", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue()
                         );

@@ -39,6 +39,8 @@ public class Unban extends ListenerAdapter {
             }
 
             String mention = event.getOption("username").getAsString();
+            String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : null; // Get the reason option
+
             Pattern mentionPattern = Pattern.compile("<@!?(\\d+)>");
             Matcher matcher = mentionPattern.matcher(mention);
 
@@ -52,7 +54,11 @@ public class Unban extends ListenerAdapter {
                     event.getGuild().unban(UserSnowflake.fromId(userToUnbanId)).queue(
                             success -> {
                                 banLog.removeBanLog(dcserverid, userToUnbanId);
-                                event.replyEmbeds(embedBuilderManager.createEmbed("commands.unban.success", "commands.unban.user_unbanned", serverSettings.getLanguage(dcserverid)).build()).queue();
+                                if (reason != null) {
+                                    event.replyEmbeds(embedBuilderManager.createEmbed("commands.unban.success", "commands.unban.user_unbanned_reason", serverSettings.getLanguage(dcserverid), reason).build()).queue();
+                                } else {
+                                    event.replyEmbeds(embedBuilderManager.createEmbed("commands.unban.success", "commands.unban.user_unbanned", serverSettings.getLanguage(dcserverid)).build()).queue();
+                                }
                             },
                             error -> event.replyEmbeds(embedBuilderManager.createEmbed("commands.unban.user_not_found", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue()
                     );

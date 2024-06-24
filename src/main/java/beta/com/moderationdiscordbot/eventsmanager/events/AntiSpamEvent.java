@@ -42,6 +42,10 @@ public class AntiSpamEvent extends ListenerAdapter {
             return;
         }
 
+        if (event.getAuthor().isBot()) {
+            return;
+        }
+
         String discordServerId = event.getGuild().getId();
 
         if (!antiSpamCommand.isAntiSpamEnabled(discordServerId)) {

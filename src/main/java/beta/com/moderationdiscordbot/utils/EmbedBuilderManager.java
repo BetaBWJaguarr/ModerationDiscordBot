@@ -20,11 +20,19 @@ public class EmbedBuilderManager {
         String description = null;
 
         if (titleKey != null) {
-            title = MessageFormat.format(languageManager.getMessage(titleKey, language), formatArgs);
+            title = languageManager.getMessage(titleKey, language);
         }
 
         if (descriptionKey != null) {
-            description = MessageFormat.format(languageManager.getMessage(descriptionKey, language), formatArgs);
+            description = languageManager.getMessage(descriptionKey, language);
+        }
+
+        if (title != null && formatArgs.length > 0) {
+            title = MessageFormat.format(title, formatArgs);
+        }
+
+        if (description != null && formatArgs.length > 0) {
+            description = MessageFormat.format(description, formatArgs);
         }
 
         if (title != null) {

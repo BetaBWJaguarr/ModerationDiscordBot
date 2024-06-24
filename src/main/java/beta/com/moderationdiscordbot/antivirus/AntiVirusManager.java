@@ -1,7 +1,6 @@
 package beta.com.moderationdiscordbot.antivirus;
 
 import java.io.*;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.zip.ZipEntry;
@@ -39,6 +38,14 @@ public class AntiVirusManager {
             ".scr", ".pif", ".reg", ".hta", ".ws", ".wsf", ".cpl"
     };
 
+    private static final String[] HEURISTIC_PATTERNS = {
+            "CreateRemoteThread",
+            "VirtualAllocEx",
+            "WriteProcessMemory",
+            "NtQueryInformationProcess",
+            "ZwQueryInformationProcess"
+    };
+
     public boolean isFileInfected(File file) {
         if (file.isDirectory()) {
             return false;
@@ -61,6 +68,10 @@ public class AntiVirusManager {
             }
 
             if (containsDangerousScript(content)) {
+                return true;
+            }
+
+            if (containsHeuristicPattern(content)) {
                 return true;
             }
 
@@ -104,6 +115,15 @@ public class AntiVirusManager {
         return false;
     }
 
+    private boolean containsHeuristicPattern(String content) {
+        for (String pattern : HEURISTIC_PATTERNS) {
+            if (content.contains(pattern)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private boolean isDangerousFileExtension(String fileName) {
         for (String extension : DANGEROUS_FILE_EXTENSIONS) {
             if (fileName.endsWith(extension)) {
@@ -130,7 +150,7 @@ public class AntiVirusManager {
                     }
                     String content = baos.toString(StandardCharsets.UTF_8.name());
 
-                    if (containsVirusSignature(content)) {
+                    if (containsVirusSignature(content) || containsHeuristicPattern(content)) {
                         return true;
                     }
                 }

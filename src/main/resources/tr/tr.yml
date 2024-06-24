@@ -38,6 +38,7 @@ commands:
       no_permissions: "Bu komutu kullanma izniniz yok."
       success: "Başarıyla yasak kaldırıldı."
       user_unbanned: "kullanıcının yasağı kaldırıldı."
+      user_unbanned_reason: "Kullanıcının yasağı kaldırıldı. Sebep: {0}"
       user_not_banned: "Kullanıcı yasaklı değil."
       user_not_found: "Kullanıcı bulunamadı."
     mute:
@@ -56,6 +57,7 @@ commands:
       no_permissions: "Bu komutu kullanma izniniz yok."
       success: "Başarı"
       user_unmuted: "Kullanıcının susturması kaldırıldı."
+      user_unmuted_reason: "Kullanıcının sessizliği kaldırıldı. Sebep: {0}"
       user_not_found: "Kullanıcı bulunamadı."
       user_not_muted: "Kullanıcı sessiz değil."
     modlog:

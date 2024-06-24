@@ -34,13 +34,7 @@ public class AntiVirusCommand extends ListenerAdapter {
                 return;
             }
 
-            String subcommand = event.getSubcommandName();
-            if (subcommand != null) {
-                switch (subcommand) {
-                    default:
-                        handleToggleAntiVirus(event, discordServerId, language);
-                }
-            }
+            handleToggleAntiVirus(event, discordServerId, language);
         }
     }
 

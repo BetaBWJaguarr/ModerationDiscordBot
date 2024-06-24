@@ -152,7 +152,13 @@ public class ServerSettings {
     public boolean getAntiVirus(String discordServerId) {
         var filter = Filters.eq("_id", discordServerId);
         var document = collection.find(filter).first();
-        return document != null && document.getBoolean("settings.antivirus", false);
+        if (document != null) {
+            Document settings = document.get("settings", Document.class);
+            if (settings != null) {
+                return settings.getBoolean("antivirus", false);
+            }
+        }
+        return false;
     }
 
     //Anti Virus Feature

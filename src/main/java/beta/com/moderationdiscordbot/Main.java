@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 
+import javax.swing.text.html.Option;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -123,10 +124,12 @@ public class Main {
                     .register("antivirus", "AntiVirus Command"
                     )
                     .register("unban", "Unban a user from the server",
-                            new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to unban", true)
+                            new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to unban", true),
+                            new OptionData(OptionType.STRING, "reason", "the reason for unbanning", false)
                     )
                     .register("unmute", "Unmute a user from the server",
-                            new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to unmute", true)
+                            new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to unmute", true),
+                            new OptionData(OptionType.STRING, "reason", "The reason for unmuting", false)
                     );
 
 
