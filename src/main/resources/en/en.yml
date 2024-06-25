@@ -1,4 +1,10 @@
 commands:
+  clear:
+    invalid_parameters: "Invalid parameters. Please specify the correct amount and channel."
+    channel_not_found: "Channel not found."
+    success: "Successfully cleared {0} channel  messages in {1}."
+    error: "An error occurred. Please try again."
+    files_success: "Successfully cleared file messages in {0}."
   ping:
     time: "Ping time {0} ms"
     pinging: "Pinging..."

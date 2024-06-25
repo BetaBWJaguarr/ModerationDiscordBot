@@ -15,6 +15,8 @@ import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.scheduler.UnbanScheduler;
 import beta.com.moderationdiscordbot.scheduler.UnmuteScheduler;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RegisterSlashCommand;
+import beta.com.moderationdiscordbot.slashcommandsmanager.commands.clearcommands.ClearAllCommand;
+import beta.com.moderationdiscordbot.slashcommandsmanager.commands.clearcommands.ClearFileCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.*;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.PingCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.undocommands.Unban;
@@ -30,7 +32,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 
-import javax.swing.text.html.Option;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -41,7 +43,6 @@ public class Main {
         Env env = new Env(".env");
         String token = env.getProperty("TOKEN");
 
-        Information information = new Information();
         LanguageManager languageManager = new LanguageManager();
 
         MongoDB db = new MongoDB(env);
@@ -62,6 +63,9 @@ public class Main {
 
         Unban unbanCommand = new Unban(serverSettings,languageManager,banLog);
         Unmute unmuteCommand = new Unmute(serverSettings,languageManager,muteLog);
+
+        ClearAllCommand clearAllCommand = new ClearAllCommand(serverSettings,languageManager);
+        ClearFileCommand clearFileCommand = new ClearFileCommand(serverSettings,languageManager);
         //Commands
 
         try {
@@ -78,8 +82,16 @@ public class Main {
                     .addEventListeners(antiVirusCommand)
                     .addEventListeners(unbanCommand)
                     .addEventListeners(unmuteCommand)
+                    .addEventListeners(clearAllCommand)
+                    .addEventListeners(clearFileCommand)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .build();
+
+            jda.awaitReady();
+
+
+            final var botInfo = getInformation(jda);
+
 
             UnbanScheduler unbanScheduler = new UnbanScheduler(banLog, jda);
             UnmuteScheduler unmuteScheduler = new UnmuteScheduler(muteLog,jda);
@@ -97,7 +109,7 @@ public class Main {
 
             //Scheduler;
 
-            new RegisterSlashCommand(jda, information)
+            new RegisterSlashCommand(jda, botInfo)
                     .register("ping", "A ping command")
                     .register("mute", "Mute a user from the server",
                             new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to mute", true),
@@ -130,21 +142,41 @@ public class Main {
                     .register("unmute", "Unmute a user from the server",
                             new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to unmute", true),
                             new OptionData(OptionType.STRING, "reason", "The reason for unmuting", false)
+                    )
+                    .register("clear", "Clear the files",
+                            new SubcommandData("files", "Clear the files")
+                                    .addOption(OptionType.INTEGER, "amount", "The amount of files to clear", true)
+                                    .addOption(OptionType.CHANNEL, "channel", "The channel to clear the files", true),
+                            new SubcommandData("all", "Clear all the messages")
+                                    .addOption(OptionType.INTEGER, "amount", "The amount of messages to clear", true)
+                                    .addOption(OptionType.CHANNEL, "channel", "The channel to clear all the messages", true)
+
                     );
 
 
-             new RegisterEvents(jda,information)
+             new RegisterEvents(jda,botInfo)
                      .register(new UserJoinLeaveEvents(languageManager,serverSettings))
                      .register(new AntiSpamEvent(antiSpamCommand,languageManager,serverSettings))
                      .register(new BotJoinServer(serverSettings))
                      .register(new AdvertiseChecking(languageManager,serverSettings))
                      .register(new AntiVirusEvent(antiVirusCommand,languageManager,serverSettings));
 
-             information.printInformation();
+            botInfo.printInformation();
 
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static Information getInformation(JDA jda) {
+        Information botInfo = new Information("ModerationBot", "1.0", "YourName", jda.getSelfUser().getId());
+        int serverCount = jda.getGuilds().size();
+        int userCount = jda.getGuilds().stream().mapToInt(guild -> guild.getMembers().size()).sum();
+        botInfo.setServerCount(serverCount);
+        botInfo.setUserCount(userCount);
+        botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute","clear"));
+        botInfo.setEventList(Arrays.asList("UserJoinLeaveEvents", "AntiSpamEvent", "BotJoinServer", "AdvertiseChecking", "AntiVirusEvent"));
+        return botInfo;
     }
 }

@@ -1,4 +1,10 @@
 commands:
+  clear:
+    invalid_parameters: "Geçersiz parametreler. Lütfen doğru miktar ve kanal belirtiniz."
+    channel_not_found: "Kanal bulunamadı."
+    success: "Başarıyla {0} kanalında {1} adet mesaj silindi."
+    error: "Bir hata oluştu. Lütfen tekrar deneyiniz."
+    files_success: "Başarıyla dosya mesajları temizlendi."
   ping:
     time: "Ping süresi {0} ms"
     pinging: "Pingleniyor..."
