@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.awt.*;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,9 +63,15 @@ public class MuteCommand extends ListenerAdapter {
                         }
                     }
 
-                    String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : "No reason provided";
+                    String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : languageManager.getMessage("no_reason", serverSettings.getLanguage(dcserverid));
 
-                    Role muteRole = event.getGuild().getRolesByName("Muted", true).get(0);
+                    List<Role> muteRoles = event.getGuild().getRolesByName("Muted", true);
+                    if (muteRoles.isEmpty()) {
+                        event.replyEmbeds(embedBuilderManager.createEmbed("commands.mute.no_mute_role", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
+                        return;
+                    }
+
+                    Role muteRole = muteRoles.get(0);
                     event.getGuild().addRoleToMember(userToMute, muteRole).queue();
 
                     if (durationInSeconds != -2) {

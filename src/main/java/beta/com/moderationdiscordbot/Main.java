@@ -3,6 +3,7 @@ package beta.com.moderationdiscordbot;
 import beta.com.moderationdiscordbot.advertisemanager.AdvertiseChecking;
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.BanLog;
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.MuteLog;
+import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.WarnLog;
 import beta.com.moderationdiscordbot.databasemanager.MongoDB;
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.envmanager.Env;
@@ -17,11 +18,14 @@ import beta.com.moderationdiscordbot.scheduler.UnmuteScheduler;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RegisterSlashCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.clearcommands.ClearAllCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.clearcommands.ClearFileCommand;
+import beta.com.moderationdiscordbot.slashcommandsmanager.commands.clearcommands.ClearLogChannel;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.*;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.PingCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.undocommands.Unban;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.undocommands.Unmute;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.modlogcommands.ModLogCommand;
+import beta.com.moderationdiscordbot.slashcommandsmanager.commands.warncommands.UnWarnCommand;
+import beta.com.moderationdiscordbot.slashcommandsmanager.commands.warncommands.WarnCommand;
 import beta.com.moderationdiscordbot.startup.Information;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -49,6 +53,7 @@ public class Main {
         ServerSettings serverSettings = new ServerSettings(db.getCollection("ServerSettings"));
         BanLog banLog = new BanLog(db.getCollection("BanLog"));
         MuteLog muteLog = new MuteLog(db.getCollection("MuteLog"));
+        WarnLog warnLog = new WarnLog(db.getCollection("WarnLog"));
 
 
 
@@ -61,11 +66,16 @@ public class Main {
         MuteCommand muteCommand = new MuteCommand(serverSettings,languageManager,muteLog);
         AntiVirusCommand antiVirusCommand = new AntiVirusCommand(serverSettings,languageManager);
 
+        WarnCommand warnCommand = new WarnCommand(serverSettings,languageManager,warnLog);
+
+
+        UnWarnCommand unWarnCommand = new UnWarnCommand(serverSettings,languageManager,warnLog);
         Unban unbanCommand = new Unban(serverSettings,languageManager,banLog);
         Unmute unmuteCommand = new Unmute(serverSettings,languageManager,muteLog);
 
         ClearAllCommand clearAllCommand = new ClearAllCommand(serverSettings,languageManager);
         ClearFileCommand clearFileCommand = new ClearFileCommand(serverSettings,languageManager);
+        ClearLogChannel clearLogChannel = new ClearLogChannel(serverSettings,languageManager);
         //Commands
 
         try {
@@ -82,8 +92,11 @@ public class Main {
                     .addEventListeners(antiVirusCommand)
                     .addEventListeners(unbanCommand)
                     .addEventListeners(unmuteCommand)
+                    .addEventListeners(unWarnCommand)
                     .addEventListeners(clearAllCommand)
                     .addEventListeners(clearFileCommand)
+                    .addEventListeners(clearLogChannel)
+                    .addEventListeners(warnCommand)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .build();
 
@@ -151,6 +164,18 @@ public class Main {
                                     .addOption(OptionType.INTEGER, "amount", "The amount of messages to clear", true)
                                     .addOption(OptionType.CHANNEL, "channel", "The channel to clear all the messages", true)
 
+                    )
+                    .register("warn", "Warn a user from the server",
+                            new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to warn", true),
+                            new OptionData(OptionType.STRING, "reason", "The reason for warning", false)
+                    )
+                    .register("unwarn", "Unwarn a user from the server",
+                            new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to unwarn", true),
+                            new OptionData(OptionType.STRING, "warningid", "The warning id to unwarn", true),
+                            new OptionData(OptionType.STRING, "reason", "The reason for unwarning", false)
+                    )
+                    .register("clearlogchannel", "Clear the log channel",
+                        new OptionData(OptionType.CHANNEL, "channel", "The channel to clear the log channel", true)
                     );
 
 
@@ -170,13 +195,13 @@ public class Main {
     }
 
     private static Information getInformation(JDA jda) {
-        Information botInfo = new Information("ModerationBot", "1.0", "YourName", jda.getSelfUser().getId());
+        Information botInfo = new Information("ModerationBot", "1.0", "Beta_BWJaguarr", jda.getSelfUser().getId());
         int serverCount = jda.getGuilds().size();
         int userCount = jda.getGuilds().stream().mapToInt(guild -> guild.getMembers().size()).sum();
         botInfo.setServerCount(serverCount);
         botInfo.setUserCount(userCount);
-        botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute","clear"));
-        botInfo.setEventList(Arrays.asList("UserJoinLeaveEvents", "AntiSpamEvent", "BotJoinServer", "AdvertiseChecking", "AntiVirusEvent"));
+        botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute","clear","warn","unwarn"));
+        botInfo.setEventList(Arrays.asList("UserJoinLeaveEvents", "AntiSpamEvent", "BotJoinServer", "AdvertiseChecking", "AntiVirusEvent","HighWarnKickEvent"));
         return botInfo;
     }
 }

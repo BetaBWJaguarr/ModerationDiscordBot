@@ -38,6 +38,13 @@ public class AntiVirusManager {
             ".scr", ".pif", ".reg", ".hta", ".ws", ".wsf", ".cpl"
     };
 
+    private static final String[] DANGEROUS_DLL_FUNCTIONS = {
+            "LoadLibrary",
+            "GetProcAddress",
+            "ShellExecute",
+            "CreateProcess"
+    };
+
     private static final String[] HEURISTIC_PATTERNS = {
             "CreateRemoteThread",
             "VirtualAllocEx",
@@ -77,6 +84,12 @@ public class AntiVirusManager {
 
             if (isZipFile(fileName)) {
                 if (containsVirusInZip(new FileInputStream(file))) {
+                    return true;
+                }
+            }
+
+            if (isExecutableFile(fileName)) {
+                if (containsDangerousDLLFunctions(file)) {
                     return true;
                 }
             }
@@ -167,5 +180,29 @@ public class AntiVirusManager {
         try (Scanner scanner = new Scanner(file, StandardCharsets.UTF_8.name())) {
             return scanner.useDelimiter("\\A").next();
         }
+    }
+
+    private boolean containsDangerousDLLFunctions(File file) {
+        if (file.getName().toLowerCase().endsWith(".dll")) {
+            try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+                byte[] dllContent = new byte[(int) raf.length()];
+                raf.readFully(dllContent);
+
+                String content = new String(dllContent, StandardCharsets.UTF_8);
+
+                for (String function : DANGEROUS_DLL_FUNCTIONS) {
+                    if (content.contains(function)) {
+                        return true;
+                    }
+                }
+            } catch (IOException e) {
+                System.err.println("Error reading DLL file: " + e.getMessage());
+            }
+        }
+        return false;
+    }
+
+    private boolean isExecutableFile(String fileName) {
+        return fileName.endsWith(".jar") || fileName.endsWith(".exe") || fileName.endsWith(".dll");
     }
 }

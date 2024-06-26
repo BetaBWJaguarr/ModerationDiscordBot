@@ -66,7 +66,7 @@ public class BanCommand extends ListenerAdapter {
                         }
                     }
 
-                    String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : "No reason provided";
+                    String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : languageManager.getMessage("no_reason", serverSettings.getLanguage(dcserverid));
 
                     int deleteHistoryDuration = event.getOption("delete_history_message_duration") != null ? event.getOption("delete_history_message_duration").getAsInt() : 0;
                     if (deleteHistoryDuration > 7) {

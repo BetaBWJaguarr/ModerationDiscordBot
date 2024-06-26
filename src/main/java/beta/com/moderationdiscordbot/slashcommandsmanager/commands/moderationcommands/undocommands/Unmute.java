@@ -39,7 +39,7 @@ public class Unmute extends ListenerAdapter {
             }
 
             String mention = event.getOption("username").getAsString();
-            String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : null;
+            String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : languageManager.getMessage("no_reason", serverSettings.getLanguage(dcserverid));
 
             Pattern mentionPattern = Pattern.compile("<@!?(\\d+)>");
             Matcher matcher = mentionPattern.matcher(mention);

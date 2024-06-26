@@ -141,6 +141,36 @@ public class ServerSettings {
     //Mod Log Feature
 
 
+    //Clear Log Feature
+
+    public void setClearLogChannel(String discordServerId, String channelId) {
+        try {
+            var filter = Filters.eq("_id", discordServerId);
+            var update = Updates.set("settings.clearLogChannel", channelId);
+            UpdateResult result = collection.updateOne(filter, update, new UpdateOptions().upsert(true));
+        } catch (MongoException e) {
+            System.err.println("Error updating document in MongoDB: " + e.getMessage());
+        }
+    }
+
+    public String getClearLogChannel(String discordServerId) {
+        try {
+            var filter = Filters.eq("_id", discordServerId);
+            Document document = collection.find(filter).first();
+            if (document != null) {
+                Document settings = (Document) document.get("settings");
+                if (settings != null) {
+                    return settings.getString("clearLogChannel");
+                }
+            }
+        } catch (MongoException e) {
+            System.err.println("Error retrieving document from MongoDB: " + e.getMessage());
+        }
+        return null;
+    }
+
+    //Clear Log Feautre
+
     //Anti Virus Feature
 
     public void setAntiVirus(String discordServerId, boolean antiVirusEnabled) {

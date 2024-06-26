@@ -33,13 +33,13 @@ public class Unban extends ListenerAdapter {
             String dcserverid = event.getGuild().getId();
             PermissionsManager permissionsManager = new PermissionsManager();
 
-            if (!permissionsManager.hasPermission(event.getMember(), PermType.MANAGE_CHANNEL)) {
+            if (!permissionsManager.hasPermission(event.getMember(), PermType.BAN_MEMBERS)) {
                 event.replyEmbeds(embedBuilderManager.createEmbed("commands.unban.no_permissions", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
                 return;
             }
 
             String mention = event.getOption("username").getAsString();
-            String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : null; // Get the reason option
+            String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : languageManager.getMessage("no_reason", serverSettings.getLanguage(dcserverid));
 
             Pattern mentionPattern = Pattern.compile("<@!?(\\d+)>");
             Matcher matcher = mentionPattern.matcher(mention);

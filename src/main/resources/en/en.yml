@@ -1,10 +1,30 @@
+no_reason: "No reason provided."
 commands:
+  setclearlogchannel:
+    only_owner: "Only the server owner can use this command."
+    success_title: "Clear Log Channel Set"
+    success_description: "Clear log channel has been successfully set."
+  unwarn:
+    no_permissions: "You don't have permission to use this command."
+    invalid_mention: "Invalid user mention."
+    success: "Warning successfully removed: User: {0}, Reason: {1}"
+    user_not_found: "User not found."
+    warn_not_found: "No warning found for the user!."
+  warn:
+    no_permissions: "You do not have the required permissions to use this command."
+    success: "Successfully warned user: **{0}**. Reason: **{1}**"
+    user_not_found: "User not found. Please provide a valid user."
+    invalid_mention: "Invalid user mention. Please provide a valid user mention."
   clear:
     invalid_parameters: "Invalid parameters. Please specify the correct amount and channel."
     channel_not_found: "Channel not found."
     success: "Successfully cleared {0} channel  messages in {1}."
     error: "An error occurred. Please try again."
     files_success: "Successfully cleared file messages in {0}."
+    log:
+      title: "Message Clear Log"
+      channel: "Channel:"
+      amount: "Number of Messages Cleared:"
   ping:
     time: "Ping time {0} ms"
     pinging: "Pinging..."
@@ -53,6 +73,7 @@ commands:
     user_not_found: "User not found"
     invalid_duration: "Invalid duration"
     dm_notification: "Mute Notification"
+    no_mute_role: "Muted role not found.Please create a muted role and try again."
     notification:
       muted_by: "Muted By"
       reason: "Reason"
