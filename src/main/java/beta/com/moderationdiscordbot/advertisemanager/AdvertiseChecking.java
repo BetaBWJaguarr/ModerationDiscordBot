@@ -17,6 +17,32 @@ import java.util.regex.Pattern;
 import java.util.logging.Logger;
 import java.util.concurrent.ConcurrentHashMap;
 
+
+/**
+ * This class implements a Discord bot feature to detect and manage advertisements
+ * in text messages sent by members. It monitors messages for specific keywords,
+ * URLs, and duplicate content, taking actions such as deleting messages and kicking
+ * members who violate the server's advertising rules. Exempt members with the role
+ * "AdvertiseExempt" are excluded from these checks.
+ *
+ * Features:
+ * - Detection of advertisement keywords ("buy now", "discount", etc.) and non-whitelisted URLs.
+ * - Prevention of duplicate messages exceeding a defined limit per user.
+ * - Utilizes LanguageManager for localized messages based on server settings, ensuring
+ *   consistent communication with users in their preferred language.
+ * - Integrates ServerSettings for accessing server-specific configurations and language preferences.
+ *
+ * Dependencies:
+ * - LanguageManager: Manages localized messages for different server languages.
+ * - ServerSettings: Provides access to server-specific settings and configurations.
+ *
+ * Usage:
+ * Initialize AdvertiseChecking with an instance of LanguageManager and ServerSettings
+ * to enable proactive monitoring and enforcement of advertising policies within Discord guilds.
+ * This class extends ListenerAdapter to intercept and process MessageReceivedEvent, allowing
+ * real-time analysis of messages and enforcement actions as defined by server policies.
+ */
+
 public class AdvertiseChecking extends ListenerAdapter {
 
     private static final List<String> ADVERTISEMENT_KEYWORDS = List.of(

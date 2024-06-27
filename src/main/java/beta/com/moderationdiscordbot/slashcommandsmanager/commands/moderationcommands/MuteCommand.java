@@ -6,6 +6,7 @@ import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.permissionsmanager.PermType;
 import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
+import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import beta.com.moderationdiscordbot.utils.ParseDuration;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -24,12 +25,14 @@ public class MuteCommand extends ListenerAdapter {
     private final ServerSettings serverSettings;
     private final LanguageManager languageManager;
     private final MuteLog muteLog;
+    private final HandleErrors errorManager;
 
-    public MuteCommand(ServerSettings serverSettings, LanguageManager languageManager, MuteLog muteLog) {
+    public MuteCommand(ServerSettings serverSettings, LanguageManager languageManager, MuteLog muteLog, HandleErrors errorManager) {
         this.languageManager = languageManager;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.serverSettings = serverSettings;
         this.muteLog = muteLog;
+        this.errorManager = errorManager;
     }
 
     @Override
@@ -53,7 +56,7 @@ public class MuteCommand extends ListenerAdapter {
                     String userid = userToMute.getUser().getId();
                     String username = userToMute.getUser().getName();
 
-                    long durationInSeconds = -2;
+                    long durationInSeconds;
                     if (event.getOption("duration") != null) {
                         String durationStr = event.getOption("duration").getAsString();
                         durationInSeconds = ParseDuration.parse(durationStr);
@@ -61,6 +64,8 @@ public class MuteCommand extends ListenerAdapter {
                             event.replyEmbeds(embedBuilderManager.createEmbed("commands.mute.invalid_duration", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
                             return;
                         }
+                    } else {
+                        durationInSeconds = -2;
                     }
 
                     String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : languageManager.getMessage("no_reason", serverSettings.getLanguage(dcserverid));
@@ -72,22 +77,28 @@ public class MuteCommand extends ListenerAdapter {
                     }
 
                     Role muteRole = muteRoles.get(0);
-                    event.getGuild().addRoleToMember(userToMute, muteRole).queue();
+                    event.getGuild().addRoleToMember(userToMute, muteRole).queue(
+                            success -> {
+                                if (durationInSeconds != -2) {
+                                    muteLog.addMuteLog(dcserverid, userid, reason, new Date(System.currentTimeMillis() + durationInSeconds * 1000L));
+                                } else {
+                                    muteLog.addMuteLog(dcserverid, userid, reason, null);
+                                }
 
-                    if (durationInSeconds != -2) {
-                        muteLog.addMuteLog(dcserverid, userid, reason, new Date(System.currentTimeMillis() + durationInSeconds * 1000L));
-                    } else {
-                        muteLog.addMuteLog(dcserverid, userid, reason, null);
-                    }
+                                sendMuteNotification(userToMute, username, reason, durationInSeconds, dcserverid);
 
-                    sendMuteNotification(userToMute, username, reason, durationInSeconds, dcserverid);
-
-                    event.replyEmbeds(embedBuilderManager.createEmbed("commands.mute.success", null, serverSettings.getLanguage(dcserverid), username, reason).build()).queue();
+                                event.replyEmbeds(embedBuilderManager.createEmbed("commands.mute.success", null, serverSettings.getLanguage(dcserverid), username, reason).build()).queue();
+                            },
+                            error -> {
+                                errorManager.sendErrorMessage((Exception) error, event.getChannel().asTextChannel());
+                            }
+                    );
 
                 }, error -> {
                     event.replyEmbeds(embedBuilderManager.createEmbed("commands.mute.user_not_found", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
                 });
             } else {
+                // Handle if no user mention found
             }
         }
     }

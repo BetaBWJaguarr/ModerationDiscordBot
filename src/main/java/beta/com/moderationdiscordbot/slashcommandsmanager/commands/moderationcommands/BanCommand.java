@@ -6,9 +6,9 @@ import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.permissionsmanager.PermType;
 import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
+import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import beta.com.moderationdiscordbot.utils.ParseDuration;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -27,12 +27,14 @@ public class BanCommand extends ListenerAdapter {
     private final ServerSettings serverSettings;
     private final LanguageManager languageManager;
     private final BanLog banLog;
+    private final HandleErrors errorManager;
 
-    public BanCommand(ServerSettings serverSettings, LanguageManager languageManager, BanLog banLog) {
+    public BanCommand(ServerSettings serverSettings, LanguageManager languageManager, BanLog banLog, HandleErrors errorManager) {
         this.languageManager = languageManager;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.serverSettings = serverSettings;
         this.banLog = banLog;
+        this.errorManager = errorManager;
     }
 
 
@@ -42,7 +44,7 @@ public class BanCommand extends ListenerAdapter {
             String dcserverid = event.getGuild().getId();
             PermissionsManager permissionsManager = new PermissionsManager();
 
-            if (!permissionsManager.hasPermission(event.getMember(), PermType.MANAGE_CHANNEL)) {
+            if (!permissionsManager.hasPermission(event.getMember(), PermType.BAN_MEMBERS)) {
                 event.replyEmbeds(embedBuilderManager.createEmbed("commands.ban.no_permissions", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
                 return;
             }
@@ -56,7 +58,7 @@ public class BanCommand extends ListenerAdapter {
                 event.getGuild().retrieveMemberById(userToBanId).queue(userToBan -> {
                     String username = userToBan.getUser().getName();
 
-                    long durationInSeconds = -2;
+                    long durationInSeconds;
                     if (event.getOption("duration") != null) {
                         String durationStr = event.getOption("duration").getAsString();
                         durationInSeconds = ParseDuration.parse(durationStr);
@@ -64,6 +66,8 @@ public class BanCommand extends ListenerAdapter {
                             event.replyEmbeds(embedBuilderManager.createEmbed("commands.ban.invalid_duration", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
                             return;
                         }
+                    } else {
+                        durationInSeconds = -2;
                     }
 
                     String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : languageManager.getMessage("no_reason", serverSettings.getLanguage(dcserverid));
@@ -74,34 +78,37 @@ public class BanCommand extends ListenerAdapter {
                         return;
                     }
 
-                    event.getGuild().ban(UserSnowflake.fromId(userToBan.getId()),deleteHistoryDuration, TimeUnit.DAYS).queue();
+                    event.getGuild().ban(UserSnowflake.fromId(userToBan.getId()), deleteHistoryDuration, TimeUnit.DAYS).queue(
+                            success -> {
+                                if (durationInSeconds == -2) {
+                                    banLog.addBanLog(dcserverid, userToBanId, reason, null);
+                                } else {
+                                    banLog.addBanLog(dcserverid, userToBanId, reason, new Date(System.currentTimeMillis() + durationInSeconds * 1000L));
+                                }
 
+                                String successMessageKey = durationInSeconds > 0 ? "commands.ban.tempban" : "commands.ban.permban";
 
-                    if (durationInSeconds == -2 ) {
-                        banLog.addBanLog(dcserverid, userToBanId, reason, null);
-                    } else {
-                        banLog.addBanLog(dcserverid, userToBanId, reason, new Date(System.currentTimeMillis() + durationInSeconds * 1000L));
-                    }
+                                String modLogChannelId = serverSettings.getModLogChannel(dcserverid);
+                                if (modLogChannelId != null) {
+                                    TextChannel modLogChannel = event.getJDA().getTextChannelById(modLogChannelId);
+                                    if (modLogChannel != null) {
+                                        EmbedBuilder embedBuilder = new EmbedBuilder();
+                                        embedBuilder.setTitle(languageManager.getMessage("commands.ban.log.title", serverSettings.getLanguage(dcserverid)));
+                                        embedBuilder.addField(languageManager.getMessage("commands.ban.log.user", serverSettings.getLanguage(dcserverid)), username, false);
+                                        embedBuilder.addField((languageManager.getMessage("commands.ban.log.reason", serverSettings.getLanguage(dcserverid))), reason, false);
+                                        embedBuilder.setColor(Color.RED);
+                                        embedBuilder.setTimestamp(Instant.now());
 
+                                        modLogChannel.sendMessageEmbeds(embedBuilder.build()).queue();
+                                    }
+                                }
 
-                    String successMessageKey = durationInSeconds > 0 ? "commands.ban.tempban" : "commands.ban.permban";
-
-                    String modLogChannelId = serverSettings.getModLogChannel(dcserverid);
-                    if (modLogChannelId != null) {
-                        TextChannel modLogChannel = event.getJDA().getTextChannelById(modLogChannelId);
-                        if (modLogChannel != null) {
-                            EmbedBuilder embedBuilder = new EmbedBuilder();
-                            embedBuilder.setTitle(languageManager.getMessage("commands.ban.log.title", serverSettings.getLanguage(dcserverid)));
-                            embedBuilder.addField(languageManager.getMessage("commands.ban.log.user", serverSettings.getLanguage(dcserverid)), username, false);
-                            embedBuilder.addField((languageManager.getMessage("commands.ban.log.reason", serverSettings.getLanguage(dcserverid))), reason, false);
-                            embedBuilder.setColor(Color.RED);
-                            embedBuilder.setTimestamp(Instant.now());
-
-                            modLogChannel.sendMessageEmbeds(embedBuilder.build()).queue();
-                        }
-                    }
-
-                    event.replyEmbeds(embedBuilderManager.createEmbed("commands.ban.success", successMessageKey,serverSettings.getLanguage(dcserverid), username, reason).build()).queue();
+                                event.replyEmbeds(embedBuilderManager.createEmbed("commands.ban.success", successMessageKey, serverSettings.getLanguage(dcserverid), username, reason).build()).queue();
+                            },
+                            error -> {
+                                errorManager.sendErrorMessage((Exception) error, event.getChannel().asTextChannel());
+                            }
+                    );
 
                 }, error -> {
                     event.replyEmbeds(embedBuilderManager.createEmbed("commands.ban.user_not_found", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();

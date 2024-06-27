@@ -1,5 +1,9 @@
 no_reason: "No reason provided."
 commands:
+  kick:
+    no_permissions: "You do not have permission to use this command."
+    user_not_found: "User not found."
+    success: "{0} has been successfully kicked for {1}."
   setclearlogchannel:
     only_owner: "Only the server owner can use this command."
     success_title: "Clear Log Channel Set"
@@ -126,4 +130,8 @@ events:
     warning_title: "AntiSpam Warning Notification"
     warning_description: "Warning {0}, you are sending too many messages!"
     muted_role_not_exist: "Muted role not found.Please create a muted role and try again."
+errorshandle:
+  error:
+    title: "Error Occurred!"
+    description: "Details of the error are as follows:"
 

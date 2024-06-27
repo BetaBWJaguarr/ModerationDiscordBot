@@ -10,6 +10,37 @@ import org.bson.Document;
 import java.util.Date;
 import java.util.List;
 
+
+/**
+ * This class manages moderation logs in a MongoDB collection for a Discord bot.
+ * It provides methods to add, retrieve, and remove moderation logs for specific server and user combinations.
+ *
+ * Dependencies:
+ * - MongoCollection<Document>: Represents a MongoDB collection where moderation logs are stored.
+ * - Document: Represents a BSON document used for MongoDB operations.
+ * - Filters: Provides static factory methods for creating filters used in MongoDB queries.
+ * - Updates: Provides static factory methods for creating update operations used in MongoDB updates.
+ * - UpdateOptions: Options to control the behavior of update operations.
+ *
+ * Usage:
+ * Initialize ModerationLog with a MongoCollection<Document> instance representing the collection
+ * where moderation logs are stored. Use methods like addLog(), getLogs(), and removeLog()
+ * to interact with moderation logs in the MongoDB database..
+ *
+ * addLog(String serverId, String userId, String reason, Date duration, String logType, String logKey):
+ * This method is used to add a new moderation log to the MongoDB collection. It takes the server ID, user ID, reason
+ * for the moderation action, duration of the action, type of the log, and a key for the log as parameters. It creates a
+ * filter to find the document for the specific server and an update operation to add the new log. If the document for the server
+ * does not exist, it will be created due to the upsert(true) option.
+ *
+ * removeLog(String serverId, String userId, String logType, String logKey):
+ * This method is used to remove a specific moderation log from the MongoDB
+ * collection. It takes the server ID, user ID, type of the log, and a key for the log as parameters. It creates a filter to find
+ * the document for the specific server and the specific log and an update operation to remove the log. If the document for the
+ * server or the log does not exist, no action will be taken.
+ *
+ */
+
 public class ModerationLog {
     private final MongoCollection<Document> collection;
 

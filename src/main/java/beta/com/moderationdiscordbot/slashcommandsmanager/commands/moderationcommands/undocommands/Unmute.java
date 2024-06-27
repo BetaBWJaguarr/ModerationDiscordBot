@@ -6,6 +6,7 @@ import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.permissionsmanager.PermType;
 import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
+import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -19,12 +20,14 @@ public class Unmute extends ListenerAdapter {
     private final ServerSettings serverSettings;
     private final LanguageManager languageManager;
     private final MuteLog muteLog;
+    private final HandleErrors errorManager;
 
-    public Unmute(ServerSettings serverSettings, LanguageManager languageManager, MuteLog muteLog) {
+    public Unmute(ServerSettings serverSettings, LanguageManager languageManager, MuteLog muteLog, HandleErrors errorManager) {
         this.languageManager = languageManager;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.serverSettings = serverSettings;
         this.muteLog = muteLog;
+        this.errorManager = errorManager;
     }
 
     @Override
@@ -33,7 +36,7 @@ public class Unmute extends ListenerAdapter {
             String dcserverid = event.getGuild().getId();
             PermissionsManager permissionsManager = new PermissionsManager();
 
-            if (!permissionsManager.hasPermission(event.getMember(), PermType.MANAGE_CHANNEL)) {
+            if (!permissionsManager.hasPermission(event.getMember(), PermType.MESSAGE_MANAGE)) {
                 event.replyEmbeds(embedBuilderManager.createEmbed("commands.unmute.no_permissions", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
                 return;
             }
@@ -58,11 +61,15 @@ public class Unmute extends ListenerAdapter {
                                         event.replyEmbeds(embedBuilderManager.createEmbed("commands.unmute.success", "commands.unmute.user_unmuted", serverSettings.getLanguage(dcserverid)).build()).queue();
                                     }
                                 },
-                                error -> event.replyEmbeds(embedBuilderManager.createEmbed("commands.unmute.user_not_found", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue()
+                                error -> {
+                                    errorManager.sendErrorMessage((Exception) error, event.getChannel().asTextChannel());
+                                }
                         );
                     } else {
                         event.replyEmbeds(embedBuilderManager.createEmbed("commands.unmute.user_not_muted", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
                     }
+                }, error -> {
+                    event.replyEmbeds(embedBuilderManager.createEmbed("commands.unmute.user_not_found", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
                 });
             }
         }

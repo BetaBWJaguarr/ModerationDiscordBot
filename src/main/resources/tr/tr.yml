@@ -1,5 +1,9 @@
 no_reason: "Sebep belirtilmedi."
 commands:
+  kick:
+    no_permissions: "Bu komutu kullanma izniniz yok."
+    user_not_found: "Kullanıcı bulunamadı."
+    success: "{0} kullanıcısı {1} nedeniyle başarıyla atıldı."
   setclearlogchannel:
     only_owner: "Bu komutu yalnızca sunucu sahibi kullanabilir."
     success_title: "Temizleme Günlüğü Kanalı Ayarlandı"
@@ -126,3 +130,7 @@ events:
     warning_title: "Spam Engelleyici Uyarı"
     warning_description: "Uyarı {0}, çok fazla mesaj gönderiyorsunuz!"
     muted_role_not_exist: "Susturulmuş rolü bulunamadı.Lütfen bir susturulmuş rol oluşturun ve tekrar deneyin."
+errorshandle:
+  error:
+    title: "Hata Oluştu!"
+    description: "Aşağıda hata ayrıntıları bulunmaktadır:"

@@ -2,6 +2,18 @@ package beta.com.moderationdiscordbot.permissionsmanager;
 
 import net.dv8tion.jda.api.Permission;
 
+/**
+ * This enum represents different types of permissions available in Discord.
+ * Each permission type corresponds to a specific Discord Permission.
+ *
+ * Dependencies:
+ * - Permission: Represents a permission in the Discord API.
+ *
+ * Usage:
+ * Use PermType to specify different types of permissions required for operations in a Discord guild.
+ * Each PermType value corresponds to a Discord Permission, allowing easy and type-safe permission checks.
+ */
+
 public enum PermType {
     CREATE_INSTANT_INVITE(Permission.CREATE_INSTANT_INVITE),
     KICK_MEMBERS(Permission.KICK_MEMBERS),

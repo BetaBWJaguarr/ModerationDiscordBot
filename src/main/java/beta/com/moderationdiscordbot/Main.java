@@ -12,6 +12,7 @@ import beta.com.moderationdiscordbot.eventsmanager.events.AntiSpamEvent;
 import beta.com.moderationdiscordbot.eventsmanager.events.AntiVirusEvent;
 import beta.com.moderationdiscordbot.eventsmanager.events.BotJoinServer;
 import beta.com.moderationdiscordbot.eventsmanager.events.UserJoinLeaveEvents;
+import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.scheduler.UnbanScheduler;
 import beta.com.moderationdiscordbot.scheduler.UnmuteScheduler;
@@ -57,21 +58,26 @@ public class Main {
 
 
 
+        //HandleExpections
+        HandleErrors handleErrors = new HandleErrors(languageManager,serverSettings);
+        //HandleExpections
+
         //Commands
         AntiSpamCommand antiSpamCommand = new AntiSpamCommand(serverSettings,languageManager);
         PingCommand pingCommand = new PingCommand(serverSettings,languageManager);
-        SetLanguageCommand setLanguageCommand = new SetLanguageCommand(serverSettings,languageManager);
-        BanCommand banCommand = new BanCommand(serverSettings,languageManager,banLog);
-        ModLogCommand modLogCommand = new ModLogCommand(serverSettings,languageManager);
-        MuteCommand muteCommand = new MuteCommand(serverSettings,languageManager,muteLog);
+        SetLanguageCommand setLanguageCommand = new SetLanguageCommand(serverSettings,languageManager,handleErrors);
+        BanCommand banCommand = new BanCommand(serverSettings,languageManager,banLog,handleErrors);
+        ModLogCommand modLogCommand = new ModLogCommand(serverSettings,languageManager,handleErrors);
+        MuteCommand muteCommand = new MuteCommand(serverSettings,languageManager,muteLog,handleErrors);
         AntiVirusCommand antiVirusCommand = new AntiVirusCommand(serverSettings,languageManager);
 
-        WarnCommand warnCommand = new WarnCommand(serverSettings,languageManager,warnLog);
+        WarnCommand warnCommand = new WarnCommand(serverSettings,languageManager,warnLog,handleErrors);
+        KickCommand kickCommand = new KickCommand(serverSettings,languageManager);
 
 
-        UnWarnCommand unWarnCommand = new UnWarnCommand(serverSettings,languageManager,warnLog);
-        Unban unbanCommand = new Unban(serverSettings,languageManager,banLog);
-        Unmute unmuteCommand = new Unmute(serverSettings,languageManager,muteLog);
+        UnWarnCommand unWarnCommand = new UnWarnCommand(serverSettings,languageManager,warnLog,handleErrors);
+        Unban unbanCommand = new Unban(serverSettings,languageManager,banLog,handleErrors);
+        Unmute unmuteCommand = new Unmute(serverSettings,languageManager,muteLog,handleErrors);
 
         ClearAllCommand clearAllCommand = new ClearAllCommand(serverSettings,languageManager);
         ClearFileCommand clearFileCommand = new ClearFileCommand(serverSettings,languageManager);
@@ -97,6 +103,7 @@ public class Main {
                     .addEventListeners(clearFileCommand)
                     .addEventListeners(clearLogChannel)
                     .addEventListeners(warnCommand)
+                    .addEventListeners(kickCommand)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .build();
 
@@ -176,6 +183,10 @@ public class Main {
                     )
                     .register("clearlogchannel", "Clear the log channel",
                         new OptionData(OptionType.CHANNEL, "channel", "The channel to clear the log channel", true)
+                    )
+                    .register("kick", "Kick a user from the server",
+                            new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to kick", true),
+                            new OptionData(OptionType.STRING, "reason", "The reason for kicking", false)
                     );
 
 
@@ -200,7 +211,7 @@ public class Main {
         int userCount = jda.getGuilds().stream().mapToInt(guild -> guild.getMembers().size()).sum();
         botInfo.setServerCount(serverCount);
         botInfo.setUserCount(userCount);
-        botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute","clear","warn","unwarn"));
+        botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute","clear","warn","unwarn","kick"));
         botInfo.setEventList(Arrays.asList("UserJoinLeaveEvents", "AntiSpamEvent", "BotJoinServer", "AdvertiseChecking", "AntiVirusEvent","HighWarnKickEvent"));
         return botInfo;
     }
