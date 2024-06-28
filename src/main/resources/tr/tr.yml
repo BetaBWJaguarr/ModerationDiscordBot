@@ -1,5 +1,12 @@
 no_reason: "Sebep belirtilmedi."
 commands:
+  warnlist:
+    success_title: "Uyarı Listesi"
+    success_description: "Kullanıcıya {0} adet uyarı verildi."
+    invalid_mention: "Geçersiz kullanıcı bahsi."
+    no_warns: "Bu kullanıcı için uyarı bulunamadı."
+    permission_error: "Bu komutu kullanma izniniz yok."
+    error_occurred: "Bir hata oluştu."
   kick:
     no_permissions: "Bu komutu kullanma izniniz yok."
     user_not_found: "Kullanıcı bulunamadı."
@@ -72,7 +79,7 @@ commands:
     user_not_banned: "Kullanıcı yasaklı değil."
     user_not_found: "Kullanıcı bulunamadı."
   mute:
-    no_permission: "Bu komutu kullanma izniniz yok"
+    no_permissions: "Bu komutu kullanma izniniz yok"
     success: "{0} başarıyla {1} susturuldu"
     user_not_found: "Kullanıcı bulunamadı"
     invalid_duration: "Geçersiz süre"

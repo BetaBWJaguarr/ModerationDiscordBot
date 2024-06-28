@@ -7,6 +7,7 @@ import com.mongodb.client.model.Updates;
 import com.mongodb.client.model.UpdateOptions;
 import org.bson.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,6 +37,32 @@ public class WarnLog {
             System.err.println("Error updating document in MongoDB: " + e.getMessage());
         }
     }
+
+
+    public List<String> getWarnIds(String serverId, String userId) {
+        try {
+            var filter = Filters.and(
+                    Filters.eq("serverId", serverId),
+                    Filters.eq("warns.userId", userId)
+            );
+
+            Document document = collection.find(filter).first();
+
+            if (document != null) {
+                List<String> warnIds = new ArrayList<>();
+                List<Document> warns = (List<Document>) document.get("warns");
+                for (Document warn : warns) {
+                    warnIds.add(warn.getString("warningId"));
+                }
+                return warnIds;
+            }
+        } catch (MongoException e) {
+            System.err.println("Error retrieving document from MongoDB: " + e.getMessage());
+        }
+
+        return null;
+    }
+
 
     public List<Document> getWarnLogs(String serverId) {
         try {

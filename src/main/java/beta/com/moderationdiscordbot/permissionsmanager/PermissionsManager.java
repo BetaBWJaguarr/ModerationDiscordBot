@@ -1,6 +1,9 @@
 package beta.com.moderationdiscordbot.permissionsmanager;
 
+import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
+import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 /**
  * This class provides utility methods to check permissions of Discord members.
@@ -19,5 +22,17 @@ public class PermissionsManager {
 
     public boolean hasPermission(Member member, PermType permType) {
         return member.hasPermission(permType.getPermission());
+    }
+
+    public boolean checkPermissionAndOption(SlashCommandInteractionEvent event, PermType permType, EmbedBuilderManager embedBuilderManager, ServerSettings serverSettings, String noPermissionMessage) {
+        String dcserverid = event.getGuild().getId();
+
+        if (!hasPermission(event.getMember(), permType)) {
+            event.replyEmbeds(embedBuilderManager.createEmbed(noPermissionMessage, null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
+            return false;
+        }
+
+
+        return true;
     }
 }

@@ -36,8 +36,7 @@ public class UnWarnCommand extends ListenerAdapter {
                 String dcserverid = event.getGuild().getId();
                 PermissionsManager permissionsManager = new PermissionsManager();
 
-                if (!permissionsManager.hasPermission(event.getMember(), PermType.MESSAGE_MANAGE)) {
-                    event.replyEmbeds(embedBuilderManager.createEmbed("commands.unwarn.no_permissions", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
+                if (!permissionsManager.checkPermissionAndOption(event, PermType.MESSAGE_MANAGE, embedBuilderManager, serverSettings, "commands.unwarn.no_permissions")) {
                     return;
                 }
 

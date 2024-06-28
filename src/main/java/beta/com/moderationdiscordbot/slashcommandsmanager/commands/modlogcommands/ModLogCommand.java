@@ -2,6 +2,8 @@ package beta.com.moderationdiscordbot.slashcommandsmanager.commands.modlogcomman
 
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
+import beta.com.moderationdiscordbot.permissionsmanager.PermType;
+import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import net.dv8tion.jda.api.Permission;
@@ -27,8 +29,9 @@ public class ModLogCommand extends ListenerAdapter {
         try {
             if (event.getName().equals("modlog")) {
                 String dcserverid = event.getGuild().getId();
-                if (!event.getMember().hasPermission(Permission.MANAGE_CHANNEL)) {
-                    event.replyEmbeds(embedBuilderManager.createEmbed("commands.modlog.no_permissions", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
+                PermissionsManager permissionsManager = new PermissionsManager();
+
+                if (!permissionsManager.checkPermissionAndOption(event, PermType.MESSAGE_MANAGE, embedBuilderManager, serverSettings, "commands.modlog.no_permissions")) {
                     return;
                 }
 

@@ -41,13 +41,13 @@ public class BanCommand extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (event.getName().equals("ban")) {
-            String dcserverid = event.getGuild().getId();
             PermissionsManager permissionsManager = new PermissionsManager();
 
-            if (!permissionsManager.hasPermission(event.getMember(), PermType.BAN_MEMBERS)) {
-                event.replyEmbeds(embedBuilderManager.createEmbed("commands.ban.no_permissions", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
+            if (!permissionsManager.checkPermissionAndOption(event, PermType.BAN_MEMBERS, embedBuilderManager, serverSettings, "commands.ban.no_permissions")) {
                 return;
             }
+
+            String dcserverid = event.getGuild().getId();
 
             String mention = event.getOption("username").getAsString();
             Pattern mentionPattern = Pattern.compile("<@!?(\\d+)>");

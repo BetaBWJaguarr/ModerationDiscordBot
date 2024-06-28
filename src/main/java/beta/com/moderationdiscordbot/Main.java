@@ -27,6 +27,7 @@ import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcom
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.modlogcommands.ModLogCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.warncommands.UnWarnCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.warncommands.WarnCommand;
+import beta.com.moderationdiscordbot.slashcommandsmanager.commands.warncommands.WarnListCommand;
 import beta.com.moderationdiscordbot.startup.Information;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -72,6 +73,7 @@ public class Main {
         AntiVirusCommand antiVirusCommand = new AntiVirusCommand(serverSettings,languageManager);
 
         WarnCommand warnCommand = new WarnCommand(serverSettings,languageManager,warnLog,handleErrors);
+        WarnListCommand warnListCommand = new WarnListCommand(serverSettings,languageManager,warnLog,handleErrors);
         KickCommand kickCommand = new KickCommand(serverSettings,languageManager);
 
 
@@ -79,9 +81,9 @@ public class Main {
         Unban unbanCommand = new Unban(serverSettings,languageManager,banLog,handleErrors);
         Unmute unmuteCommand = new Unmute(serverSettings,languageManager,muteLog,handleErrors);
 
-        ClearAllCommand clearAllCommand = new ClearAllCommand(serverSettings,languageManager);
-        ClearFileCommand clearFileCommand = new ClearFileCommand(serverSettings,languageManager);
-        ClearLogChannel clearLogChannel = new ClearLogChannel(serverSettings,languageManager);
+        ClearAllCommand clearAllCommand = new ClearAllCommand(serverSettings,languageManager,handleErrors);
+        ClearFileCommand clearFileCommand = new ClearFileCommand(serverSettings,languageManager,handleErrors);
+        ClearLogChannel clearLogChannel = new ClearLogChannel(serverSettings,languageManager,handleErrors);
         //Commands
 
         try {
@@ -104,6 +106,7 @@ public class Main {
                     .addEventListeners(clearLogChannel)
                     .addEventListeners(warnCommand)
                     .addEventListeners(kickCommand)
+                    .addEventListeners(warnListCommand)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .build();
 
@@ -187,6 +190,9 @@ public class Main {
                     .register("kick", "Kick a user from the server",
                             new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to kick", true),
                             new OptionData(OptionType.STRING, "reason", "The reason for kicking", false)
+                    )
+                    .register("warnlist", "List all the warns of a user",
+                            new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to list the warns", true)
                     );
 
 
@@ -211,7 +217,7 @@ public class Main {
         int userCount = jda.getGuilds().stream().mapToInt(guild -> guild.getMembers().size()).sum();
         botInfo.setServerCount(serverCount);
         botInfo.setUserCount(userCount);
-        botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute","clear","warn","unwarn","kick"));
+        botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute","clear","warn","unwarn","kick","warnlist"));
         botInfo.setEventList(Arrays.asList("UserJoinLeaveEvents", "AntiSpamEvent", "BotJoinServer", "AdvertiseChecking", "AntiVirusEvent","HighWarnKickEvent"));
         return botInfo;
     }

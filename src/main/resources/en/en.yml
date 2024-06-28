@@ -1,5 +1,12 @@
 no_reason: "No reason provided."
 commands:
+  warnlist:
+    success_title: "Warning List"
+    success_description: "{0} warnings issued to the user."
+    invalid_mention: "Invalid user mention."
+    no_warns: "No warnings found for this user."
+    permission_error: "You do not have permission to use this command."
+    error_occurred: "An error occurred."
   kick:
     no_permissions: "You do not have permission to use this command."
     user_not_found: "User not found."

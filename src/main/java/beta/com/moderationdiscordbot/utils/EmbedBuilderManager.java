@@ -2,9 +2,11 @@ package beta.com.moderationdiscordbot.utils;
 
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.awt.*;
 import java.text.MessageFormat;
+import java.util.Collection;
 
 
 /**

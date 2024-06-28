@@ -37,8 +37,7 @@ public class WarnCommand extends ListenerAdapter {
                 String dcserverid = event.getGuild().getId();
                 PermissionsManager permissionsManager = new PermissionsManager();
 
-                if (!permissionsManager.hasPermission(event.getMember(), PermType.MESSAGE_MANAGE)) {
-                    event.replyEmbeds(embedBuilderManager.createEmbed("commands.warn.no_permissions", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
+                if (!permissionsManager.checkPermissionAndOption(event, PermType.MESSAGE_MANAGE, embedBuilderManager, serverSettings, "commands.warn.no_permissions")) {
                     return;
                 }
 

@@ -30,8 +30,7 @@ public class KickCommand extends ListenerAdapter {
             String dcserverid = event.getGuild().getId();
             PermissionsManager permissionsManager = new PermissionsManager();
 
-            if (!permissionsManager.hasPermission(event.getMember(), PermType.KICK_MEMBERS)) {
-                event.replyEmbeds(embedBuilderManager.createEmbed("commands.kick.no_permissions", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
+            if (!permissionsManager.checkPermissionAndOption(event, PermType.KICK_MEMBERS, embedBuilderManager, serverSettings, "commands.kick.no_permissions")) {
                 return;
             }
 

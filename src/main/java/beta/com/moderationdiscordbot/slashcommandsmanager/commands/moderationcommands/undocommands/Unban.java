@@ -37,8 +37,7 @@ public class Unban extends ListenerAdapter {
                 String dcserverid = event.getGuild().getId();
                 PermissionsManager permissionsManager = new PermissionsManager();
 
-                if (!permissionsManager.hasPermission(event.getMember(), PermType.BAN_MEMBERS)) {
-                    event.replyEmbeds(embedBuilderManager.createEmbed("commands.unban.no_permissions", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
+                if (!permissionsManager.checkPermissionAndOption(event, PermType.BAN_MEMBERS, embedBuilderManager, serverSettings, "commands.unban.no_permissions")) {
                     return;
                 }
 
