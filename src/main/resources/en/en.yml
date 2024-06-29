@@ -21,17 +21,19 @@ commands:
     success: "Warning successfully removed: User: {0}, Reason: {1}"
     user_not_found: "User not found."
     warn_not_found: "No warning found for the user!."
+    dm_title: "Unwarn Notification"
+    dm_description: "Your warning has been removed for the following reason: {0}"
   warn:
     no_permissions: "You do not have the required permissions to use this command."
     success: "Successfully warned user: **{0}**. Reason: **{1}**"
     user_not_found: "User not found. Please provide a valid user."
     invalid_mention: "Invalid user mention. Please provide a valid user mention."
+    dm_title: "Warning Notification"
+    dm_description: "You have been warned for the following reason: {0}"
   clear:
-    invalid_parameters: "Invalid parameters. Please specify the correct amount and channel."
     channel_not_found: "Channel not found."
     success: "Successfully cleared {0} channel  messages in {1}."
     error: "An error occurred. Please try again."
-    files_success: "Successfully cleared file messages in {0}."
     log:
       title: "Message Clear Log"
       channel: "Channel:"

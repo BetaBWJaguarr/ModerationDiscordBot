@@ -3,10 +3,10 @@ package beta.com.moderationdiscordbot.utils;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 import java.awt.*;
 import java.text.MessageFormat;
-import java.util.Collection;
 
 
 /**
@@ -68,5 +68,12 @@ public class EmbedBuilderManager {
         EmbedBuilder embedBuilder = createEmbed(titleKey, descriptionKey, language, formatArgs);
         embedBuilder.setColor(color);
         return embedBuilder;
+    }
+
+
+    public void sendDM(SlashCommandInteractionEvent event, String userId, MessageEmbed embed) {
+        event.getJDA().openPrivateChannelById(userId).queue(privateChannel -> {
+            privateChannel.sendMessageEmbeds(embed);
+        });
     }
 }

@@ -21,17 +21,19 @@ commands:
     success: "Başarıyla uyarı kaldırıldı: Kullanıcı: {0}, Sebep: {1}"
     user_not_found: "Kullanıcı bulunamadı."
     warn_not_found: "Kullanıcı için uyarı bulunamadı."
+    dm_title: "Uyarı Kaldırma Bildirimi"
+    dm_description: "Uyarınız {0} sebebiyle kaldırıldı!"
   warn:
     no_permissions: "Bu komutu kullanmak için gerekli yetkilere sahip değilsiniz."
     success: "Kullanıcıya başarıyla uyarı verildi: **{0}**. Sebep: **{1}**"
     user_not_found: "Kullanıcı bulunamadı. Lütfen geçerli bir kullanıcı belirtin."
     invalid_mention: "Geçersiz kullanıcı etiketi. Lütfen geçerli bir kullanıcı etiketi sağlayın."
+    dm_title: "Uyarı Bildirimi"
+    dm_description: "Bu sebepten dolayı uyarı aldın !: {0}"
   clear:
-    invalid_parameters: "Geçersiz parametreler. Lütfen doğru miktar ve kanal belirtiniz."
     channel_not_found: "Kanal bulunamadı."
     success: "Başarıyla {0} kanalında {1} adet mesaj silindi."
     error: "Bir hata oluştu. Lütfen tekrar deneyiniz."
-    files_success: "Başarıyla dosya mesajları temizlendi."
     log:
       title: "Mesaj Temizleme Log"
       channel: "Kanal:"

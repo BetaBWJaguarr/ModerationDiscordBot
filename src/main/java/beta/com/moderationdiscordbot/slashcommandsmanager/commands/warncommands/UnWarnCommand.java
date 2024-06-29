@@ -7,9 +7,12 @@ import beta.com.moderationdiscordbot.permissionsmanager.PermType;
 import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.text.MessageFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,6 +61,14 @@ public class UnWarnCommand extends ListenerAdapter {
                             event.replyEmbeds(embedBuilderManager.createEmbed("commands.unwarn.warn_not_found", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
                             return;
                         }
+
+                        String dmDescription = MessageFormat.format(languageManager.getMessage("commands.unwarn.dm_description", serverSettings.getLanguage(dcserverid)), reason);
+                        MessageEmbed dmEmbed = new EmbedBuilder()
+                                .setTitle(languageManager.getMessage("commands.unwarn.dm_title", serverSettings.getLanguage(dcserverid)))
+                                .setDescription(dmDescription)
+                                .setColor(0x00FF00)
+                                .build();
+                        embedBuilderManager.sendDM(event, userToUnwarnId, dmEmbed);
 
                         event.replyEmbeds(embedBuilderManager.createEmbed("commands.unwarn.success", null, serverSettings.getLanguage(dcserverid), username, reason).build()).queue();
                     }, error -> {

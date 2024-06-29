@@ -8,9 +8,13 @@ import beta.com.moderationdiscordbot.permissionsmanager.PermType;
 import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,6 +58,14 @@ public class WarnCommand extends ListenerAdapter {
                         String moderatorId = event.getUser().getId();
 
                         warnLog.addWarnLog(dcserverid, userToWarnId, reason, moderatorId);
+
+                        String dmDescription = MessageFormat.format(languageManager.getMessage("commands.warn.dm_description", serverSettings.getLanguage(dcserverid)), reason);
+                        MessageEmbed dmEmbed = new EmbedBuilder()
+                                .setTitle(languageManager.getMessage("commands.warn.dm_title", serverSettings.getLanguage(dcserverid)))
+                                .setDescription(dmDescription)
+                                .setColor(0xFF0000)
+                                .build();
+                        embedBuilderManager.sendDM(event,userToWarnId,dmEmbed);
 
                         event.replyEmbeds(embedBuilderManager.createEmbed("commands.warn.success", null, serverSettings.getLanguage(dcserverid), username, reason).build()).queue();
 

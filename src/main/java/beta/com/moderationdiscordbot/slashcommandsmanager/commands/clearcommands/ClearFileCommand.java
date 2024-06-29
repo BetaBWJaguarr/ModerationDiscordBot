@@ -30,47 +30,42 @@ public class ClearFileCommand extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         try {
-            if (event.getName().equals("clear")) {
-                if (event.getSubcommandName().equals("files")) {
-                    if (event.getOption("amount") == null || event.getOption("channel") == null) {
-                        event.replyEmbeds(embedBuilderManager.createEmbed("commands.clear.invalid_parameters", null, serverSettings.getLanguage(event.getGuild().getId())).build()).setEphemeral(true).queue();
-                        return;
-                    }
+            if (!event.getName().equals("clear")) return;
 
-                    int amount = (int) event.getOption("amount").getAsLong();
-                    String channelId = event.getOption("channel").getAsChannel().getId();
+            if (!event.getSubcommandName().equals("files")) return;
 
-                    TextChannel textChannel = event.getGuild().getTextChannelById(channelId);
-                    if (textChannel == null) {
-                        event.replyEmbeds(embedBuilderManager.createEmbed("commands.clear.channel_not_found", null, serverSettings.getLanguage(event.getGuild().getId())).build()).setEphemeral(true).queue();
-                        return;
-                    }
+            int amount = (int) event.getOption("amount").getAsLong();
+            String channelId = event.getOption("channel").getAsChannel().getId();
 
-                    AtomicInteger deletedMessagesCount = new AtomicInteger(0);
-
-                    textChannel.getIterableHistory().takeAsync(amount).thenAcceptAsync(messages -> {
-                        messages.forEach(message -> {
-                            List<Message.Attachment> attachments = message.getAttachments();
-                            attachments.forEach(attachment -> {
-                                message.delete().queue(
-                                        success -> {
-                                            deletedMessagesCount.incrementAndGet();
-                                            if (deletedMessagesCount.get() == messages.size()) {
-                                                event.replyEmbeds(embedBuilderManager.createEmbed("commands.clear.success", null, serverSettings.getLanguage(event.getGuild().getId()), textChannel.getAsMention(), deletedMessagesCount.get()).build()).queue();
-                                                ModLogMessage.sendModLogMessage(serverSettings, languageManager, event, textChannel, deletedMessagesCount.get());
-                                            }
-                                        },
-                                        error -> errorManager.sendErrorMessage((Exception) error, event.getChannel().asTextChannel())
-                                );
-                            });
-                        });
-                    }).exceptionally(e -> {
-                        event.replyEmbeds(embedBuilderManager.createEmbed("commands.clear.error", null, serverSettings.getLanguage(event.getGuild().getId())).build()).queue();
-                        errorManager.sendErrorMessage((Exception) e, event.getChannel().asTextChannel());
-                        return null;
-                    });
-                }
+            TextChannel textChannel = event.getGuild().getTextChannelById(channelId);
+            if (textChannel == null) {
+                event.replyEmbeds(embedBuilderManager.createEmbed("commands.clear.channel_not_found", null, serverSettings.getLanguage(event.getGuild().getId())).build()).setEphemeral(true).queue();
+                return;
             }
+
+            AtomicInteger deletedMessagesCount = new AtomicInteger(0);
+
+            textChannel.getIterableHistory().takeAsync(amount).thenAcceptAsync(messages -> {
+                messages.forEach(message -> {
+                    List<Message.Attachment> attachments = message.getAttachments();
+                    attachments.forEach(attachment -> {
+                        message.delete().queue(
+                                success -> {
+                                    deletedMessagesCount.incrementAndGet();
+                                    if (deletedMessagesCount.get() == messages.size()) {
+                                        event.replyEmbeds(embedBuilderManager.createEmbed("commands.clear.success", null, serverSettings.getLanguage(event.getGuild().getId()), textChannel.getAsMention(), deletedMessagesCount.get()).build()).queue();
+                                        ModLogMessage.sendModLogMessage(serverSettings, languageManager, event, textChannel, deletedMessagesCount.get());
+                                    }
+                                },
+                                error -> errorManager.sendErrorMessage((Exception) error, event.getChannel().asTextChannel())
+                        );
+                    });
+                });
+            }).exceptionally(e -> {
+                event.replyEmbeds(embedBuilderManager.createEmbed("commands.clear.error", null, serverSettings.getLanguage(event.getGuild().getId())).build()).queue();
+                errorManager.sendErrorMessage((Exception) e, event.getChannel().asTextChannel());
+                return null;
+            });
         } catch (Exception e) {
             errorManager.sendErrorMessage(e, event.getChannel().asTextChannel());
         }

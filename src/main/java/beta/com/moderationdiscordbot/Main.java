@@ -8,10 +8,7 @@ import beta.com.moderationdiscordbot.databasemanager.MongoDB;
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.envmanager.Env;
 import beta.com.moderationdiscordbot.eventsmanager.RegisterEvents;
-import beta.com.moderationdiscordbot.eventsmanager.events.AntiSpamEvent;
-import beta.com.moderationdiscordbot.eventsmanager.events.AntiVirusEvent;
-import beta.com.moderationdiscordbot.eventsmanager.events.BotJoinServer;
-import beta.com.moderationdiscordbot.eventsmanager.events.UserJoinLeaveEvents;
+import beta.com.moderationdiscordbot.eventsmanager.events.*;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.scheduler.UnbanScheduler;
@@ -201,7 +198,8 @@ public class Main {
                      .register(new AntiSpamEvent(antiSpamCommand,languageManager,serverSettings))
                      .register(new BotJoinServer(serverSettings))
                      .register(new AdvertiseChecking(languageManager,serverSettings))
-                     .register(new AntiVirusEvent(antiVirusCommand,languageManager,serverSettings));
+                     .register(new AntiVirusEvent(antiVirusCommand,languageManager,serverSettings))
+                     .register(new AutoPunishEvent());
 
             botInfo.printInformation();
 
@@ -218,7 +216,7 @@ public class Main {
         botInfo.setServerCount(serverCount);
         botInfo.setUserCount(userCount);
         botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute","clear","warn","unwarn","kick","warnlist"));
-        botInfo.setEventList(Arrays.asList("UserJoinLeaveEvents", "AntiSpamEvent", "BotJoinServer", "AdvertiseChecking", "AntiVirusEvent","HighWarnKickEvent"));
+        botInfo.setEventList(Arrays.asList("UserJoinLeaveEvents", "AntiSpamEvent", "BotJoinServer", "AdvertiseChecking", "AntiVirusEvent","HighWarnKickEvent","AutoPunishEvent"));
         return botInfo;
     }
 }
