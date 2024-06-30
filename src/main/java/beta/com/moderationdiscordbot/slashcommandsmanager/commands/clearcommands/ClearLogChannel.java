@@ -2,6 +2,7 @@ package beta.com.moderationdiscordbot.slashcommandsmanager.commands.clearcommand
 
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
+import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -17,12 +18,14 @@ public class ClearLogChannel extends ListenerAdapter {
     private final LanguageManager languageManager;
     private final EmbedBuilderManager embedBuilderManager;
     private final HandleErrors errorManager;
+    private final RateLimit rateLimit;
 
-    public ClearLogChannel(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors errorManager) {
+    public ClearLogChannel(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors errorManager, RateLimit rateLimit) {
         this.serverSettings = serverSettings;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.languageManager = languageManager;
         this.errorManager = errorManager;
+        this.rateLimit = rateLimit;
     }
 
     @Override
@@ -30,6 +33,10 @@ public class ClearLogChannel extends ListenerAdapter {
         try {
             if (event.getName().equals("clearlogchannel")) {
                 String discordServerId = event.getGuild().getId();
+
+                if (rateLimit.isRateLimited(event, embedBuilderManager, serverSettings)) {
+                    return;
+                }
 
                 if (!event.getMember().isOwner()) {
                     event.replyEmbeds(embedBuilderManager.createEmbed("commands.setclearlogchannel.only_owner", null, serverSettings.getLanguage(discordServerId)).build()).setEphemeral(true).queue();

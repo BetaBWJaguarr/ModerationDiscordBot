@@ -3,6 +3,7 @@ package beta.com.moderationdiscordbot.slashcommandsmanager.commands.warncommands
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.WarnLog;
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
+import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -23,13 +24,15 @@ public class WarnListCommand extends ListenerAdapter {
     private final LanguageManager languageManager;
     private final WarnLog warnLog;
     private final HandleErrors errorHandle;
+    private final RateLimit rateLimit;
 
-    public WarnListCommand(ServerSettings serverSettings, LanguageManager languageManager, WarnLog warnLog, HandleErrors errorHandle) {
+    public WarnListCommand(ServerSettings serverSettings, LanguageManager languageManager, WarnLog warnLog, HandleErrors errorHandle, RateLimit rateLimit) {
         this.languageManager = languageManager;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.serverSettings = serverSettings;
         this.warnLog = warnLog;
         this.errorHandle = errorHandle;
+        this.rateLimit = rateLimit;
     }
 
     @Override
@@ -37,6 +40,10 @@ public class WarnListCommand extends ListenerAdapter {
         try {
             if (event.getName().equals("warnlist")) {
                 String dcserverid = event.getGuild().getId();
+
+                if (rateLimit.isRateLimited(event, embedBuilderManager, serverSettings)) {
+                    return;
+                }
 
                 String mention = event.getOption("username").getAsString();
                 String userToCheckId = extractUserIdFromMention(mention,event);

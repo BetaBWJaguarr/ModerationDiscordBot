@@ -5,6 +5,7 @@ import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettin
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.permissionsmanager.PermType;
 import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
+import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import beta.com.moderationdiscordbot.utils.ParseDuration;
@@ -26,13 +27,15 @@ public class MuteCommand extends ListenerAdapter {
     private final LanguageManager languageManager;
     private final MuteLog muteLog;
     private final HandleErrors errorManager;
+    private final RateLimit rateLimit;
 
-    public MuteCommand(ServerSettings serverSettings, LanguageManager languageManager, MuteLog muteLog, HandleErrors errorManager) {
+    public MuteCommand(ServerSettings serverSettings, LanguageManager languageManager, MuteLog muteLog, HandleErrors errorManager, RateLimit rateLimit) {
         this.languageManager = languageManager;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.serverSettings = serverSettings;
         this.muteLog = muteLog;
         this.errorManager = errorManager;
+        this.rateLimit = rateLimit;
     }
 
     @Override
@@ -41,6 +44,10 @@ public class MuteCommand extends ListenerAdapter {
             PermissionsManager permissionsManager = new PermissionsManager();
 
             if (!permissionsManager.checkPermissionAndOption(event, PermType.MANAGE_CHANNEL, embedBuilderManager, serverSettings, "commands.mute.no_permissions")) {
+                return;
+            }
+
+            if (rateLimit.isRateLimited(event, embedBuilderManager, serverSettings)) {
                 return;
             }
 

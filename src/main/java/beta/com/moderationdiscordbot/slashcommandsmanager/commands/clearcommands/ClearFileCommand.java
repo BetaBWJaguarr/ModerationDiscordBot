@@ -2,6 +2,7 @@ package beta.com.moderationdiscordbot.slashcommandsmanager.commands.clearcommand
 
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
+import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.clearcommands.utils.ModLogMessage;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
@@ -19,12 +20,14 @@ public class ClearFileCommand extends ListenerAdapter {
     private final ServerSettings serverSettings;
     private final LanguageManager languageManager;
     private final HandleErrors errorManager;
+    private final RateLimit rateLimit;
 
-    public ClearFileCommand(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors errorManager) {
+    public ClearFileCommand(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors errorManager, RateLimit rateLimit) {
         this.languageManager = languageManager;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.serverSettings = serverSettings;
         this.errorManager = errorManager;
+        this.rateLimit = rateLimit;
     }
 
     @Override
@@ -33,6 +36,10 @@ public class ClearFileCommand extends ListenerAdapter {
             if (!event.getName().equals("clear")) return;
 
             if (!event.getSubcommandName().equals("files")) return;
+
+            if (rateLimit.isRateLimited(event, embedBuilderManager, serverSettings)) {
+                return;
+            }
 
             int amount = (int) event.getOption("amount").getAsLong();
             String channelId = event.getOption("channel").getAsChannel().getId();

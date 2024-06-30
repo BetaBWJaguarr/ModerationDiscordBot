@@ -1,8 +1,7 @@
 package beta.com.moderationdiscordbot.eventsmanager.events;
 
-
-
-import beta.com.moderationdiscordbot.autopunish.AntiSwear;
+import beta.com.moderationdiscordbot.autopunish.antiswear.AntiSwear;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -15,8 +14,10 @@ import java.util.concurrent.TimeUnit;
 public class AutoPunishEvent extends ListenerAdapter {
 
     private final ScheduledExecutorService executorService;
+    private final AntiSwear antiSwear;
 
-    public AutoPunishEvent() {
+    public AutoPunishEvent(AntiSwear antiSwear) {
+        this.antiSwear = antiSwear;
         this.executorService = Executors.newSingleThreadScheduledExecutor();
     }
 
@@ -26,13 +27,21 @@ public class AutoPunishEvent extends ListenerAdapter {
             return;
         }
 
+        String guildId = event.getGuild().getId();
+        if (!antiSwear.isAutoPunishEnabled(guildId)) {
+            return;
+        }
+
         List<TextChannel> allChannels = event.getGuild().getTextChannels();
 
         allChannels.forEach(channel -> {
             executorService.schedule(() -> {
                 channel.getIterableHistory().forEachAsync(message -> {
-                    if (AntiSwear.containsProfanity(message.getContentRaw().toLowerCase())) {
-                        AntiSwear.handleProfanity(event.getGuild(), message);
+                    if (antiSwear.containsProfanity(message.getContentRaw().toLowerCase(), guildId)) {
+                        MessageEmbed embed = antiSwear.handleProfanity(guildId, message.getAuthor().getAsMention());
+                        if (embed != null) {
+                            channel.sendMessageEmbeds(embed).queue();
+                        }
                     }
                     return true;
                 });

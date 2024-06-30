@@ -1,5 +1,16 @@
 no_reason: "Sebep belirtilmedi."
 commands:
+  rate_limit: "Lütfen {0} saniye bekleyin ve tekrar deneyin."
+  antiswear:
+    error:
+      title: "Hata"
+      description: "Bu komutu kullanmak için yeterli izniniz yok."
+    enable:
+      title: "Küfür Engelleyici Etkinleştirildi"
+      description: "Küfür engelleyici başarıyla etkinleştirildi."
+    disable:
+      title: "Küfür Engelleyici Devre Dışı Bırakıldı"
+      description: "Küfür engelleyici başarıyla devre dışı bırakıldı."
   warnlist:
     success_title: "Uyarı Listesi"
     success_description: "Kullanıcıya {0} adet uyarı verildi."
@@ -11,6 +22,10 @@ commands:
     no_permissions: "Bu komutu kullanma izniniz yok."
     user_not_found: "Kullanıcı bulunamadı."
     success: "{0} kullanıcısı {1} nedeniyle başarıyla atıldı."
+    log:
+      title: "Kullanıcı Atıldı"
+      user: "Atılan Kullanıcı"
+      reason: "Sebep"
   setclearlogchannel:
     only_owner: "Bu komutu yalnızca sunucu sahibi kullanabilir."
     success_title: "Temizleme Günlüğü Kanalı Ayarlandı"
@@ -139,6 +154,7 @@ events:
     warning_title: "Spam Engelleyici Uyarı"
     warning_description: "Uyarı {0}, çok fazla mesaj gönderiyorsunuz!"
     muted_role_not_exist: "Susturulmuş rolü bulunamadı.Lütfen bir susturulmuş rol oluşturun ve tekrar deneyin."
+  antiswear: "Küfür etmeyiniz lütfen!"
 errorshandle:
   error:
     title: "Hata Oluştu!"

@@ -4,9 +4,9 @@ import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettin
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.permissionsmanager.PermType;
 import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
+import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -16,12 +16,14 @@ public class ModLogCommand extends ListenerAdapter {
     private final ServerSettings serverSettings;
     private final LanguageManager languageManager;
     private final HandleErrors errorHandle;
+    private final RateLimit rateLimit;
 
-    public ModLogCommand(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors errorHandle) {
+    public ModLogCommand(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors errorHandle, RateLimit rateLimit) {
         this.languageManager = languageManager;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.serverSettings = serverSettings;
         this.errorHandle = errorHandle;
+        this.rateLimit = rateLimit;
     }
 
     @Override
@@ -30,6 +32,10 @@ public class ModLogCommand extends ListenerAdapter {
             if (event.getName().equals("modlog")) {
                 String dcserverid = event.getGuild().getId();
                 PermissionsManager permissionsManager = new PermissionsManager();
+
+                if (rateLimit.isRateLimited(event, embedBuilderManager, serverSettings)) {
+                    return;
+                }
 
                 if (!permissionsManager.checkPermissionAndOption(event, PermType.MESSAGE_MANAGE, embedBuilderManager, serverSettings, "commands.modlog.no_permissions")) {
                     return;

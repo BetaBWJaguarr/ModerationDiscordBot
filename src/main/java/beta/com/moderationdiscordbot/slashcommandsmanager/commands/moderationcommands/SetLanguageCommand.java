@@ -2,6 +2,7 @@ package beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationco
 
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
+import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -17,11 +18,13 @@ public class SetLanguageCommand extends ListenerAdapter {
     private final EmbedBuilderManager embedManager;
     private final List<String> validLanguages = Arrays.asList("en", "tr");
     private final HandleErrors errorHandle;
+    private final RateLimit rateLimit;
 
-    public SetLanguageCommand(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors errorHandle) {
+    public SetLanguageCommand(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors errorHandle, RateLimit rateLimit) {
         this.serverSettings = serverSettings;
         this.embedManager = new EmbedBuilderManager(languageManager);
         this.errorHandle = errorHandle;
+        this.rateLimit = rateLimit;
     }
 
     @Override
@@ -30,6 +33,10 @@ public class SetLanguageCommand extends ListenerAdapter {
             if (event.getName().equals("setlanguage")) {
                 String discordServerId = event.getGuild().getId();
                 String language = serverSettings.getLanguage(discordServerId);
+
+                if (rateLimit.isRateLimited(event, embedManager, serverSettings)) {
+                    return;
+                }
 
                 if (!event.getMember().isOwner()) {
                     event.replyEmbeds(embedManager.createEmbedWithColor(

@@ -1,6 +1,9 @@
 package beta.com.moderationdiscordbot;
 
 import beta.com.moderationdiscordbot.advertisemanager.AdvertiseChecking;
+import beta.com.moderationdiscordbot.autopunish.AutoPunishEnableCommands;
+import beta.com.moderationdiscordbot.autopunish.antiswear.AntiSwear;
+import beta.com.moderationdiscordbot.autopunish.antiswear.commands.AntiSwearCommand;
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.BanLog;
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.MuteLog;
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.WarnLog;
@@ -13,6 +16,7 @@ import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.scheduler.UnbanScheduler;
 import beta.com.moderationdiscordbot.scheduler.UnmuteScheduler;
+import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RegisterSlashCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.clearcommands.ClearAllCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.clearcommands.ClearFileCommand;
@@ -61,26 +65,31 @@ public class Main {
         //HandleExpections
 
         //Commands
-        AntiSpamCommand antiSpamCommand = new AntiSpamCommand(serverSettings,languageManager);
-        PingCommand pingCommand = new PingCommand(serverSettings,languageManager);
-        SetLanguageCommand setLanguageCommand = new SetLanguageCommand(serverSettings,languageManager,handleErrors);
-        BanCommand banCommand = new BanCommand(serverSettings,languageManager,banLog,handleErrors);
-        ModLogCommand modLogCommand = new ModLogCommand(serverSettings,languageManager,handleErrors);
-        MuteCommand muteCommand = new MuteCommand(serverSettings,languageManager,muteLog,handleErrors);
-        AntiVirusCommand antiVirusCommand = new AntiVirusCommand(serverSettings,languageManager);
+        RateLimit rateLimit = new RateLimit(3,TimeUnit.SECONDS);
 
-        WarnCommand warnCommand = new WarnCommand(serverSettings,languageManager,warnLog,handleErrors);
-        WarnListCommand warnListCommand = new WarnListCommand(serverSettings,languageManager,warnLog,handleErrors);
-        KickCommand kickCommand = new KickCommand(serverSettings,languageManager);
+        AntiSpamCommand antiSpamCommand = new AntiSpamCommand(serverSettings,languageManager,rateLimit);
+        PingCommand pingCommand = new PingCommand(serverSettings,languageManager,rateLimit);
+        SetLanguageCommand setLanguageCommand = new SetLanguageCommand(serverSettings,languageManager,handleErrors,rateLimit);
+        BanCommand banCommand = new BanCommand(serverSettings,languageManager,banLog,handleErrors,rateLimit);
+        ModLogCommand modLogCommand = new ModLogCommand(serverSettings,languageManager,handleErrors,rateLimit);
+        MuteCommand muteCommand = new MuteCommand(serverSettings,languageManager,muteLog,handleErrors,rateLimit);
+        AntiVirusCommand antiVirusCommand = new AntiVirusCommand(serverSettings,languageManager,rateLimit);
+
+        AntiSwearCommand antiSwearCommand = new AntiSwearCommand(serverSettings,languageManager,rateLimit);
+        AutoPunishEnableCommands autoPunishEnableCommands = new AutoPunishEnableCommands(serverSettings,languageManager,rateLimit);
+
+        WarnCommand warnCommand = new WarnCommand(serverSettings,languageManager,warnLog,handleErrors,rateLimit);
+        WarnListCommand warnListCommand = new WarnListCommand(serverSettings,languageManager,warnLog,handleErrors,rateLimit);
+        KickCommand kickCommand = new KickCommand(serverSettings,languageManager,rateLimit);
 
 
-        UnWarnCommand unWarnCommand = new UnWarnCommand(serverSettings,languageManager,warnLog,handleErrors);
-        Unban unbanCommand = new Unban(serverSettings,languageManager,banLog,handleErrors);
-        Unmute unmuteCommand = new Unmute(serverSettings,languageManager,muteLog,handleErrors);
+        UnWarnCommand unWarnCommand = new UnWarnCommand(serverSettings,languageManager,warnLog,handleErrors,rateLimit);
+        Unban unbanCommand = new Unban(serverSettings,languageManager,banLog,handleErrors,rateLimit);
+        Unmute unmuteCommand = new Unmute(serverSettings,languageManager,muteLog,handleErrors,rateLimit);
 
-        ClearAllCommand clearAllCommand = new ClearAllCommand(serverSettings,languageManager,handleErrors);
-        ClearFileCommand clearFileCommand = new ClearFileCommand(serverSettings,languageManager,handleErrors);
-        ClearLogChannel clearLogChannel = new ClearLogChannel(serverSettings,languageManager,handleErrors);
+        ClearAllCommand clearAllCommand = new ClearAllCommand(serverSettings,languageManager,handleErrors,rateLimit);
+        ClearFileCommand clearFileCommand = new ClearFileCommand(serverSettings,languageManager,handleErrors,rateLimit);
+        ClearLogChannel clearLogChannel = new ClearLogChannel(serverSettings,languageManager,handleErrors,rateLimit);
         //Commands
 
         try {
@@ -104,6 +113,8 @@ public class Main {
                     .addEventListeners(warnCommand)
                     .addEventListeners(kickCommand)
                     .addEventListeners(warnListCommand)
+                    .addEventListeners(antiSwearCommand)
+                    .addEventListeners(autoPunishEnableCommands)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .build();
 
@@ -190,8 +201,17 @@ public class Main {
                     )
                     .register("warnlist", "List all the warns of a user",
                             new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to list the warns", true)
+                    )
+                    .register("antiswear", "AntiSwear Command",
+                            new SubcommandData("enable", "Enable the anti-swear system"),
+                            new SubcommandData("disable", "Disable the anti-swear system")
+                    )
+                    .register("autopunish", "AutoPunish Command",
+                            new SubcommandData("enable", "Enable the auto-punish system"),
+                            new SubcommandData("disable", "Disable the auto-punish system")
                     );
 
+            AntiSwear antiSwear = new AntiSwear(serverSettings,languageManager);
 
              new RegisterEvents(jda,botInfo)
                      .register(new UserJoinLeaveEvents(languageManager,serverSettings))
@@ -199,7 +219,7 @@ public class Main {
                      .register(new BotJoinServer(serverSettings))
                      .register(new AdvertiseChecking(languageManager,serverSettings))
                      .register(new AntiVirusEvent(antiVirusCommand,languageManager,serverSettings))
-                     .register(new AutoPunishEvent());
+                     .register(new AutoPunishEvent(antiSwear));
 
             botInfo.printInformation();
 
@@ -215,7 +235,7 @@ public class Main {
         int userCount = jda.getGuilds().stream().mapToInt(guild -> guild.getMembers().size()).sum();
         botInfo.setServerCount(serverCount);
         botInfo.setUserCount(userCount);
-        botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute","clear","warn","unwarn","kick","warnlist"));
+        botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute","clear","warn","unwarn","kick","warnlist","antiswear","autopunish"));
         botInfo.setEventList(Arrays.asList("UserJoinLeaveEvents", "AntiSpamEvent", "BotJoinServer", "AdvertiseChecking", "AntiVirusEvent","HighWarnKickEvent","AutoPunishEvent"));
         return botInfo;
     }

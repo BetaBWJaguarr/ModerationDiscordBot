@@ -1,5 +1,16 @@
 no_reason: "No reason provided."
 commands:
+  rate_limit: "Please wait {0} seconds and try again."
+  antiswear:
+    error:
+      title: "Error"
+      description: "You do not have sufficient permissions to use this command."
+    enable:
+      title: "Anti-Swear Enabled"
+      description: "Anti-swear feature has been successfully enabled."
+    disable:
+      title: "Anti-Swear Disabled"
+      description: "Anti-swear feature has been successfully disabled."
   warnlist:
     success_title: "Warning List"
     success_description: "{0} warnings issued to the user."
@@ -11,6 +22,10 @@ commands:
     no_permissions: "You do not have permission to use this command."
     user_not_found: "User not found."
     success: "{0} has been successfully kicked for {1}."
+    log:
+      title: "User Kicked"
+      user: "Kicked User"
+      reason: "Reason"
   setclearlogchannel:
     only_owner: "Only the server owner can use this command."
     success_title: "Clear Log Channel Set"
@@ -139,6 +154,7 @@ events:
     warning_title: "AntiSpam Warning Notification"
     warning_description: "Warning {0}, you are sending too many messages!"
     muted_role_not_exist: "Muted role not found.Please create a muted role and try again."
+  antiswear: "Please do not swear!"
 errorshandle:
   error:
     title: "Error Occurred!"

@@ -5,6 +5,7 @@ import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettin
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.permissionsmanager.PermType;
 import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
+import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import beta.com.moderationdiscordbot.utils.ParseDuration;
@@ -28,13 +29,15 @@ public class BanCommand extends ListenerAdapter {
     private final LanguageManager languageManager;
     private final BanLog banLog;
     private final HandleErrors errorManager;
+    private final RateLimit rateLimit;
 
-    public BanCommand(ServerSettings serverSettings, LanguageManager languageManager, BanLog banLog, HandleErrors errorManager) {
+    public BanCommand(ServerSettings serverSettings, LanguageManager languageManager, BanLog banLog, HandleErrors errorManager, RateLimit rateLimit) {
         this.languageManager = languageManager;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.serverSettings = serverSettings;
         this.banLog = banLog;
         this.errorManager = errorManager;
+        this.rateLimit = rateLimit;
     }
 
 
@@ -44,6 +47,10 @@ public class BanCommand extends ListenerAdapter {
             PermissionsManager permissionsManager = new PermissionsManager();
 
             if (!permissionsManager.checkPermissionAndOption(event, PermType.BAN_MEMBERS, embedBuilderManager, serverSettings, "commands.ban.no_permissions")) {
+                return;
+            }
+
+            if (rateLimit.isRateLimited(event, embedBuilderManager, serverSettings)) {
                 return;
             }
 

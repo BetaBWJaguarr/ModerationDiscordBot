@@ -5,6 +5,7 @@ import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettin
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.permissionsmanager.PermType;
 import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
+import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import net.dv8tion.jda.api.entities.Role;
@@ -21,13 +22,15 @@ public class Unmute extends ListenerAdapter {
     private final LanguageManager languageManager;
     private final MuteLog muteLog;
     private final HandleErrors errorManager;
+    private final RateLimit rateLimit;
 
-    public Unmute(ServerSettings serverSettings, LanguageManager languageManager, MuteLog muteLog, HandleErrors errorManager) {
+    public Unmute(ServerSettings serverSettings, LanguageManager languageManager, MuteLog muteLog, HandleErrors errorManager, RateLimit rateLimit) {
         this.languageManager = languageManager;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.serverSettings = serverSettings;
         this.muteLog = muteLog;
         this.errorManager = errorManager;
+        this.rateLimit = rateLimit;
     }
 
     @Override
@@ -35,6 +38,10 @@ public class Unmute extends ListenerAdapter {
         if (event.getName().equals("unmute")) {
             String dcserverid = event.getGuild().getId();
             PermissionsManager permissionsManager = new PermissionsManager();
+
+            if (rateLimit.isRateLimited(event, embedBuilderManager, serverSettings)) {
+                return;
+            }
 
             if (!permissionsManager.checkPermissionAndOption(event, PermType.MESSAGE_MANAGE, embedBuilderManager, serverSettings, "commands.unmute.no_permissions")) {
                 return;

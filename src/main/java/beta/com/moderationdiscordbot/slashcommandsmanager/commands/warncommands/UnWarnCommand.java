@@ -5,6 +5,7 @@ import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettin
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.permissionsmanager.PermType;
 import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
+import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -23,13 +24,15 @@ public class UnWarnCommand extends ListenerAdapter {
     private final LanguageManager languageManager;
     private final WarnLog warnLog;
     private final HandleErrors errorHandle;
+    private final RateLimit rateLimit;
 
-    public UnWarnCommand(ServerSettings serverSettings, LanguageManager languageManager, WarnLog warnLog, HandleErrors errorHandle) {
+    public UnWarnCommand(ServerSettings serverSettings, LanguageManager languageManager, WarnLog warnLog, HandleErrors errorHandle, RateLimit rateLimit) {
         this.languageManager = languageManager;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.serverSettings = serverSettings;
         this.warnLog = warnLog;
         this.errorHandle = errorHandle;
+        this.rateLimit = rateLimit;
     }
 
     @Override
@@ -38,6 +41,10 @@ public class UnWarnCommand extends ListenerAdapter {
             if (event.getName().equals("unwarn")) {
                 String dcserverid = event.getGuild().getId();
                 PermissionsManager permissionsManager = new PermissionsManager();
+
+                if (rateLimit.isRateLimited(event, embedBuilderManager, serverSettings)) {
+                    return;
+                }
 
                 if (!permissionsManager.checkPermissionAndOption(event, PermType.MESSAGE_MANAGE, embedBuilderManager, serverSettings, "commands.unwarn.no_permissions")) {
                     return;

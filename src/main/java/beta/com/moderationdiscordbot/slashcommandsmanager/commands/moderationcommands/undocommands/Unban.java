@@ -5,6 +5,7 @@ import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettin
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.permissionsmanager.PermType;
 import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
+import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import net.dv8tion.jda.api.entities.UserSnowflake;
@@ -21,13 +22,15 @@ public class Unban extends ListenerAdapter {
     private final LanguageManager languageManager;
     private final BanLog banLog;
     private final HandleErrors errorHandle;
+    private final RateLimit rateLimit;
 
-    public Unban(ServerSettings serverSettings, LanguageManager languageManager, BanLog banLog, HandleErrors errorHandle) {
+    public Unban(ServerSettings serverSettings, LanguageManager languageManager, BanLog banLog, HandleErrors errorHandle, RateLimit rateLimit) {
         this.languageManager = languageManager;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.serverSettings = serverSettings;
         this.banLog = banLog;
         this.errorHandle = errorHandle;
+        this.rateLimit = rateLimit;
     }
 
     @Override
@@ -36,6 +39,10 @@ public class Unban extends ListenerAdapter {
             if (event.getName().equals("unban")) {
                 String dcserverid = event.getGuild().getId();
                 PermissionsManager permissionsManager = new PermissionsManager();
+
+                if (rateLimit.isRateLimited(event, embedBuilderManager, serverSettings)) {
+                    return;
+                }
 
                 if (!permissionsManager.checkPermissionAndOption(event, PermType.BAN_MEMBERS, embedBuilderManager, serverSettings, "commands.unban.no_permissions")) {
                     return;
