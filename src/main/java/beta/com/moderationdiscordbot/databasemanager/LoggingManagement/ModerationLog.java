@@ -49,10 +49,19 @@ public class ModerationLog {
     }
 
     public void addLog(String serverId, String userId, String reason, Date duration, String logType, String logKey) {
+        addLog(serverId, userId, reason, duration, logType, logKey, null);
+    }
+
+    public void addLog(String serverId, String userId, String reason, Date duration, String logType, String logKey, String channelId) {
         try {
             var filter = Filters.eq("serverId", serverId);
-            var update = Updates.push(logType, new Document(logKey, userId)
-                    .append("reason", reason).append("duration", duration));
+            var logDocument = new Document(logKey, userId)
+                    .append("reason", reason)
+                    .append("duration", duration);
+            if (channelId != null && !channelId.isEmpty()) {
+                logDocument.append("channelId", channelId);
+            }
+            var update = Updates.push(logType, logDocument);
             collection.updateOne(filter, update, new UpdateOptions().upsert(true));
         } catch (MongoException e) {
             System.err.println("Error updating document in MongoDB: " + e.getMessage());
@@ -75,8 +84,15 @@ public class ModerationLog {
     }
 
     public void removeLog(String serverId, String userId, String logType, String logKey) {
+        removeLog(serverId, userId, logType, logKey, null);
+    }
+
+    public void removeLog(String serverId, String userId, String logType, String logKey, String channelId) {
         try {
             var filter = Filters.and(Filters.eq("serverId", serverId), Filters.eq(logType + "." + logKey, userId));
+            if (channelId != null && !channelId.isEmpty()) {
+                filter = Filters.and(filter, Filters.eq(logType + ".channelId", channelId));
+            }
             var update = Updates.pull(logType, new Document(logKey, userId));
             collection.updateOne(filter, update);
         } catch (MongoException e) {

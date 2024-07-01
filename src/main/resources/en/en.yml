@@ -1,6 +1,23 @@
 no_reason: "No reason provided."
 commands:
   rate_limit: "Please wait {0} seconds and try again."
+  channel-unban:
+    no_permissions: "You do not have permission to use this command."
+    success: "{0} successfully unbanned from channel {1}."
+    channel_not_found: "Specified channel not found."
+    user_not_found: "Specified user not found."
+    invalid_user_or_channel: "Invalid user or channel specified."
+    user_not_banned: "User is not banned from the channel."
+  channel-ban:
+    no_permissions: "You do not have sufficient permissions to use this command."
+    invalid_duration: "Invalid duration. Please specify a valid duration."
+    success: "User **{0}** has been successfully banned from the {1} channel for: **{2}**."
+    user_not_found: "The specified user was not found."
+    invalid_user_or_channel: "Invalid user or channel specified."
+    tempban: "Temporary Ban"
+    permban: "Permanent Ban"
+    channel_not_found: "The specified channel was not found."
+    already_banned: "User is already banned from the channel."
   antiswear:
     error:
       title: "Error"

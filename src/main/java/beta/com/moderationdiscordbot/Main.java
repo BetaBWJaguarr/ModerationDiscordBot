@@ -19,10 +19,12 @@ import beta.com.moderationdiscordbot.scheduler.UnmuteScheduler;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RegisterSlashCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.clearcommands.ClearAllCommand;
+import beta.com.moderationdiscordbot.slashcommandsmanager.commands.clearcommands.ClearBotsCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.clearcommands.ClearFileCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.clearcommands.ClearLogChannel;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.*;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.PingCommand;
+import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.undocommands.ChannelUnBanCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.undocommands.Unban;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.undocommands.Unmute;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.modlogcommands.ModLogCommand;
@@ -71,6 +73,8 @@ public class Main {
         PingCommand pingCommand = new PingCommand(serverSettings,languageManager,rateLimit);
         SetLanguageCommand setLanguageCommand = new SetLanguageCommand(serverSettings,languageManager,handleErrors,rateLimit);
         BanCommand banCommand = new BanCommand(serverSettings,languageManager,banLog,handleErrors,rateLimit);
+        ChannelBanCommand channelBanCommand = new ChannelBanCommand(serverSettings,languageManager,banLog,handleErrors,rateLimit);
+        ChannelUnBanCommand channelUnBanCommand = new ChannelUnBanCommand(serverSettings,languageManager,banLog,handleErrors,rateLimit);
         ModLogCommand modLogCommand = new ModLogCommand(serverSettings,languageManager,handleErrors,rateLimit);
         MuteCommand muteCommand = new MuteCommand(serverSettings,languageManager,muteLog,handleErrors,rateLimit);
         AntiVirusCommand antiVirusCommand = new AntiVirusCommand(serverSettings,languageManager,rateLimit);
@@ -90,6 +94,7 @@ public class Main {
         ClearAllCommand clearAllCommand = new ClearAllCommand(serverSettings,languageManager,handleErrors,rateLimit);
         ClearFileCommand clearFileCommand = new ClearFileCommand(serverSettings,languageManager,handleErrors,rateLimit);
         ClearLogChannel clearLogChannel = new ClearLogChannel(serverSettings,languageManager,handleErrors,rateLimit);
+        ClearBotsCommand clearBotsCommand = new ClearBotsCommand(serverSettings,languageManager,handleErrors,rateLimit);
         //Commands
 
         try {
@@ -115,6 +120,9 @@ public class Main {
                     .addEventListeners(warnListCommand)
                     .addEventListeners(antiSwearCommand)
                     .addEventListeners(autoPunishEnableCommands)
+                    .addEventListeners(channelBanCommand)
+                    .addEventListeners(channelUnBanCommand)
+                    .addEventListeners(clearBotsCommand)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .build();
 
@@ -180,8 +188,10 @@ public class Main {
                                     .addOption(OptionType.CHANNEL, "channel", "The channel to clear the files", true),
                             new SubcommandData("all", "Clear all the messages")
                                     .addOption(OptionType.INTEGER, "amount", "The amount of messages to clear", true)
-                                    .addOption(OptionType.CHANNEL, "channel", "The channel to clear all the messages", true)
-
+                                    .addOption(OptionType.CHANNEL, "channel", "The channel to clear all the messages", true),
+                            new SubcommandData("bots", "Clear all the bots messages")
+                                    .addOption(OptionType.INTEGER, "amount", "The amount of messages to clear", true)
+                                    .addOption(OptionType.CHANNEL, "channel", "The channel to clear all the bots messages", true)
                     )
                     .register("warn", "Warn a user from the server",
                             new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to warn", true),
@@ -209,6 +219,17 @@ public class Main {
                     .register("autopunish", "AutoPunish Command",
                             new SubcommandData("enable", "Enable the auto-punish system"),
                             new SubcommandData("disable", "Disable the auto-punish system")
+                    )
+                    .register("channels", "Ban or unban a user from a specific channel",
+                            new SubcommandData("ban", "Ban a user from a specific channel")
+                                    .addOption(OptionType.STRING, "username", "The username (mentionable) of the user to ban", true)
+                                    .addOption(OptionType.CHANNEL, "channel", "The channel to ban the user", true)
+                                    .addOption(OptionType.STRING, "duration", "The ban duration (e.g., 7d, 12h)", false)
+                                    .addOption(OptionType.STRING, "reason", "The reason for banning", false),
+                            new SubcommandData("unban", "Unban a user from a specific channel")
+                                    .addOption(OptionType.STRING, "username", "The username (mentionable) of the user to unban", true)
+                                    .addOption(OptionType.CHANNEL, "channel", "The channel to unban the user", true)
+                                    .addOption(OptionType.STRING, "reason", "The reason for unbanning", false)
                     );
 
             AntiSwear antiSwear = new AntiSwear(serverSettings,languageManager);
@@ -235,7 +256,7 @@ public class Main {
         int userCount = jda.getGuilds().stream().mapToInt(guild -> guild.getMembers().size()).sum();
         botInfo.setServerCount(serverCount);
         botInfo.setUserCount(userCount);
-        botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute","clear","warn","unwarn","kick","warnlist","antiswear","autopunish"));
+        botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute","clear","warn","unwarn","kick","warnlist","antiswear","autopunish","channel"));
         botInfo.setEventList(Arrays.asList("UserJoinLeaveEvents", "AntiSpamEvent", "BotJoinServer", "AdvertiseChecking", "AntiVirusEvent","HighWarnKickEvent","AutoPunishEvent"));
         return botInfo;
     }

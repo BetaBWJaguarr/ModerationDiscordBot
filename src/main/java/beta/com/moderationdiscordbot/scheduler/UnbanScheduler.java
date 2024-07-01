@@ -5,8 +5,12 @@ import java.util.List;
 
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.BanLog;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.UserSnowflake;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.exceptions.PermissionException;
 import org.bson.Document;
 
 public class UnbanScheduler {
@@ -31,10 +35,28 @@ public class UnbanScheduler {
 
         for (Document banLog : banLogs) {
             Date banDuration = banLog.getDate("duration");
+            String channelId = banLog.getString("channelId");
             if (banDuration != null && new Date().after(banDuration)) {
                 String userId = banLog.getString("userId");
-                guild.unban(UserSnowflake.fromId(userId)).queue();
-                this.banLog.removeBanLog(serverId, userId);
+                TextChannel textChannel = guild.getTextChannelById(channelId);
+                if (textChannel != null) {
+                    Member member = guild.getMemberById(userId);
+                    if (member != null) {
+                        try {
+                            textChannel.upsertPermissionOverride(member)
+                                    .clear(Permission.MESSAGE_SEND)
+                                    .queue(success -> {
+                                        this.banLog.removeBanLog(serverId, userId,channelId);
+                                    }, error -> {
+                                    });
+                        } catch (PermissionException e) {
+                        }
+                    }
+                } else {
+                    guild.unban(UserSnowflake.fromId(userId)).queue(success -> {
+                        this.banLog.removeBanLog(serverId, userId);
+                    });
+                }
             }
         }
     }

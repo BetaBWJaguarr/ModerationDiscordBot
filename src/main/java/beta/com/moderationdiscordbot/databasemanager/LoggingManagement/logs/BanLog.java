@@ -18,11 +18,19 @@ public class BanLog {
         moderationLog.addLog(serverId, userId, reason, duration, "users", "userId");
     }
 
+    public void addBanLog(String serverId, String userId, String reason, Date duration, String channelId) {
+        moderationLog.addLog(serverId, userId, reason, duration, "users", "userId", channelId);
+    }
+
     public List<Document> getBanLogs(String serverId) {
         return moderationLog.getLogs(serverId, "users");
     }
 
     public void removeBanLog(String serverId, String userId) {
         moderationLog.removeLog(serverId, userId, "users", "userId");
+    }
+
+    public void removeBanLog(String serverId, String userId, String channelId) {
+        moderationLog.removeLog(serverId, userId, "users", "userId", channelId);
     }
 }

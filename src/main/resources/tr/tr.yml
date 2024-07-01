@@ -1,6 +1,23 @@
 no_reason: "Sebep belirtilmedi."
 commands:
   rate_limit: "Lütfen {0} saniye bekleyin ve tekrar deneyin."
+  channel-unban:
+    no_permissions: "Bu komutu kullanma izniniz yok."
+    success: "{0} kullanıcısı başarıyla {1} kanalından yasağı kaldırıldı."
+    channel_not_found: "Belirtilen kanal bulunamadı."
+    user_not_found: "Belirtilen kullanıcı bulunamadı."
+    invalid_user_or_channel: "Geçersiz kullanıcı veya kanal belirtildi."
+    user_not_banned: "Kullanıcı bu kanaldan yasaklı değil."
+  channel-ban:
+    no_permissions: "Bu komutu kullanmak için yeterli izne sahip değilsiniz."
+    invalid_duration: "Geçersiz süre. Lütfen geçerli bir süre belirtin."
+    success: "Kullanıcı **{0}** başarıyla {1} kanalından yasaklandı: **{2}** sebebiyle."
+    user_not_found: "Belirtilen kullanıcı bulunamadı."
+    invalid_user_or_channel: "Geçersiz kullanıcı veya kanal belirtildi."
+    tempban: "Geçici Yasak"
+    permban: "Kalıcı Yasak"
+    channel_not_found: "Belirtilen kanal bulunamadı."
+    already_banned: "Kullanıcı zaten bu kanaldan yasaklanmış."
   antiswear:
     error:
       title: "Hata"
