@@ -1,6 +1,20 @@
 no_reason: "No reason provided."
 commands:
   rate_limit: "Please wait {0} seconds and try again."
+  autorole:
+    no_permissions: "You do not have permission to use this command."
+    success: "Auto role set successfully!"
+    role_set: "Set Role:"
+  autopunish:
+    error:
+      title: "Error"
+      description: "You do not have permission to use this command."
+    enable:
+      title: "Auto Punish Enabled"
+      description: "Auto punish has been successfully enabled."
+    disable:
+      title: "Auto Punish Disabled"
+      description: "Auto punish has been successfully disabled."
   channel-unban:
     no_permissions: "You do not have permission to use this command."
     success: "{0} successfully unbanned from channel {1}."
@@ -12,7 +26,6 @@ commands:
     no_permissions: "You do not have sufficient permissions to use this command."
     invalid_duration: "Invalid duration. Please specify a valid duration."
     success: "User **{0}** has been successfully banned from the {1} channel for: **{2}**."
-    user_not_found: "The specified user was not found."
     invalid_user_or_channel: "Invalid user or channel specified."
     tempban: "Temporary Ban"
     permban: "Permanent Ban"
@@ -28,6 +41,14 @@ commands:
     disable:
       title: "Anti-Swear Disabled"
       description: "Anti-swear feature has been successfully disabled."
+    add:
+      no_permissions: "You do not have the necessary permissions to use this command."
+      already_exists: "{0} word is already in the swear word list."
+      success: "{0} word was successfully added to the swear word list."
+    remove:
+      no_permissions: "You do not have the necessary permissions to use this command."
+      not_found: "{0} word was not found in the swear word list."
+      success: "{0} word was successfully removed from the swear word list."
   warnlist:
     success_title: "Warning List"
     success_description: "{0} warnings issued to the user."

@@ -21,8 +21,7 @@ public class AntiSwear {
     }
 
     public boolean containsProfanity(String messageContent, String guildId) {
-        boolean enabled = serverSettings.getAntiSwearEnabled(guildId);
-        if (!enabled) {
+        if (!serverSettings.getAntiSwearEnabled(guildId)) {
             return false;
         }
 
@@ -38,12 +37,11 @@ public class AntiSwear {
     public MessageEmbed handleProfanity(String guildId, String authorMention) {
         boolean autoPunishEnabled = serverSettings.isAutoPunishEnabled(guildId);
         boolean antiSwearEnabled = serverSettings.getAntiSwearEnabled(guildId);
-        EmbedBuilder message = null;
 
         if (autoPunishEnabled && antiSwearEnabled) {
             EmbedBuilder embedBuilder = embedBuilderManager.createEmbed("events.antiswear", null, serverSettings.getLanguage(guildId));
             embedBuilder.setDescription(authorMention);
-            return message.build();
+            return embedBuilder.build();
         }
         return null;
     }

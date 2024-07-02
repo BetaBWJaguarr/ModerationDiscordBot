@@ -1,13 +1,13 @@
 package beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands;
 
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
+import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.permissionsmanager.PermType;
 import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -23,23 +23,26 @@ public class KickCommand extends ListenerAdapter {
     private final ServerSettings serverSettings;
     private final LanguageManager languageManager;
     private final RateLimit rateLimit;
+    private final HandleErrors errorHandle;
 
-    public KickCommand(ServerSettings serverSettings, LanguageManager languageManager, RateLimit rateLimit) {
+    public KickCommand(ServerSettings serverSettings, LanguageManager languageManager, RateLimit rateLimit, HandleErrors errorHandle) {
         this.languageManager = languageManager;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.serverSettings = serverSettings;
         this.rateLimit = rateLimit;
+        this.errorHandle = errorHandle;
     }
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        if (event.getName().equals("kick")) {
-
+        try {
+            if (!event.getName().equals("kick")) {
+                return;
+            }
 
             if (rateLimit.isRateLimited(event, embedBuilderManager, serverSettings)) {
                 return;
             }
-
 
             String dcserverid = event.getGuild().getId();
             PermissionsManager permissionsManager = new PermissionsManager();
@@ -59,29 +62,35 @@ public class KickCommand extends ListenerAdapter {
 
                     String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : languageManager.getMessage("no_reason", serverSettings.getLanguage(dcserverid));
 
-                    event.getGuild().kick(UserSnowflake.fromId(userToKickId), reason).queue();
+                    event.getGuild().kick(userToKick, reason).queue(success -> {
+                        String modLogChannelId = serverSettings.getModLogChannel(dcserverid);
+                        if (modLogChannelId != null) {
+                            TextChannel modLogChannel = event.getJDA().getTextChannelById(modLogChannelId);
+                            if (modLogChannel != null) {
+                                EmbedBuilder embedBuilder = new EmbedBuilder();
+                                embedBuilder.setTitle(languageManager.getMessage("commands.kick.log.title", serverSettings.getLanguage(dcserverid)));
+                                embedBuilder.addField(languageManager.getMessage("commands.kick.log.user", serverSettings.getLanguage(dcserverid)), username, false);
+                                embedBuilder.addField(languageManager.getMessage("commands.kick.log.reason", serverSettings.getLanguage(dcserverid)), reason, false);
+                                embedBuilder.setColor(Color.RED);
+                                embedBuilder.setTimestamp(Instant.now());
 
-                    String modLogChannelId = serverSettings.getModLogChannel(dcserverid);
-                    if (modLogChannelId != null) {
-                        TextChannel modLogChannel = event.getJDA().getTextChannelById(modLogChannelId);
-                        if (modLogChannel != null) {
-                            EmbedBuilder embedBuilder = new EmbedBuilder();
-                            embedBuilder.setTitle(languageManager.getMessage("commands.kick.log.title", serverSettings.getLanguage(dcserverid)));
-                            embedBuilder.addField(languageManager.getMessage("commands.kick.log.user", serverSettings.getLanguage(dcserverid)), username, false);
-                            embedBuilder.addField((languageManager.getMessage("commands.kick.log.reason", serverSettings.getLanguage(dcserverid))), reason, false);
-                            embedBuilder.setColor(Color.RED);
-                            embedBuilder.setTimestamp(Instant.now());
-
-                            modLogChannel.sendMessageEmbeds(embedBuilder.build()).queue();
+                                modLogChannel.sendMessageEmbeds(embedBuilder.build()).queue();
+                            }
                         }
-                    }
 
-                    event.replyEmbeds(embedBuilderManager.createEmbed("commands.kick.success", null, serverSettings.getLanguage(dcserverid), username, reason).build()).queue();
+                        event.replyEmbeds(embedBuilderManager.createEmbed("commands.kick.success", null, serverSettings.getLanguage(dcserverid), username, reason).build()).queue();
+                    }, error -> {
+                        errorHandle.sendErrorMessage((Exception) error, event.getChannel().asTextChannel());
+                    });
 
                 }, error -> {
-                    event.replyEmbeds(embedBuilderManager.createEmbed("commands.kick.user_not_found", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
+                    errorHandle.sendErrorMessage((Exception) error, event.getChannel().asTextChannel());
                 });
+            } else {
+                event.replyEmbeds(embedBuilderManager.createEmbed("commands.kick.invalid_mention", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
             }
+        } catch (Exception e) {
+            errorHandle.sendErrorMessage(e, event.getChannel().asTextChannel());
         }
     }
 }

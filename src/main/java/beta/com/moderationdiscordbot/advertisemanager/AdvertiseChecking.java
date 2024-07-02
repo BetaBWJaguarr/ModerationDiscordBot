@@ -57,7 +57,7 @@ public class AdvertiseChecking extends ListenerAdapter {
             "(http|https)://(\\w+\\.)?(\\w+\\.\\w+)(/\\w+)?"
     );
 
-    private static final int MIN_MESSAGE_LENGTH = 10;
+    private static final int MIN_MESSAGE_LENGTH = 3;
     private static final int MAX_MESSAGE_DUPLICATES = 3;
     private static final String ADVERTISEMENT_ROLE_EXEMPT = "AdvertiseExempt";
 

@@ -4,6 +4,8 @@ import beta.com.moderationdiscordbot.advertisemanager.AdvertiseChecking;
 import beta.com.moderationdiscordbot.autopunish.AutoPunishEnableCommands;
 import beta.com.moderationdiscordbot.autopunish.antiswear.AntiSwear;
 import beta.com.moderationdiscordbot.autopunish.antiswear.commands.AntiSwearCommand;
+import beta.com.moderationdiscordbot.autopunish.antiswear.commands.subcommands.AddCommand;
+import beta.com.moderationdiscordbot.autopunish.antiswear.commands.subcommands.RemoveCommand;
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.BanLog;
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.MuteLog;
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.WarnLog;
@@ -67,9 +69,11 @@ public class Main {
         //HandleExpections
 
         //Commands
-        RateLimit rateLimit = new RateLimit(3,TimeUnit.SECONDS);
+        RateLimit rateLimit = new RateLimit(2,TimeUnit.SECONDS);
 
-        AntiSpamCommand antiSpamCommand = new AntiSpamCommand(serverSettings,languageManager,rateLimit);
+        AutoRoleCommand autoRoleCommand = new AutoRoleCommand(serverSettings,languageManager,handleErrors,rateLimit);
+
+        AntiSpamCommand antiSpamCommand = new AntiSpamCommand(serverSettings,languageManager,rateLimit,handleErrors);
         PingCommand pingCommand = new PingCommand(serverSettings,languageManager,rateLimit);
         SetLanguageCommand setLanguageCommand = new SetLanguageCommand(serverSettings,languageManager,handleErrors,rateLimit);
         BanCommand banCommand = new BanCommand(serverSettings,languageManager,banLog,handleErrors,rateLimit);
@@ -77,14 +81,17 @@ public class Main {
         ChannelUnBanCommand channelUnBanCommand = new ChannelUnBanCommand(serverSettings,languageManager,banLog,handleErrors,rateLimit);
         ModLogCommand modLogCommand = new ModLogCommand(serverSettings,languageManager,handleErrors,rateLimit);
         MuteCommand muteCommand = new MuteCommand(serverSettings,languageManager,muteLog,handleErrors,rateLimit);
-        AntiVirusCommand antiVirusCommand = new AntiVirusCommand(serverSettings,languageManager,rateLimit);
+        AntiVirusCommand antiVirusCommand = new AntiVirusCommand(serverSettings,languageManager,rateLimit,handleErrors);
 
         AntiSwearCommand antiSwearCommand = new AntiSwearCommand(serverSettings,languageManager,rateLimit);
+        AddCommand AddWordAntiSwearCommand = new AddCommand(serverSettings,languageManager,rateLimit,handleErrors);
+        RemoveCommand RemoveWordAntiSwaerCommand = new RemoveCommand(serverSettings,languageManager,rateLimit,handleErrors);
+
         AutoPunishEnableCommands autoPunishEnableCommands = new AutoPunishEnableCommands(serverSettings,languageManager,rateLimit);
 
         WarnCommand warnCommand = new WarnCommand(serverSettings,languageManager,warnLog,handleErrors,rateLimit);
         WarnListCommand warnListCommand = new WarnListCommand(serverSettings,languageManager,warnLog,handleErrors,rateLimit);
-        KickCommand kickCommand = new KickCommand(serverSettings,languageManager,rateLimit);
+        KickCommand kickCommand = new KickCommand(serverSettings,languageManager,rateLimit,handleErrors);
 
 
         UnWarnCommand unWarnCommand = new UnWarnCommand(serverSettings,languageManager,warnLog,handleErrors,rateLimit);
@@ -123,6 +130,9 @@ public class Main {
                     .addEventListeners(channelBanCommand)
                     .addEventListeners(channelUnBanCommand)
                     .addEventListeners(clearBotsCommand)
+                    .addEventListeners(AddWordAntiSwearCommand)
+                    .addEventListeners(RemoveWordAntiSwaerCommand)
+                    .addEventListeners(autoRoleCommand)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .build();
 
@@ -214,7 +224,12 @@ public class Main {
                     )
                     .register("antiswear", "AntiSwear Command",
                             new SubcommandData("enable", "Enable the anti-swear system"),
-                            new SubcommandData("disable", "Disable the anti-swear system")
+                            new SubcommandData("disable", "Disable the anti-swear system"),
+                            new SubcommandData("add", "Add a word to the anti-swear filter")
+                                    .addOption(OptionType.STRING, "word", "The word to add", true),
+                            new SubcommandData("remove", "Add a word to the anti-swear filter")
+                                    .addOption(OptionType.STRING, "word", "The word to remove", true)
+
                     )
                     .register("autopunish", "AutoPunish Command",
                             new SubcommandData("enable", "Enable the auto-punish system"),
@@ -230,6 +245,9 @@ public class Main {
                                     .addOption(OptionType.STRING, "username", "The username (mentionable) of the user to unban", true)
                                     .addOption(OptionType.CHANNEL, "channel", "The channel to unban the user", true)
                                     .addOption(OptionType.STRING, "reason", "The reason for unbanning", false)
+                    )
+                    .register("autorole", "AutoRole Command",
+                            new OptionData(OptionType.ROLE, "role", "The role to set as the autorole", true)
                     );
 
             AntiSwear antiSwear = new AntiSwear(serverSettings,languageManager);
@@ -240,7 +258,8 @@ public class Main {
                      .register(new BotJoinServer(serverSettings))
                      .register(new AdvertiseChecking(languageManager,serverSettings))
                      .register(new AntiVirusEvent(antiVirusCommand,languageManager,serverSettings))
-                     .register(new AutoPunishEvent(antiSwear));
+                     .register(new AutoPunishEvent(antiSwear))
+                     .register(new AutoRoleEvent(serverSettings,languageManager));
 
             botInfo.printInformation();
 

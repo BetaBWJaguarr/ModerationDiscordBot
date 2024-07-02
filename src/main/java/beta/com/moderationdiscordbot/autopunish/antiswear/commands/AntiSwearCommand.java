@@ -28,30 +28,39 @@ public class AntiSwearCommand extends ListenerAdapter {
             String discordServerId = event.getGuild().getId();
             String language = serverSettings.getLanguage(discordServerId);
 
-            if (rateLimit.isRateLimited(event, embedManager, serverSettings)) {
-                return;
-            }
-
-            if (!event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
-                event.replyEmbeds(embedManager.createEmbedWithColor(
-                        "commands.antiswear.error.title",
-                        "commands.antiswear.error.description",
-                        language,
-                        Color.RED).build()).setEphemeral(true).queue();
-                return;
-            }
-
             String subcommand = event.getSubcommandName();
             if (subcommand != null) {
                 switch (subcommand) {
                     case "enable":
-                        handleEnableAntiSwear(event, discordServerId, language);
+                        handleToggleAntiSwear(event, discordServerId, language, true);
                         break;
                     case "disable":
-                        handleDisableAntiSwear(event, discordServerId, language);
+                        handleToggleAntiSwear(event, discordServerId, language, false);
                         break;
                 }
             }
+        }
+    }
+
+
+    private void handleToggleAntiSwear(SlashCommandInteractionEvent event, String discordServerId, String language, boolean enable) {
+        if (!event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+            event.replyEmbeds(embedManager.createEmbedWithColor(
+                    "commands.antiswear.error.title",
+                    "commands.antiswear.error.description",
+                    language,
+                    Color.RED).build()).setEphemeral(true).queue();
+            return;
+        }
+
+        if (rateLimit.isRateLimited(event, embedManager, serverSettings)) {
+            return;
+        }
+
+        if (enable) {
+            handleEnableAntiSwear(event, discordServerId, language);
+        } else {
+            handleDisableAntiSwear(event, discordServerId, language);
         }
     }
 

@@ -1,6 +1,20 @@
 no_reason: "Sebep belirtilmedi."
 commands:
   rate_limit: "Lütfen {0} saniye bekleyin ve tekrar deneyin."
+  autorole:
+    no_permissions: "Bu komutu kullanmak için gerekli izinlere sahip değilsiniz."
+    success: "Otomatik rol başarıyla ayarlandı!"
+    role_set: "Ayarlanan Rol:"
+  autopunish:
+    error:
+      title: "Hata"
+      description: "Bu komutu kullanma izniniz yok."
+    enable:
+      title: "Otomatik Cezalandırma Etkinleştirildi"
+      description: "Otomatik cezalandırma başarıyla etkinleştirildi."
+    disable:
+      title: "Otomatik Cezalandırma Devre Dışı Bırakıldı"
+      description: "Otomatik cezalandırma başarıyla devre dışı bırakıldı."
   channel-unban:
     no_permissions: "Bu komutu kullanma izniniz yok."
     success: "{0} kullanıcısı başarıyla {1} kanalından yasağı kaldırıldı."
@@ -12,7 +26,6 @@ commands:
     no_permissions: "Bu komutu kullanmak için yeterli izne sahip değilsiniz."
     invalid_duration: "Geçersiz süre. Lütfen geçerli bir süre belirtin."
     success: "Kullanıcı **{0}** başarıyla {1} kanalından yasaklandı: **{2}** sebebiyle."
-    user_not_found: "Belirtilen kullanıcı bulunamadı."
     invalid_user_or_channel: "Geçersiz kullanıcı veya kanal belirtildi."
     tempban: "Geçici Yasak"
     permban: "Kalıcı Yasak"
@@ -28,6 +41,14 @@ commands:
     disable:
       title: "Küfür Engelleyici Devre Dışı Bırakıldı"
       description: "Küfür engelleyici başarıyla devre dışı bırakıldı."
+    add:
+      no_permissions: "Bu komutu kullanmak için gerekli izinlere sahip değilsiniz."
+      already_exists: "'{0}' kelimesi zaten küfür listesindedir."
+      success: "'{0}' kelimesi başarıyla küfür listesine eklendi."
+    remove:
+      no_permissions: "Bu komutu kullanmak için gerekli izinlere sahip değilsiniz."
+      not_found: "'{0}' kelimesi küfür listesinden bulunamadı."
+      success: "'{0}' kelimesi küfür listesinden başarıyla kaldırıldı."
   warnlist:
     success_title: "Uyarı Listesi"
     success_description: "Kullanıcıya {0} adet uyarı verildi."

@@ -36,7 +36,7 @@ public class ServerSettings {
                 Updates.set("settings.antiSpamMessageLimit", MESSAGE_LIMIT_DEFAULT),
                 Updates.set("settings.language", DEFAULT_LANGUAGE),
                 Updates.set("settings.antiswearfeatures.enabled", false),
-                Updates.set("settings.autopunish",false)
+                Updates.set("settings.autopunish", false)
         );
         collection.updateOne(filter, update, new UpdateOptions().upsert(true));
     }
@@ -240,12 +240,12 @@ public class ServerSettings {
             Document document = collection.find(filter).first();
             if (document != null) {
                 Document settings = (Document) document.get("settings");
-                if (settings != null) {
-                    return settings.getBoolean("antiswearfeatures.enabled", false);
+                if (settings != null && settings.containsKey("antiswearfeatures")) {
+                    Document antiswearFeatures = (Document) settings.get("antiswearfeatures");
+                    return antiswearFeatures.getBoolean("enabled");
                 }
             }
         } catch (MongoException e) {
-            System.err.println("Error retrieving document from MongoDB: " + e.getMessage());
         }
         return false;
     }
@@ -265,16 +265,22 @@ public class ServerSettings {
     }
 
 
+    @SuppressWarnings("unchecked")
     public List<String> getAntiSwearWordsList(String discordServerId) {
         try {
             var filter = Filters.eq("_id", discordServerId);
             Document document = collection.find(filter).first();
             if (document != null) {
+
                 Document settings = (Document) document.get("settings");
                 if (settings != null) {
-                    List<String> wordsList = (List<String>) settings.get("antiswearfeatures.words-list");
-                    if (wordsList != null) {
-                        return wordsList;
+
+                    Document antiswearfeatures = (Document) settings.get("antiswearfeatures");
+                    if (antiswearfeatures != null) {
+                        List<String> wordsList = (List<String>) antiswearfeatures.get("words-list");
+                        if (wordsList != null) {
+                            return wordsList;
+                        }
                     }
                 }
             }
@@ -283,6 +289,34 @@ public class ServerSettings {
         }
         return new ArrayList<>();
     }
-}
+    //AntiSwear Feature
 
-//AntiSwear Feature
+    //AUTO ROLE FEATURE
+    public void setAutoRole(String discordServerId, String roleId) {
+        try {
+            var filter = Filters.eq("_id", discordServerId);
+            var update = Updates.set("settings.autoRole", roleId);
+            collection.updateOne(filter, update, new UpdateOptions().upsert(true));
+        } catch (MongoException e) {
+            System.err.println("Error updating document in MongoDB: " + e.getMessage());
+        }
+    }
+
+
+    public String getAutoRole(String discordServerId) {
+        try {
+            var filter = Filters.eq("_id", discordServerId);
+            Document document = collection.find(filter).first();
+            if (document != null) {
+                Document settings = (Document) document.get("settings");
+                if (settings != null) {
+                    return settings.getString("autoRole");
+                }
+            }
+        } catch (MongoException e) {
+            System.err.println("Error retrieving document from MongoDB: " + e.getMessage());
+        }
+        return null;
+    }
+    //AUTO ROLE FEATURE
+}

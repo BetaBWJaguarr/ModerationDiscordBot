@@ -32,7 +32,7 @@ public class AutoPunishEnableCommands extends ListenerAdapter {
                 return;
             }
 
-            if (!event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+            if (!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
                 event.replyEmbeds(embedManager.createEmbedWithColor(
                         "commands.autopunish.error.title",
                         "commands.autopunish.error.description",
