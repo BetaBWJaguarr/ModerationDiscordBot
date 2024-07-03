@@ -8,6 +8,7 @@ import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
+import beta.com.moderationdiscordbot.utils.ModLogEmbed;
 import beta.com.moderationdiscordbot.utils.ParseDuration;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -28,6 +29,7 @@ public class MuteCommand extends ListenerAdapter {
     private final MuteLog muteLog;
     private final HandleErrors errorManager;
     private final RateLimit rateLimit;
+    private final ModLogEmbed modLogEmbed;
 
     public MuteCommand(ServerSettings serverSettings, LanguageManager languageManager, MuteLog muteLog, HandleErrors errorManager, RateLimit rateLimit) {
         this.languageManager = languageManager;
@@ -36,6 +38,7 @@ public class MuteCommand extends ListenerAdapter {
         this.muteLog = muteLog;
         this.errorManager = errorManager;
         this.rateLimit = rateLimit;
+        this.modLogEmbed = new ModLogEmbed(languageManager,serverSettings);
     }
 
     @Override
@@ -93,6 +96,9 @@ public class MuteCommand extends ListenerAdapter {
                                 }
 
                                 sendMuteNotification(userToMute, username, reason, durationInSeconds, dcserverid);
+
+                                modLogEmbed.sendLog(dcserverid, event, "commands.mute.log.title", "commands.mute.log.user", "commands.mute.log.reason", username, reason);
+
 
                                 event.replyEmbeds(embedBuilderManager.createEmbed("commands.mute.success", null, serverSettings.getLanguage(dcserverid), username, reason).build()).queue();
                             },

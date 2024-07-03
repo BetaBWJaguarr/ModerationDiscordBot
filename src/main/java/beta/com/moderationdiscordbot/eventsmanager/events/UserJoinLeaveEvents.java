@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.awt.Color;
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.Period;
@@ -78,8 +79,13 @@ public class UserJoinLeaveEvents extends ListenerAdapter {
                 if (modLogChannel != null) {
                     EmbedBuilder embedBuilder = new EmbedBuilder();
                     embedBuilder.setTitle(languageManager.getMessage("events.joinquit.log.title", serverSettings.getLanguage(discordServerId)));
-                    embedBuilder.addField(languageManager.getMessage("events.joinquit.log.user", serverSettings.getLanguage(discordServerId)), user.getName(), false);
-                    embedBuilder.addField(languageManager.getMessage("events.joinquit.log.action", serverSettings.getLanguage(discordServerId)), action, false);
+                    String userMessageTemplate = languageManager.getMessage("events.joinquit.log.user", serverSettings.getLanguage(discordServerId));
+                    String formattedUserMessage = MessageFormat.format(userMessageTemplate, user.getName());
+                    embedBuilder.addField(formattedUserMessage, "", false);
+
+                    String actionMessageTemplate = languageManager.getMessage("events.joinquit.log.action", serverSettings.getLanguage(discordServerId));
+                    String formattedActionMessage = MessageFormat.format(actionMessageTemplate, action);
+                    embedBuilder.addField(formattedActionMessage, "", false);
                     embedBuilder.setColor(action.equals("Join") ? Color.GREEN : Color.RED);
                     embedBuilder.setTimestamp(OffsetDateTime.now());
 

@@ -8,6 +8,7 @@ import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
+import beta.com.moderationdiscordbot.utils.ModLogEmbed;
 import beta.com.moderationdiscordbot.utils.ParseDuration;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.UserSnowflake;
@@ -30,6 +31,7 @@ public class BanCommand extends ListenerAdapter {
     private final BanLog banLog;
     private final HandleErrors errorManager;
     private final RateLimit rateLimit;
+    private final ModLogEmbed modLogEmbed;
 
     public BanCommand(ServerSettings serverSettings, LanguageManager languageManager, BanLog banLog, HandleErrors errorManager, RateLimit rateLimit) {
         this.languageManager = languageManager;
@@ -38,6 +40,7 @@ public class BanCommand extends ListenerAdapter {
         this.banLog = banLog;
         this.errorManager = errorManager;
         this.rateLimit = rateLimit;
+        this.modLogEmbed = new ModLogEmbed(languageManager,serverSettings);
     }
 
 
@@ -95,20 +98,7 @@ public class BanCommand extends ListenerAdapter {
 
                                 String successMessageKey = durationInSeconds > 0 ? "commands.ban.tempban" : "commands.ban.permban";
 
-                                String modLogChannelId = serverSettings.getModLogChannel(dcserverid);
-                                if (modLogChannelId != null) {
-                                    TextChannel modLogChannel = event.getJDA().getTextChannelById(modLogChannelId);
-                                    if (modLogChannel != null) {
-                                        EmbedBuilder embedBuilder = new EmbedBuilder();
-                                        embedBuilder.setTitle(languageManager.getMessage("commands.ban.log.title", serverSettings.getLanguage(dcserverid)));
-                                        embedBuilder.addField(languageManager.getMessage("commands.ban.log.user", serverSettings.getLanguage(dcserverid)), username, false);
-                                        embedBuilder.addField((languageManager.getMessage("commands.ban.log.reason", serverSettings.getLanguage(dcserverid))), reason, false);
-                                        embedBuilder.setColor(Color.RED);
-                                        embedBuilder.setTimestamp(Instant.now());
-
-                                        modLogChannel.sendMessageEmbeds(embedBuilder.build()).queue();
-                                    }
-                                }
+                                modLogEmbed.sendLog(dcserverid, event, "commands.ban.log.title", "commands.ban.log.user", "commands.ban.log.reason", username, reason);
 
                                 event.replyEmbeds(embedBuilderManager.createEmbed("commands.ban.success", successMessageKey, serverSettings.getLanguage(dcserverid), username, reason).build()).queue();
                             },

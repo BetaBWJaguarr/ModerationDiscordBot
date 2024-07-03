@@ -83,6 +83,10 @@ commands:
     invalid_mention: "Invalid user mention. Please provide a valid user mention."
     dm_title: "Warning Notification"
     dm_description: "You have been warned for the following reason: {0}"
+    log:
+      title: "User Warned"
+      user: "Warned User: "
+      reason: "Reason: "
   clear:
     channel_not_found: "Channel not found."
     success: "Successfully cleared {0} channel  messages in {1}."
@@ -146,6 +150,10 @@ commands:
       duration: "Duration"
       permanent: "Permanent"
       description: "You have been muted in server %s"
+    log:
+      title: "Mute Log"
+      user: "User:"
+      reason: "Reason:"
   unmute:
     no_permissions: "You do not have permission to use this command."
     success: "Success"
@@ -164,12 +172,16 @@ commands:
       title: "Antivirus Status"
       enabled: "Antivirus system has been enabled."
       disabled: "Antivirus system has been disabled."
+    log:
+      title: "AntiVirus Status Updated"
+      enabled: "AntiVirus successfully enabled."
+      disabled: "AntiVirus successfully disabled."
 events:
   joinquit:
     log:
       title: "Server Events"
-      user: "User: "
-      action: "Action: "
+      user: "User: {0}"
+      action: "Action: {0}"
     reliability:
       low: "Low"
       medium: "Medium"

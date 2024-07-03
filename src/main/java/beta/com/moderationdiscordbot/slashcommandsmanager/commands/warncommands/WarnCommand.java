@@ -9,13 +9,13 @@ import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
+import beta.com.moderationdiscordbot.utils.ModLogEmbed;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.text.MessageFormat;
-import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,6 +27,7 @@ public class WarnCommand extends ListenerAdapter {
     private final WarnLog warnLog;
     private final HandleErrors errorHandle;
     private final RateLimit rateLimit;
+    private final ModLogEmbed modLogEmbed;
 
     public WarnCommand(ServerSettings serverSettings, LanguageManager languageManager, WarnLog warnLog, HandleErrors errorHandle, RateLimit rateLimit) {
         this.languageManager = languageManager;
@@ -35,6 +36,7 @@ public class WarnCommand extends ListenerAdapter {
         this.warnLog = warnLog;
         this.errorHandle = errorHandle;
         this.rateLimit = rateLimit;
+        this.modLogEmbed = new ModLogEmbed(languageManager,serverSettings);
     }
 
     @Override
@@ -76,8 +78,12 @@ public class WarnCommand extends ListenerAdapter {
 
                         event.replyEmbeds(embedBuilderManager.createEmbed("commands.warn.success", null, serverSettings.getLanguage(dcserverid), username, reason).build()).queue();
 
+
                         HighWarnKickEvent highWarnKickEvent = new HighWarnKickEvent(warnLog);
                         highWarnKickEvent.checkAndKickUser(dcserverid, userToWarn);
+
+                        modLogEmbed.sendLog(dcserverid, event, "commands.warn.log.title", "commands.warn.log.user", "commands.warn.log.reason", username, reason);
+
                     }, error -> {
                         errorHandle.sendErrorMessage((Exception) error, event.getChannel().asTextChannel());
                     });

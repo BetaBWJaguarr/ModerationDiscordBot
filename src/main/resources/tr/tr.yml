@@ -83,6 +83,11 @@ commands:
     invalid_mention: "Geçersiz kullanıcı etiketi. Lütfen geçerli bir kullanıcı etiketi sağlayın."
     dm_title: "Uyarı Bildirimi"
     dm_description: "Bu sebepten dolayı uyarı aldın !: {0}"
+    log:
+      title: "Kullanıcı Uyarıldı"
+      user: "Uyarılan Kullanıcı:"
+      reason: "Sebep:"
+
   clear:
     channel_not_found: "Kanal bulunamadı."
     success: "Başarıyla {0} kanalında {1} adet mesaj silindi."
@@ -146,6 +151,10 @@ commands:
       duration: "Süre"
       permanent: "Süresiz"
       description: "%s sunucusunda sessize alındınız"
+    log:
+      title: "Susturma Kaydı"
+      user: "Kullanıcı:"
+      reason: "Sebep:"
   unmute:
     no_permissions: "Bu komutu kullanma izniniz yok."
     success: "Başarı"
@@ -164,12 +173,16 @@ commands:
       title: "Antivirüs Durumu"
       enabled: "Antivirüs sistemi etkinleştirildi."
       disabled: "Antivirüs sistemi devre dışı bırakıldı."
+    log:
+      title: "AntiVirus Durumu Güncellendi"
+      enabled: "AntiVirus başarıyla etkinleştirildi."
+      disabled: "AntiVirus başarıyla devre dışı bırakıldı."
 events:
   joinquit:
     log:
       title: "Sunucu Olayları"
-      user: "Kullanıcı: "
-      action: "Aksiyon: "
+      user: "Kullanıcı: {0}"
+      action: "Aksiyon: {0}"
     reliability:
       low: "Düşük"
       medium: "Orta"

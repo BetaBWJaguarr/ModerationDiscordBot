@@ -5,6 +5,7 @@ import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
+import beta.com.moderationdiscordbot.utils.ModLogEmbed;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -17,12 +18,14 @@ public class AntiVirusCommand extends ListenerAdapter {
     private final EmbedBuilderManager embedManager;
     private final RateLimit rateLimit;
     private final HandleErrors errorManager;
+    private final ModLogEmbed modLogEmbed;
 
     public AntiVirusCommand(ServerSettings serverSettings, LanguageManager languageManager, RateLimit rateLimit, HandleErrors errorManager) {
         this.serverSettings = serverSettings;
         this.embedManager = new EmbedBuilderManager(languageManager);
         this.rateLimit = rateLimit;
         this.errorManager = errorManager;
+        this.modLogEmbed = new ModLogEmbed(languageManager,serverSettings);
     }
 
     @Override
@@ -64,6 +67,8 @@ public class AntiVirusCommand extends ListenerAdapter {
                     message,
                     language,
                     Color.GREEN).build()).queue();
+            String logMessage = !antiVirusEnabled ? "commands.antivirus.log.enabled" : "commands.antivirus.log.disabled";
+            modLogEmbed.sendLog(discordServerId, event, "commands.antivirus.log.title", logMessage, null, null,null);
         } catch (Exception e) {
             errorManager.sendErrorMessage(e, event.getChannel().asTextChannel());
         }

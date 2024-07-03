@@ -53,6 +53,29 @@ public class AntiVirusManager {
             "ZwQueryInformationProcess"
     };
 
+    private static final String[] ENCRYPTED_DATA_SIGNATURES = {
+            "RSA",
+            "AES",
+            "DES",
+            "TripleDES"
+    };
+
+    private static final String[] RANSOMWARE_SIGNATURES = {
+            "Your files are encrypted!",
+            "Pay now to unlock your files.",
+            "All your files have been locked!",
+            "Your personal files are encrypted.",
+            "Unlock your files with the decryption key.",
+            "Your important files are encrypted.",
+            "Pay ransom to get your files back.",
+    };
+
+    private static final String[] PERMISSIONS_REQUIRED = {
+            "read",
+            "write",
+            "execute"
+    };
+
     public boolean isFileInfected(File file) {
         if (file.isDirectory()) {
             return false;
@@ -60,6 +83,10 @@ public class AntiVirusManager {
 
         String fileName = file.getName().toLowerCase();
         if (isDangerousFileExtension(fileName)) {
+            return true;
+        }
+
+        if (!hasRequiredPermissions(file)) {
             return true;
         }
 
@@ -92,6 +119,14 @@ public class AntiVirusManager {
                 if (containsDangerousDLLFunctions(file)) {
                     return true;
                 }
+            }
+
+            if (containsEncryptedData(content)) {
+                return true;
+            }
+
+            if (containsRansomwareSignature(content)) {
+                return true;
             }
 
             return false;
@@ -204,5 +239,41 @@ public class AntiVirusManager {
 
     private boolean isExecutableFile(String fileName) {
         return fileName.endsWith(".jar") || fileName.endsWith(".exe") || fileName.endsWith(".dll");
+    }
+
+    private boolean containsEncryptedData(String content) {
+        for (String signature : ENCRYPTED_DATA_SIGNATURES) {
+            if (content.contains(signature)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean containsRansomwareSignature(String content) {
+        for (String signature : RANSOMWARE_SIGNATURES) {
+            if (content.contains(signature)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasRequiredPermissions(File file) {
+        for (String permission : PERMISSIONS_REQUIRED) {
+            if (!checkPermission(file, permission)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean checkPermission(File file, String permission) {
+        return switch (permission) {
+            case "read" -> file.canRead();
+            case "write" -> file.canWrite();
+            case "execute" -> true;
+            default -> false;
+        };
     }
 }
