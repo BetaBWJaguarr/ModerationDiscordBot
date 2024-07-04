@@ -2,6 +2,7 @@ package beta.com.moderationdiscordbot.slashcommandsmanager;
 
 import beta.com.moderationdiscordbot.startup.Information;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.restaction.CommandCreateAction;
@@ -66,5 +67,100 @@ public class RegisterSlashCommand {
         commandAction.queue();
         information.incrementCommands();
         return this;
+    }
+
+    public void registerCommands() {
+        Object[][] commands = {
+                {"ping", "A ping command"},
+                {"mute", "Mute a user from the server",
+                        new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to mute", true),
+                        new OptionData(OptionType.STRING, "duration", "The mute duration (e.g., 7d, 12h)", false),
+                        new OptionData(OptionType.STRING, "reason", "The reason for muting", false)},
+                {"setlanguage", "Set the language of the bot",
+                        new OptionData(OptionType.STRING, "language", "The language to set", true)},
+                {"antispam", "AntiSpam Command",
+                        new SubcommandData("messagelimit", "Set the anti-spam message limit")
+                                .addOption(OptionType.INTEGER, "value", "The new message limit", true),
+                        new SubcommandData("timelimit", "Set the anti-spam time limit")
+                                .addOption(OptionType.INTEGER, "value", "The new time limit", true),
+                        new SubcommandData("enable", "Set the anti-spam enable or false")},
+                {"ban", "Ban a user from the server",
+                        new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to ban", true),
+                        new OptionData(OptionType.STRING, "duration", "The ban duration (e.g., 7d, 12h)", false),
+                        new OptionData(OptionType.STRING, "reason", "The reason for banning", false),
+                        new OptionData(OptionType.INTEGER, "delete_history_message_duration", "The duration of deleting the message history", false)},
+                {"modlog", "Set the modlog channel",
+                        new OptionData(OptionType.CHANNEL, "channel", "The channel to set as the modlog channel", true)},
+                {"antivirus", "AntiVirus Command"},
+                {"unban", "Unban a user from the server",
+                        new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to unban", true),
+                        new OptionData(OptionType.STRING, "reason", "the reason for unbanning", false)},
+                {"unmute", "Unmute a user from the server",
+                        new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to unmute", true),
+                        new OptionData(OptionType.STRING, "reason", "The reason for unmuting", false)},
+                {"clear", "Clear the files",
+                        new SubcommandData("files", "Clear the files")
+                                .addOption(OptionType.INTEGER, "amount", "The amount of files to clear", true)
+                                .addOption(OptionType.CHANNEL, "channel", "The channel to clear the files", true),
+                        new SubcommandData("all", "Clear all the messages")
+                                .addOption(OptionType.INTEGER, "amount", "The amount of messages to clear", true)
+                                .addOption(OptionType.CHANNEL, "channel", "The channel to clear all the messages", true),
+                        new SubcommandData("bots", "Clear all the bots messages")
+                                .addOption(OptionType.INTEGER, "amount", "The amount of messages to clear", true)
+                                .addOption(OptionType.CHANNEL, "channel", "The channel to clear all the bots messages", true),
+                        new SubcommandData("content", "Clear the content")
+                                .addOption(OptionType.STRING, "content", "The content to clear", true)
+                                .addOption(OptionType.INTEGER, "amount", "The amount of messages to clear", true)
+                                .addOption(OptionType.CHANNEL, "channel", "The channel to clear the content", true),
+                        new SubcommandData("embeds", "Clear all the embeds")
+                                .addOption(OptionType.INTEGER, "amount", "The amount of messages to clear", true)
+                                .addOption(OptionType.CHANNEL, "channel", "The channel to clear all the embeds", true)},
+                {"warn", "Warn a user from the server",
+                        new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to warn", true),
+                        new OptionData(OptionType.STRING, "reason", "The reason for warning", false)},
+                {"unwarn", "Unwarn a user from the server",
+                        new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to unwarn", true),
+                        new OptionData(OptionType.STRING, "warningid", "The warning id to unwarn", true),
+                        new OptionData(OptionType.STRING, "reason", "The reason for unwarning", false)},
+                {"clearlogchannel", "Clear the log channel",
+                        new OptionData(OptionType.CHANNEL, "channel", "The channel to clear the log channel", true)},
+                {"kick", "Kick a user from the server",
+                        new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to kick", true),
+                        new OptionData(OptionType.STRING, "reason", "The reason for kicking", false)},
+                {"warnlist", "List all the warns of a user",
+                        new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to list the warns", true)},
+                {"antiswear", "AntiSwear Command",
+                        new SubcommandData("enable", "Enable the anti-swear system"),
+                        new SubcommandData("disable", "Disable the anti-swear system"),
+                        new SubcommandData("add", "Add a word to the anti-swear filter")
+                                .addOption(OptionType.STRING, "word", "The word to add", true),
+                        new SubcommandData("remove", "Add a word to the anti-swear filter")
+                                .addOption(OptionType.STRING, "word", "The word to remove", true)},
+                {"autopunish", "AutoPunish Command",
+                        new SubcommandData("enable", "Enable the auto-punish system"),
+                        new SubcommandData("disable", "Disable the auto-punish system")},
+                {"channels", "Ban or unban a user from a specific channel",
+                        new SubcommandData("ban", "Ban a user from a specific channel")
+                                .addOption(OptionType.STRING, "username", "The username (mentionable) of the user to ban", true)
+                                .addOption(OptionType.CHANNEL, "channel", "The channel to ban the user", true)
+                                .addOption(OptionType.STRING, "duration", "The ban duration (e.g., 7d, 12h)", false)
+                                .addOption(OptionType.STRING, "reason", "The reason for banning", false),
+                        new SubcommandData("unban", "Unban a user from a specific channel")
+                                .addOption(OptionType.STRING, "username", "The username (mentionable) of the user to unban", true)
+                                .addOption(OptionType.CHANNEL, "channel", "The channel to unban the user", true)
+                                .addOption(OptionType.STRING, "reason", "The reason for unbanning", false)},
+                {"autorole", "AutoRole Command",
+                        new OptionData(OptionType.ROLE, "role", "The role to set as the autorole", true)},
+                {"setwarnkick", "Set the warn kick times",
+                        new OptionData(OptionType.INTEGER, "times", "The new warn kick times", true)},
+        };
+
+        for (Object[] command : commands) {
+            String name = (String) command[0];
+            String description = (String) command[1];
+            Object[] optionsAndSubcommands = new Object[command.length - 2];
+            System.arraycopy(command, 2, optionsAndSubcommands, 0, optionsAndSubcommands.length);
+            register(name, description, optionsAndSubcommands);
+        }
     }
 }

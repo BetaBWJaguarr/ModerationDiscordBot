@@ -3,12 +3,16 @@ package beta.com.moderationdiscordbot.slashcommandsmanager.commands.warncommands
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.WarnLog;
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
+import beta.com.moderationdiscordbot.permissionsmanager.PermType;
+import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.bson.Document;
 
 import java.awt.*;
 import java.text.MessageFormat;
@@ -45,24 +49,42 @@ public class WarnListCommand extends ListenerAdapter {
                     return;
                 }
 
+                PermissionsManager permissionsManager = new PermissionsManager();
+
+                if (!permissionsManager.checkPermissionAndOption(event, PermType.MESSAGE_MANAGE, embedBuilderManager, serverSettings, "commands.warnlist.no_permissions")) {
+                    return;
+                }
+
                 String mention = event.getOption("username").getAsString();
-                String userToCheckId = extractUserIdFromMention(mention,event);
+                String userToCheckId = extractUserIdFromMention(mention, event);
 
                 if (userToCheckId == null) {
                     event.replyEmbeds(embedBuilderManager.createEmbed("commands.warnlist.invalid_mention", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
                     return;
                 }
 
-                List<String> warnIds = warnLog.getWarnIds(dcserverid, userToCheckId);
+                User user = event.getJDA().retrieveUserById(userToCheckId).complete();
+                String username = user.getName();
+                List<Document> warnLogs = warnLog.getWarnIds(dcserverid, userToCheckId);
 
-                if (warnIds == null || warnIds.isEmpty()) {
+                if (warnLogs == null || warnLogs.isEmpty()) {
                     event.replyEmbeds(embedBuilderManager.createEmbed("commands.warnlist.no_warns", null, serverSettings.getLanguage(dcserverid)).build()).queue();
                 } else {
-                    int numWarns = warnIds.size();
+                    int numWarns = warnLogs.size();
                     EmbedBuilder embedBuilder = new EmbedBuilder();
-                    embedBuilder.setTitle(languageManager.getMessage("commands.warnlist.success_title", serverSettings.getLanguage(dcserverid)));
-                    String description = MessageFormat.format(languageManager.getMessage("commands.warnlist.success_description", serverSettings.getLanguage(dcserverid)), numWarns);
-                    embedBuilder.setDescription(description);
+                    embedBuilder.setTitle(MessageFormat.format(languageManager.getMessage("commands.warnlist.success_title", serverSettings.getLanguage(dcserverid)), username));
+                    StringBuilder description = new StringBuilder(MessageFormat.format(languageManager.getMessage("commands.warnlist.success_description", serverSettings.getLanguage(dcserverid)), numWarns)).append("\n\n");
+
+                    for (Document warn : warnLogs) {
+                        String reason = warn.getString("reason");
+                        String moderator = warn.getString("moderator");
+                        String warningId = warn.getString("warningId");
+
+                        description.append(MessageFormat.format(languageManager.getMessage("commands.warnlist.warn_entry", serverSettings.getLanguage(dcserverid)),
+                                warningId, reason, moderator)).append("\n");
+                    }
+
+                    embedBuilder.setDescription(description.toString());
                     embedBuilder.setColor(Color.YELLOW);
                     embedBuilder.setTimestamp(Instant.now());
 
@@ -74,7 +96,7 @@ public class WarnListCommand extends ListenerAdapter {
         }
     }
 
-    private String extractUserIdFromMention(String mention,SlashCommandInteractionEvent event) {
+    private String extractUserIdFromMention(String mention, SlashCommandInteractionEvent event) {
         try {
             Pattern mentionPattern = Pattern.compile("<@!?(\\d+)>");
             Matcher matcher = mentionPattern.matcher(mention);
@@ -85,7 +107,7 @@ public class WarnListCommand extends ListenerAdapter {
                 return null;
             }
         } catch (Exception e) {
-            errorHandle.sendErrorMessage(e,event.getChannel().asTextChannel());
+            errorHandle.sendErrorMessage(e, event.getChannel().asTextChannel());
             return null;
         }
     }

@@ -1,6 +1,9 @@
 no_reason: "Sebep belirtilmedi."
 commands:
   rate_limit: "Lütfen {0} saniye bekleyin ve tekrar deneyin."
+  setwarnkick:
+    success: "Uyarı atma sayısı başarıyla {0} olarak ayarlandı."
+    no_permissions: "Bu komutu kullanma izniniz yok."
   autorole:
     no_permissions: "Bu komutu kullanmak için gerekli izinlere sahip değilsiniz."
     success: "Otomatik rol başarıyla ayarlandı!"
@@ -50,12 +53,12 @@ commands:
       not_found: "'{0}' kelimesi küfür listesinden bulunamadı."
       success: "'{0}' kelimesi küfür listesinden başarıyla kaldırıldı."
   warnlist:
-    success_title: "Uyarı Listesi"
-    success_description: "Kullanıcıya {0} adet uyarı verildi."
-    invalid_mention: "Geçersiz kullanıcı bahsi."
-    no_warns: "Bu kullanıcı için uyarı bulunamadı."
-    permission_error: "Bu komutu kullanma izniniz yok."
-    error_occurred: "Bir hata oluştu."
+    success_title: "{0} için Uyarı Listesi"
+    success_description: "Bu kullanıcının {0} uyarısı var."
+    warn_entry: "Uyarı ID: {0}\nSebep: {1}\nModeratör: {2}\n"
+    invalid_mention: "Geçersiz etiket. Lütfen geçerli bir kullanıcıyı etiketleyin."
+    no_warns: "Bu kullanıcının uyarısı yok."
+    no_permissions: "Bu komutu kullanma izniniz yok."
   kick:
     no_permissions: "Bu komutu kullanma izniniz yok."
     user_not_found: "Kullanıcı bulunamadı."

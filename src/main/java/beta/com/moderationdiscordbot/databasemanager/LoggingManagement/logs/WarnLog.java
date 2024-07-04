@@ -39,7 +39,7 @@ public class WarnLog {
     }
 
 
-    public List<String> getWarnIds(String serverId, String userId) {
+    public List<Document> getWarnIds(String serverId, String userId) {
         try {
             var filter = Filters.and(
                     Filters.eq("serverId", serverId),
@@ -49,12 +49,7 @@ public class WarnLog {
             Document document = collection.find(filter).first();
 
             if (document != null) {
-                List<String> warnIds = new ArrayList<>();
-                List<Document> warns = (List<Document>) document.get("warns");
-                for (Document warn : warns) {
-                    warnIds.add(warn.getString("warningId"));
-                }
-                return warnIds;
+                return (List<Document>) document.get("warns");
             }
         } catch (MongoException e) {
             System.err.println("Error retrieving document from MongoDB: " + e.getMessage());

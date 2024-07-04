@@ -1,6 +1,9 @@
 no_reason: "No reason provided."
 commands:
   rate_limit: "Please wait {0} seconds and try again."
+  setwarnkick:
+    success: "Successfully set the warn kick times to {0}."
+    no_permissions: "You do not have permission to use this command."
   autorole:
     no_permissions: "You do not have permission to use this command."
     success: "Auto role set successfully!"
@@ -50,12 +53,12 @@ commands:
       not_found: "{0} word was not found in the swear word list."
       success: "{0} word was successfully removed from the swear word list."
   warnlist:
-    success_title: "Warning List"
-    success_description: "{0} warnings issued to the user."
-    invalid_mention: "Invalid user mention."
-    no_warns: "No warnings found for this user."
-    permission_error: "You do not have permission to use this command."
-    error_occurred: "An error occurred."
+    success_title: "Warning List for {0}"
+    success_description: "This user has {0} warnings."
+    warn_entry: "Warning ID: {0}\nReason: {1}\nModerator:  {2}\n"
+    invalid_mention: "Invalid mention. Please mention a valid user."
+    no_warns: "This user has no warnings."
+    no_permissions: "You do not have permission to use this command."
   kick:
     no_permissions: "You do not have permission to use this command."
     user_not_found: "User not found."
