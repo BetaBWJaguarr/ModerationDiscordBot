@@ -8,6 +8,7 @@ import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
+import beta.com.moderationdiscordbot.utils.ModLogEmbed;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -25,6 +26,7 @@ public class UnWarnCommand extends ListenerAdapter {
     private final WarnLog warnLog;
     private final HandleErrors errorHandle;
     private final RateLimit rateLimit;
+    private final ModLogEmbed modLogEmbed;
 
     public UnWarnCommand(ServerSettings serverSettings, LanguageManager languageManager, WarnLog warnLog, HandleErrors errorHandle, RateLimit rateLimit) {
         this.languageManager = languageManager;
@@ -33,6 +35,7 @@ public class UnWarnCommand extends ListenerAdapter {
         this.warnLog = warnLog;
         this.errorHandle = errorHandle;
         this.rateLimit = rateLimit;
+        this.modLogEmbed = new ModLogEmbed(languageManager, serverSettings);
     }
 
     @Override
@@ -57,7 +60,7 @@ public class UnWarnCommand extends ListenerAdapter {
                 if (matcher.find()) {
                     String userToUnwarnId = matcher.group(1);
                     String warningId = event.getOption("warningid").getAsString();
-                    String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : languageManager.getMessage("no_reason", serverSettings.getLanguage(dcserverid));
+                    String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : null;
 
                     event.getGuild().retrieveMemberById(userToUnwarnId).queue(userToUnwarn -> {
                         String username = userToUnwarn.getUser().getName();
@@ -69,15 +72,27 @@ public class UnWarnCommand extends ListenerAdapter {
                             return;
                         }
 
-                        String dmDescription = MessageFormat.format(languageManager.getMessage("commands.unwarn.dm_description", serverSettings.getLanguage(dcserverid)), reason);
-                        MessageEmbed dmEmbed = new EmbedBuilder()
-                                .setTitle(languageManager.getMessage("commands.unwarn.dm_title", serverSettings.getLanguage(dcserverid)))
-                                .setDescription(dmDescription)
-                                .setColor(0x00FF00)
-                                .build();
-                        embedBuilderManager.sendDM(event, userToUnwarnId, dmEmbed);
-
-                        event.replyEmbeds(embedBuilderManager.createEmbed("commands.unwarn.success", null, serverSettings.getLanguage(dcserverid), username, reason).build()).queue();
+                        if (reason != null) {
+                            modLogEmbed.sendLog(dcserverid, event, "commands.unwarn.log.title", "commands.unwarn.log.user", "commands.unwarn.log.reason", username, reason);
+                            String dmDescription = MessageFormat.format(languageManager.getMessage("commands.unwarn.dm_description", serverSettings.getLanguage(dcserverid)), reason);
+                            MessageEmbed dmEmbed = new EmbedBuilder()
+                                    .setTitle(languageManager.getMessage("commands.unwarn.dm_title", serverSettings.getLanguage(dcserverid)))
+                                    .setDescription(dmDescription)
+                                    .setColor(0x00FF00)
+                                    .build();
+                            embedBuilderManager.sendDM(event, userToUnwarnId, dmEmbed);
+                            event.replyEmbeds(embedBuilderManager.createEmbed("commands.unwarn.success", "commands.unwarn.user_unwarned_reason", serverSettings.getLanguage(dcserverid), username, reason).build()).queue();
+                        } else {
+                            modLogEmbed.sendLog(dcserverid, event, "commands.unwarn.log.title", "commands.unwarn.log.user", null, username, null);
+                            String dmDescription = languageManager.getMessage("commands.unwarn.dm_description_no_reason", serverSettings.getLanguage(dcserverid));
+                            MessageEmbed dmEmbed = new EmbedBuilder()
+                                    .setTitle(languageManager.getMessage("commands.unwarn.dm_title", serverSettings.getLanguage(dcserverid)))
+                                    .setDescription(dmDescription)
+                                    .setColor(0x00FF00)
+                                    .build();
+                            embedBuilderManager.sendDM(event, userToUnwarnId, dmEmbed);
+                            event.replyEmbeds(embedBuilderManager.createEmbed("commands.unwarn.success", "commands.unwarn.user_unwarned", serverSettings.getLanguage(dcserverid), username).build()).queue();
+                        }
                     }, error -> {
                         errorHandle.sendErrorMessage((Exception) error, event.getChannel().asTextChannel());
                     });

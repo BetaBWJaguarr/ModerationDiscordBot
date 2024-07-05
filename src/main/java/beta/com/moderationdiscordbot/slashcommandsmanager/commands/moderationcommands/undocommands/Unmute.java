@@ -8,6 +8,7 @@ import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
+import beta.com.moderationdiscordbot.utils.ModLogEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -23,6 +24,7 @@ public class Unmute extends ListenerAdapter {
     private final MuteLog muteLog;
     private final HandleErrors errorManager;
     private final RateLimit rateLimit;
+    private final ModLogEmbed modLogEmbed;
 
     public Unmute(ServerSettings serverSettings, LanguageManager languageManager, MuteLog muteLog, HandleErrors errorManager, RateLimit rateLimit) {
         this.languageManager = languageManager;
@@ -31,6 +33,7 @@ public class Unmute extends ListenerAdapter {
         this.muteLog = muteLog;
         this.errorManager = errorManager;
         this.rateLimit = rateLimit;
+        this.modLogEmbed = new ModLogEmbed(languageManager, serverSettings);
     }
 
     @Override
@@ -48,7 +51,7 @@ public class Unmute extends ListenerAdapter {
             }
 
             String mention = event.getOption("username").getAsString();
-            String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : languageManager.getMessage("no_reason", serverSettings.getLanguage(dcserverid));
+            String reason = event.getOption("reason") != null ? event.getOption("reason").getAsString() : null;
 
             Pattern mentionPattern = Pattern.compile("<@!?(\\d+)>");
             Matcher matcher = mentionPattern.matcher(mention);
@@ -56,15 +59,19 @@ public class Unmute extends ListenerAdapter {
             if (matcher.find()) {
                 String userToUnmuteId = matcher.group(1);
                 event.getGuild().retrieveMemberById(userToUnmuteId).queue(userToUnmute -> {
+                    String username = userToUnmute.getUser().getName();
                     Role muteRole = event.getGuild().getRolesByName("Muted", true).stream().findFirst().orElse(null);
                     if (muteRole != null && userToUnmute.getRoles().contains(muteRole)) {
                         event.getGuild().removeRoleFromMember(userToUnmute, muteRole).queue(
                                 success -> {
                                     muteLog.removeMuteLog(dcserverid, userToUnmuteId);
+
                                     if (reason != null) {
-                                        event.replyEmbeds(embedBuilderManager.createEmbed("commands.unmute.success", "commands.unmute.user_unmuted_reason", serverSettings.getLanguage(dcserverid), reason).build()).queue();
+                                        modLogEmbed.sendLog(dcserverid, event, "commands.unmute.log.title", "commands.unmute.log.user", "commands.unmute.log.reason", username, reason);
+                                        event.replyEmbeds(embedBuilderManager.createEmbed("commands.unmute.success", "commands.unmute.user_unmuted_reason", serverSettings.getLanguage(dcserverid), username, reason).build()).queue();
                                     } else {
-                                        event.replyEmbeds(embedBuilderManager.createEmbed("commands.unmute.success", "commands.unmute.user_unmuted", serverSettings.getLanguage(dcserverid)).build()).queue();
+                                        modLogEmbed.sendLog(dcserverid, event, "commands.unmute.log.title", "commands.unmute.log.user", null, username, null);
+                                        event.replyEmbeds(embedBuilderManager.createEmbed("commands.unmute.success", "commands.unmute.user_unmuted", serverSettings.getLanguage(dcserverid), username).build()).queue();
                                     }
                                 },
                                 error -> {

@@ -72,13 +72,19 @@ commands:
     success_title: "Temizleme Günlüğü Kanalı Ayarlandı"
     success_description: "Temizleme günlüğü kanalı başarıyla ayarlandı."
   unwarn:
-    no_permissions: "Bu komutu kullanma izniniz yok."
-    invalid_mention: "Geçersiz kullanıcı belirtildi."
-    success: "Başarıyla uyarı kaldırıldı: Kullanıcı: {0}, Sebep: {1}"
-    user_not_found: "Kullanıcı bulunamadı."
-    warn_not_found: "Kullanıcı için uyarı bulunamadı."
-    dm_title: "Uyarı Kaldırma Bildirimi"
-    dm_description: "Uyarınız {0} sebebiyle kaldırıldı!"
+    success: "Başarılı!"
+    user_unwarned_reason: "{username} adlı kullanıcının uyarısı kaldırıldı. Sebep: {reason}."
+    user_unwarned: "{username} adlı kullanıcının uyarısı kaldırıldı."
+    warn_not_found: "Uyarı bulunamadı."
+    dm_title: "Uyarınız kaldırıldı"
+    dm_description: "{reason} sebebiyle uyarınız kaldırıldı."
+    dm_description_no_reason: "Uyarınız kaldırıldı."
+    invalid_mention: "Geçersiz kullanıcı etiketi."
+    no_permissions: "Bu komutu kullanmak için gerekli yetkiniz yok."
+    log:
+      title: "Kullanıcı Uyarısı Kaldırıldı"
+      user: "Kullanıcı"
+      reason: "Sebep"
   warn:
     no_permissions: "Bu komutu kullanmak için gerekli yetkilere sahip değilsiniz."
     success: "Kullanıcıya başarıyla uyarı verildi: **{0}**. Sebep: **{1}**"
@@ -141,6 +147,10 @@ commands:
     user_unbanned_reason: "Kullanıcının yasağı kaldırıldı. Sebep: {0}"
     user_not_banned: "Kullanıcı yasaklı değil."
     user_not_found: "Kullanıcı bulunamadı."
+    log:
+      title: "Kullanıcı Yasağı Kaldırıldı"
+      user: "Kullanıcı"
+      reason: "Sebep"
   mute:
     no_permissions: "Bu komutu kullanma izniniz yok"
     success: "{0} başarıyla {1} susturuldu"
@@ -165,6 +175,10 @@ commands:
     user_unmuted_reason: "Kullanıcının sessizliği kaldırıldı. Sebep: {0}"
     user_not_found: "Kullanıcı bulunamadı."
     user_not_muted: "Kullanıcı sessiz değil."
+    log:
+      title: "Kullanıcı Susturulması Kaldırıldı"
+      user: "Kullanıcı"
+      reason: "Sebep"
   modlog:
       no_permission: "Bu komutu kullanma izniniz yok"
       success: "Modlog kanalı başarıyla güncellendi"

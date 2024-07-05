@@ -72,13 +72,19 @@ commands:
     success_title: "Clear Log Channel Set"
     success_description: "Clear log channel has been successfully set."
   unwarn:
-    no_permissions: "You don't have permission to use this command."
+    success: "Success!"
+    user_unwarned_reason: "{0} has had their warning removed. Reason: {1}."
+    user_unwarned: "{0} has had their warning removed."
+    warn_not_found: "Warning not found."
+    dm_title: "Your warning has been removed"
+    dm_description: "Your warning has been removed for the following reason: {0}."
+    dm_description_no_reason: "Your warning has been removed."
     invalid_mention: "Invalid user mention."
-    success: "Warning successfully removed: User: {0}, Reason: {1}"
-    user_not_found: "User not found."
-    warn_not_found: "No warning found for the user!."
-    dm_title: "Unwarn Notification"
-    dm_description: "Your warning has been removed for the following reason: {0}"
+    no_permissions: "You do not have permission to use this command."
+    log:
+      title: "Warning Removed"
+      user: "User"
+      reason: "Reason"
   warn:
     no_permissions: "You do not have the required permissions to use this command."
     success: "Successfully warned user: **{0}**. Reason: **{1}**"
@@ -140,6 +146,10 @@ commands:
     user_unbanned_reason: "User has been unbanned. Reason: {0}"
     user_not_banned: "User is not banned."
     user_not_found: "User not found."
+    log:
+      title: "Unban Information"
+      user: "User"
+      reason: "Reason"
   mute:
     no_permissions: "You don't have permission to use this command"
     success: "{0} muted successfully for {1}"
@@ -164,6 +174,10 @@ commands:
     user_unmuted_reason: "User has been unmuted. Reason: {0}"
     user_not_found: "User not found."
     user_not_muted: "User is not muted."
+    log:
+      title: "User Unmute Information"
+      user: "User"
+      reason: "Reason"
   modlog:
     no_permissions: "You don't have permission to use this command"
     success: "Modlog channel successfully updated"

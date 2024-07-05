@@ -8,6 +8,8 @@ import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
+import beta.com.moderationdiscordbot.utils.ModLogEmbed;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -23,6 +25,7 @@ public class Unban extends ListenerAdapter {
     private final BanLog banLog;
     private final HandleErrors errorHandle;
     private final RateLimit rateLimit;
+    private final ModLogEmbed modLogEmbed;
 
     public Unban(ServerSettings serverSettings, LanguageManager languageManager, BanLog banLog, HandleErrors errorHandle, RateLimit rateLimit) {
         this.languageManager = languageManager;
@@ -31,6 +34,7 @@ public class Unban extends ListenerAdapter {
         this.banLog = banLog;
         this.errorHandle = errorHandle;
         this.rateLimit = rateLimit;
+        this.modLogEmbed = new ModLogEmbed(languageManager,serverSettings);
     }
 
     @Override
@@ -57,6 +61,8 @@ public class Unban extends ListenerAdapter {
                 if (matcher.find()) {
                     String userToUnbanId = matcher.group(1);
                     event.getGuild().retrieveBanList().queue(banList -> {
+                        User user = event.getUser().getJDA().getUserById(userToUnbanId);
+                        String username = user.getName();
                         if (banList.stream().noneMatch(ban -> ban.getUser().getId().equals(userToUnbanId))) {
                             event.replyEmbeds(embedBuilderManager.createEmbed("commands.unban.user_not_banned", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
                             return;
@@ -64,9 +70,13 @@ public class Unban extends ListenerAdapter {
                         event.getGuild().unban(UserSnowflake.fromId(userToUnbanId)).queue(
                                 success -> {
                                     banLog.removeBanLog(dcserverid, userToUnbanId);
+
+
                                     if (reason != null) {
+                                        modLogEmbed.sendLog(dcserverid, event, "commands.unban.log.title", "commands.unban.log.user", "commands.unban.log.reason", username, reason);
                                         event.replyEmbeds(embedBuilderManager.createEmbed("commands.unban.success", "commands.unban.user_unbanned_reason", serverSettings.getLanguage(dcserverid), reason).build()).queue();
                                     } else {
+                                        modLogEmbed.sendLog(dcserverid, event, "commands.unban.log.title", "commands.unban.log.user", null, username, null);
                                         event.replyEmbeds(embedBuilderManager.createEmbed("commands.unban.success", "commands.unban.user_unbanned", serverSettings.getLanguage(dcserverid)).build()).queue();
                                     }
                                 },
