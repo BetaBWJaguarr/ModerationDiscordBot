@@ -81,14 +81,7 @@ public class Main {
 
             AntiSwear antiSwear = new AntiSwear(serverSettings,languageManager);
 
-             new RegisterEvents(jda,botInfo)
-                     .register(new UserJoinLeaveEvents(languageManager,serverSettings))
-                     .register(new AntiSpamEvent(antiSpamCommand,languageManager,serverSettings))
-                     .register(new BotJoinServer(serverSettings))
-                     .register(new AdvertiseChecking(languageManager,serverSettings))
-                     .register(new AntiVirusEvent(antiVirusCommand,languageManager,serverSettings))
-                     .register(new AutoPunishEvent(antiSwear))
-                     .register(new AutoRoleEvent(serverSettings,languageManager));
+            new RegisterEvents(jda, botInfo, languageManager, serverSettings, antiSpamCommand, antiVirusCommand, antiSwear).registerAll();
 
             botInfo.printInformation();
 

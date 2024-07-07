@@ -5,7 +5,6 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.model.UpdateOptions;
-import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 
 import java.util.ArrayList;
@@ -15,18 +14,14 @@ public class ServerSettings {
     private final MongoCollection<Document> collection;
 
     private static final int TIME_LIMIT_DEFAULT = 5;
-
     private static final int MESSAGE_LIMIT_DEFAULT = 5;
-
     private static final String DEFAULT_LANGUAGE = "en";
-
 
     public ServerSettings(MongoCollection<Document> collection) {
         this.collection = collection;
     }
 
-    //Main method to set the server settings
-
+    // Main method to set the server settings
     public void setServerSettings(String discordServerId, boolean antiSpamEnabled, boolean antiVirusEnabled) {
         var filter = Filters.eq("_id", discordServerId);
         var update = Updates.combine(
@@ -41,198 +36,72 @@ public class ServerSettings {
         collection.updateOne(filter, update, new UpdateOptions().upsert(true));
     }
 
-    //Main method to get the server settings
-
-
-    //AntiSpam Feauture
-
+    // AntiSpam Feature
     public boolean getAntiSpam(String discordServerId) {
-        try {
-            var filter = Filters.eq("_id", discordServerId);
-            Document document = collection.find(filter).first();
-
-            if (document != null) {
-                Document settings = (Document) document.get("settings");
-                return settings.getBoolean("antispam");
-            }
-        } catch (MongoException e) {
-            System.err.println("Error retrieving document from MongoDB: " + e.getMessage());
-        }
-
-        return false;
+        return ServerSettingsHelper.getBooleanSetting(collection, discordServerId, "antispam", false);
     }
 
     public void setAntiSpam(String discordServerId, boolean antiSpamEnabled) {
-        var filter = Filters.eq("_id", discordServerId);
-        var update = Updates.set("settings.antispam", antiSpamEnabled);
-        collection.updateOne(filter, update, new UpdateOptions().upsert(true));
+        ServerSettingsHelper.setBooleanSetting(collection, discordServerId, "antispam", antiSpamEnabled);
     }
 
-
     public void setAntiSpamMessageLimit(String discordServerId, int messageLimit) {
-        var filter = Filters.eq("_id", discordServerId);
-        var update = Updates.set("settings.antiSpamMessageLimit", messageLimit);
-        collection.updateOne(filter, update, new UpdateOptions().upsert(true));
+        ServerSettingsHelper.setIntegerSetting(collection, discordServerId, "antiSpamMessageLimit", messageLimit);
     }
 
     public void setAntiSpamTimeLimit(String discordServerId, int timeLimit) {
-        var filter = Filters.eq("_id", discordServerId);
-        var update = Updates.set("settings.antiSpamTimeLimit", timeLimit);
-        collection.updateOne(filter, update, new UpdateOptions().upsert(true));
+        ServerSettingsHelper.setIntegerSetting(collection, discordServerId, "antiSpamTimeLimit", timeLimit);
     }
 
-    //AntiSpam Feauture
-
     // Language Feature
-
     public String getLanguage(String discordServerId) {
-        try {
-            var filter = Filters.eq("_id", discordServerId);
-            Document document = collection.find(filter).first();
-
-            if (document != null) {
-                Document settings = (Document) document.get("settings");
-                return settings.getString("language");
-            }
-        } catch (MongoException e) {
-            System.err.println("Error retrieving document from MongoDB: " + e.getMessage());
-        }
-
-        return DEFAULT_LANGUAGE; // Return default language if not set
+        return ServerSettingsHelper.getStringSetting(collection, discordServerId, "language", DEFAULT_LANGUAGE);
     }
 
     public boolean setLanguage(String discordServerId, String language) {
-        try {
-            var filter = Filters.eq("_id", discordServerId);
-            var update = Updates.set("settings.language", language);
-            UpdateResult result = collection.updateOne(filter, update, new UpdateOptions().upsert(true));
-            return result.getModifiedCount() > 0;
-        } catch (MongoException e) {
-            System.err.println("Error updating document in MongoDB: " + e.getMessage());
-            return false;
-        }
+        return ServerSettingsHelper.setStringSetting(collection, discordServerId, "language", language);
     }
 
-    // Language Feature
-
-
-    //Mod Log Feature
+    // Mod Log Feature
     public void setModLogChannel(String discordServerId, String channelId) {
-        try {
-            var filter = Filters.eq("_id", discordServerId);
-            var update = Updates.set("settings.modLogChannel", channelId);
-            UpdateResult result = collection.updateOne(filter, update, new UpdateOptions().upsert(true));
-        } catch (MongoException e) {
-            System.err.println("Error updating document in MongoDB: " + e.getMessage());
-        }
+        ServerSettingsHelper.setStringSetting(collection, discordServerId, "modLogChannel", channelId);
     }
 
     public String getModLogChannel(String discordServerId) {
-        try {
-            var filter = Filters.eq("_id", discordServerId);
-            Document document = collection.find(filter).first();
-            if (document != null) {
-                Document settings = (Document) document.get("settings");
-                if (settings != null) {
-                    return settings.getString("modLogChannel");
-                }
-            }
-        } catch (MongoException e) {
-            System.err.println("Error retrieving document from MongoDB: " + e.getMessage());
-        }
-        return null;
+        return ServerSettingsHelper.getStringSetting(collection, discordServerId, "modLogChannel", null);
     }
 
-    //Mod Log Feature
-
-
-    //Clear Log Feature
-
+    // Clear Log Feature
     public void setClearLogChannel(String discordServerId, String channelId) {
-        try {
-            var filter = Filters.eq("_id", discordServerId);
-            var update = Updates.set("settings.clearLogChannel", channelId);
-            UpdateResult result = collection.updateOne(filter, update, new UpdateOptions().upsert(true));
-        } catch (MongoException e) {
-            System.err.println("Error updating document in MongoDB: " + e.getMessage());
-        }
+        ServerSettingsHelper.setStringSetting(collection, discordServerId, "clearLogChannel", channelId);
     }
 
     public String getClearLogChannel(String discordServerId) {
-        try {
-            var filter = Filters.eq("_id", discordServerId);
-            Document document = collection.find(filter).first();
-            if (document != null) {
-                Document settings = (Document) document.get("settings");
-                if (settings != null) {
-                    return settings.getString("clearLogChannel");
-                }
-            }
-        } catch (MongoException e) {
-            System.err.println("Error retrieving document from MongoDB: " + e.getMessage());
-        }
-        return null;
+        return ServerSettingsHelper.getStringSetting(collection, discordServerId, "clearLogChannel", null);
     }
 
-    //Clear Log Feautre
-
-    //Anti Virus Feature
-
+    // Anti Virus Feature
     public void setAntiVirus(String discordServerId, boolean antiVirusEnabled) {
-        var filter = Filters.eq("_id", discordServerId);
-        var update = Updates.set("settings.antivirus", antiVirusEnabled);
-        collection.updateOne(filter, update, new UpdateOptions().upsert(true));
+        ServerSettingsHelper.setBooleanSetting(collection, discordServerId, "antivirus", antiVirusEnabled);
     }
 
     public boolean getAntiVirus(String discordServerId) {
-        var filter = Filters.eq("_id", discordServerId);
-        var document = collection.find(filter).first();
-        if (document != null) {
-            Document settings = document.get("settings", Document.class);
-            if (settings != null) {
-                return settings.getBoolean("antivirus", false);
-            }
-        }
-        return false;
+        return ServerSettingsHelper.getBooleanSetting(collection, discordServerId, "antivirus", false);
     }
 
-    //Anti Virus Feature
-
-    //Auto Punish
-
+    // Auto Punish Feature
     public void setAutoPunishEnabled(String discordServerId, boolean enabled) {
-        var filter = Filters.eq("_id", discordServerId);
-        var update = Updates.set("settings.autopunish", enabled);
-        collection.updateOne(filter, update, new UpdateOptions().upsert(true));
+        ServerSettingsHelper.setBooleanSetting(collection, discordServerId, "autopunish", enabled);
     }
-
 
     public boolean isAutoPunishEnabled(String discordServerId) {
-        try {
-            var filter = Filters.eq("_id", discordServerId);
-            Document document = collection.find(filter).first();
-            if (document != null) {
-                Document settings = (Document) document.get("settings");
-                if (settings != null) {
-                    return settings.getBoolean("autopunish", false);
-                }
-            }
-        } catch (MongoException e) {
-            System.err.println("Error retrieving document from MongoDB: " + e.getMessage());
-        }
-        return false;
+        return ServerSettingsHelper.getBooleanSetting(collection, discordServerId, "autopunish", false);
     }
 
-    //Auto Punish
-
-    //AntiSwear Feature
-
+    // AntiSwear Feature
     public void setAntiSwearEnabled(String discordServerId, boolean enabled) {
-        var filter = Filters.eq("_id", discordServerId);
-        var update = Updates.set("settings.antiswearfeatures.enabled", enabled);
-        collection.updateOne(filter, update, new UpdateOptions().upsert(true));
+        ServerSettingsHelper.setBooleanSetting(collection, discordServerId, "antiswearfeatures.enabled", enabled);
     }
-
 
     public boolean getAntiSwearEnabled(String discordServerId) {
         try {
@@ -252,18 +121,12 @@ public class ServerSettings {
 
 
     public void addAntiSwearWord(String discordServerId, String word) {
-        var filter = Filters.eq("_id", discordServerId);
-        var update = Updates.addToSet("settings.antiswearfeatures.words-list", word);
-        collection.updateOne(filter, update, new UpdateOptions().upsert(true));
+        ServerSettingsHelper.updateArraySetting(collection, discordServerId, "antiswearfeatures.words-list", word, true);
     }
-
 
     public void removeAntiSwearWord(String discordServerId, String word) {
-        var filter = Filters.eq("_id", discordServerId);
-        var update = Updates.pull("settings.antiswearfeatures.words-list", word);
-        collection.updateOne(filter, update, new UpdateOptions().upsert(true));
+        ServerSettingsHelper.updateArraySetting(collection, discordServerId, "antiswearfeatures.words-list", word, false);
     }
-
 
     @SuppressWarnings("unchecked")
     public List<String> getAntiSwearWordsList(String discordServerId) {
@@ -271,16 +134,11 @@ public class ServerSettings {
             var filter = Filters.eq("_id", discordServerId);
             Document document = collection.find(filter).first();
             if (document != null) {
-
                 Document settings = (Document) document.get("settings");
                 if (settings != null) {
-
                     Document antiswearfeatures = (Document) settings.get("antiswearfeatures");
                     if (antiswearfeatures != null) {
-                        List<String> wordsList = (List<String>) antiswearfeatures.get("words-list");
-                        if (wordsList != null) {
-                            return wordsList;
-                        }
+                        return (List<String>) antiswearfeatures.get("words-list");
                     }
                 }
             }
@@ -289,34 +147,13 @@ public class ServerSettings {
         }
         return new ArrayList<>();
     }
-    //AntiSwear Feature
 
-    //AUTO ROLE FEATURE
+    // Auto Role Feature
     public void setAutoRole(String discordServerId, String roleId) {
-        try {
-            var filter = Filters.eq("_id", discordServerId);
-            var update = Updates.set("settings.autoRole", roleId);
-            collection.updateOne(filter, update, new UpdateOptions().upsert(true));
-        } catch (MongoException e) {
-            System.err.println("Error updating document in MongoDB: " + e.getMessage());
-        }
+        ServerSettingsHelper.setStringSetting(collection, discordServerId, "autoRole", roleId);
     }
-
 
     public String getAutoRole(String discordServerId) {
-        try {
-            var filter = Filters.eq("_id", discordServerId);
-            Document document = collection.find(filter).first();
-            if (document != null) {
-                Document settings = (Document) document.get("settings");
-                if (settings != null) {
-                    return settings.getString("autoRole");
-                }
-            }
-        } catch (MongoException e) {
-            System.err.println("Error retrieving document from MongoDB: " + e.getMessage());
-        }
-        return null;
+        return ServerSettingsHelper.getStringSetting(collection, discordServerId, "autoRole", null);
     }
-    //AUTO ROLE FEATURE
 }
