@@ -33,11 +33,11 @@ public class RemoveCommand extends ListenerAdapter {
                 return;
             }
 
-
             String dcserverid = event.getGuild().getId();
 
-            if (!event.getSubcommandName().equals("remove")) return;
-
+            if (!event.getSubcommandName().equals("remove")) {
+                return;
+            }
 
             PermissionsManager permissionsManager = new PermissionsManager();
             if (!permissionsManager.checkPermissionAndOption(event, PermType.MESSAGE_MANAGE, embedBuilderManager, serverSettings, "commands.antiswear.remove.no_permissions")) {

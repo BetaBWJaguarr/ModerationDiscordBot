@@ -7,10 +7,14 @@ import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class AddCommand extends ListenerAdapter {
+import java.awt.*;
+import java.util.List;
+
+public class ListCommand extends ListenerAdapter {
 
     private final EmbedBuilderManager embedBuilderManager;
     private final ServerSettings serverSettings;
@@ -18,7 +22,7 @@ public class AddCommand extends ListenerAdapter {
     private final RateLimit rateLimit;
     private final HandleErrors errorHandle;
 
-    public AddCommand(ServerSettings serverSettings, LanguageManager languageManager, RateLimit rateLimit, HandleErrors errorHandle) {
+    public ListCommand(ServerSettings serverSettings, LanguageManager languageManager, RateLimit rateLimit, HandleErrors errorHandle) {
         this.languageManager = languageManager;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.serverSettings = serverSettings;
@@ -43,38 +47,30 @@ public class AddCommand extends ListenerAdapter {
                 return;
             }
 
-            String wordToAdd = event.getOption("word").getAsString();
+            List<String> swearWords = serverSettings.getAntiSwearWordsList(dcserverid);
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            embedBuilder.setTitle("Anti-Swear Words List");
+            embedBuilder.setColor(Color.BLUE);
 
-            if (isWordAlreadyInList(dcserverid, wordToAdd, event)) {
-                return;
+            StringBuilder wordsList = new StringBuilder();
+            for (String word : swearWords) {
+                wordsList.append(word).append("\n");
             }
 
-            addWordToAntiSwearList(dcserverid, wordToAdd, event);
+            embedBuilder.setDescription(wordsList.toString());
+            event.replyEmbeds(embedBuilder.build()).queue();
+
         } catch (Exception e) {
             errorHandle.sendErrorMessage(e, event.getChannel().asTextChannel());
         }
     }
 
     private boolean isCommandApplicable(SlashCommandInteractionEvent event) {
-        return event.getName().equals("antiswear") && event.getSubcommandName().equals("add");
+        return event.getName().equals("antiswear") && event.getSubcommandName().equals("list");
     }
 
     private boolean hasPermission(SlashCommandInteractionEvent event) {
         PermissionsManager permissionsManager = new PermissionsManager();
-        return permissionsManager.checkPermissionAndOption(event, PermType.MESSAGE_MANAGE, embedBuilderManager, serverSettings, "commands.antiswear.add.no_permissions");
+        return permissionsManager.checkPermissionAndOption(event, PermType.MESSAGE_MANAGE, embedBuilderManager, serverSettings, "commands.antiswear.list.no_permissions");
     }
-
-    private boolean isWordAlreadyInList(String dcserverid, String wordToAdd, SlashCommandInteractionEvent event) {
-        if (serverSettings.getAntiSwearWordsList(dcserverid).contains(wordToAdd.toLowerCase())) {
-            event.replyEmbeds(embedBuilderManager.createEmbed("commands.antiswear.add.already_exists", null, serverSettings.getLanguage(dcserverid), wordToAdd).build()).queue();
-            return true;
-        }
-        return false;
-    }
-
-    private void addWordToAntiSwearList(String dcserverid, String wordToAdd, SlashCommandInteractionEvent event) {
-        serverSettings.addAntiSwearWord(dcserverid, wordToAdd);
-        event.replyEmbeds(embedBuilderManager.createEmbed("commands.antiswear.add.success", null, serverSettings.getLanguage(dcserverid), wordToAdd).build()).queue();
-    }
-
 }

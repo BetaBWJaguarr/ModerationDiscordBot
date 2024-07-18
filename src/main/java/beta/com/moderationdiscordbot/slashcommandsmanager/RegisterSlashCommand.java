@@ -135,7 +135,8 @@ public class RegisterSlashCommand {
                         new SubcommandData("add", "Add a word to the anti-swear filter")
                                 .addOption(OptionType.STRING, "word", "The word to add", true),
                         new SubcommandData("remove", "Add a word to the anti-swear filter")
-                                .addOption(OptionType.STRING, "word", "The word to remove", true)},
+                                .addOption(OptionType.STRING, "word", "The word to remove", true),
+                        new SubcommandData("list", "List all the words in the anti-swear filter")},
                 {"autopunish", "AutoPunish Command",
                         new SubcommandData("enable", "Enable the auto-punish system"),
                         new SubcommandData("disable", "Disable the auto-punish system")},
@@ -153,6 +154,9 @@ public class RegisterSlashCommand {
                         new OptionData(OptionType.ROLE, "role", "The role to set as the autorole", true)},
                 {"setwarnkick", "Set the warn kick times",
                         new OptionData(OptionType.INTEGER, "times", "The new warn kick times", true)},
+                {"voiceaction", "VoiceAction Command",
+                        new SubcommandData("enable", "Enable the voice action system"),
+                        new SubcommandData("disable", "Disable the voice action system")},
         };
 
         for (Object[] command : commands) {

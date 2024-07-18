@@ -156,4 +156,26 @@ public class ServerSettings {
     public String getAutoRole(String discordServerId) {
         return ServerSettingsHelper.getStringSetting(collection, discordServerId, "autoRole", null);
     }
+
+    // Voice Action Feature
+    public void setVoiceAction(String discordServerId, boolean enabled) {
+        ServerSettingsHelper.setBooleanSetting(collection, discordServerId, "voiceaction.enabled", enabled);
+    }
+
+    public boolean getVoiceAction(String discordServerId) {
+        try {
+            var filter = Filters.eq("_id", discordServerId);
+            Document document = collection.find(filter).first();
+            if (document != null) {
+                Document settings = (Document) document.get("settings");
+                if (settings != null && settings.containsKey("voiceaction")) {
+                    Document voiceAction = (Document) settings.get("voiceaction");
+                    return voiceAction.getBoolean("enabled");
+                }
+            }
+        } catch (MongoException e) {
+            // Handle MongoException
+        }
+        return false;
+    }
 }

@@ -8,6 +8,7 @@ import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.AntiSpamCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.AntiVirusCommand;
 import beta.com.moderationdiscordbot.startup.Information;
+import beta.com.moderationdiscordbot.voicemanager.VoiceManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -51,6 +52,9 @@ public class RegisterEvents extends ListenerAdapter {
         information.incrementEvents();
 
         jda.addEventListener(new AutoRoleEvent(serverSettings, languageManager));
+        information.incrementEvents();
+
+        jda.addEventListener(new VoiceManager(serverSettings, languageManager,antiSwear));
         information.incrementEvents();
     }
 }

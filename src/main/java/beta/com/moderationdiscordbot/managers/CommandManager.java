@@ -3,6 +3,7 @@ package beta.com.moderationdiscordbot.managers;
 import beta.com.moderationdiscordbot.autopunish.AutoPunishEnableCommands;
 import beta.com.moderationdiscordbot.autopunish.antiswear.commands.AntiSwearCommand;
 import beta.com.moderationdiscordbot.autopunish.antiswear.commands.subcommands.AddCommand;
+import beta.com.moderationdiscordbot.autopunish.antiswear.commands.subcommands.ListCommand;
 import beta.com.moderationdiscordbot.autopunish.antiswear.commands.subcommands.RemoveCommand;
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.BanLog;
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.MuteLog;
@@ -22,6 +23,7 @@ import beta.com.moderationdiscordbot.slashcommandsmanager.commands.warncommands.
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.warncommands.UnWarnCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.warncommands.WarnCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.warncommands.WarnListCommand;
+import beta.com.moderationdiscordbot.voicemanager.commands.VoiceEnableCommand;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -62,6 +64,7 @@ public class CommandManager {
         commands.add(new AntiSwearCommand(serverSettings, languageManager, rateLimit));
         commands.add(new AddCommand(serverSettings, languageManager, rateLimit, handleErrors));
         commands.add(new RemoveCommand(serverSettings, languageManager, rateLimit, handleErrors));
+        commands.add(new ListCommand(serverSettings, languageManager, rateLimit, handleErrors));
         commands.add(new AutoPunishEnableCommands(serverSettings, languageManager, rateLimit));
         commands.add(new WarnCommand(serverSettings, languageManager, warnLog, handleErrors, rateLimit));
         commands.add(new WarnListCommand(serverSettings, languageManager, warnLog, handleErrors, rateLimit));
@@ -76,6 +79,7 @@ public class CommandManager {
         commands.add(new SetWarnKickTimesCommand(serverSettings, languageManager, warnLog, handleErrors, rateLimit));
         commands.add(new ClearEmbedCommand(serverSettings, languageManager, handleErrors, rateLimit));
         commands.add(new ClearContentCommand(serverSettings, languageManager, handleErrors, rateLimit));
+        commands.add(new VoiceEnableCommand(serverSettings, languageManager, rateLimit));
     }
 
     public void addCommandsToJDABuilder(JDABuilder builder) {
