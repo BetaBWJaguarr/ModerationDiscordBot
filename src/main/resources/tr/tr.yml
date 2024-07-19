@@ -236,6 +236,10 @@ events:
     warning_title: "Spam Engelleyici Uyarı"
     warning_description: "Uyarı {0}, çok fazla mesaj gönderiyorsunuz!"
     muted_role_not_exist: "Susturulmuş rolü bulunamadı.Lütfen bir susturulmuş rol oluşturun ve tekrar deneyin."
+  voice:
+    warning:
+      title: "Uyarı: Küfür Tespit Edildi!"
+      description: "Konuşmanızda küfür tespit edildi. Lütfen dilinize dikkat edin."
   antiswear: "Küfür etmeyiniz lütfen!"
 errorshandle:
   error:

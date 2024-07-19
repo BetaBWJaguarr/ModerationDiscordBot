@@ -235,6 +235,9 @@ events:
     warning_title: "AntiSpam Warning Notification"
     warning_description: "Warning {0}, you are sending too many messages!"
     muted_role_not_exist: "Muted role not found.Please create a muted role and try again."
+  voice:
+    warning:
+      title: "Warning: Profanity Detected!"
   antiswear: "Please do not swear!"
 errorshandle:
   error:
