@@ -39,6 +39,8 @@ commands:
     user_not_found: "Belirtilen kullanıcı bulunamadı."
     invalid_user_or_channel: "Geçersiz kullanıcı veya kanal belirtildi."
     user_not_banned: "Kullanıcı bu kanaldan yasaklı değil."
+    log_title: "Kanal Yasağı Kaldırıldı"
+    log_user: "Kullanıcı {0} yasağı kaldırıldı"
   channel-ban:
     no_permissions: "Bu komutu kullanmak için yeterli izne sahip değilsiniz."
     invalid_duration: "Geçersiz süre. Lütfen geçerli bir süre belirtin."
@@ -48,6 +50,9 @@ commands:
     permban: "Kalıcı Yasak"
     channel_not_found: "Belirtilen kanal bulunamadı."
     already_banned: "Kullanıcı zaten bu kanaldan yasaklanmış."
+    log_title: "Kanal Yasağı"
+    log_user: "Kullanıcı {0} yasaklandı"
+    log_reason: "Yasaklama Nedeni: {1}"
   antiswear:
     error:
       title: "Hata"
@@ -58,14 +63,18 @@ commands:
     disable:
       title: "Küfür Engelleyici Devre Dışı Bırakıldı"
       description: "Küfür engelleyici başarıyla devre dışı bırakıldı."
+    list:
+      title: "Küfür Listesi"
+      no_words: "Bu sunucu için şu anda listelenmiş hiçbir küfür bulunmuyor."
+      no_permissions: "Bu komutu kullanmak için gerekli izinlere sahip değilsiniz."
     add:
       no_permissions: "Bu komutu kullanmak için gerekli izinlere sahip değilsiniz."
-      already_exists: "'{0}' kelimesi zaten küfür listesindedir."
-      success: "'{0}' kelimesi başarıyla küfür listesine eklendi."
+      already_exists: "{0} kelimesi zaten küfür listesindedir."
+      success: "{0} kelimesi başarıyla küfür listesine eklendi."
     remove:
       no_permissions: "Bu komutu kullanmak için gerekli izinlere sahip değilsiniz."
-      not_found: "'{0}' kelimesi küfür listesinden bulunamadı."
-      success: "'{0}' kelimesi küfür listesinden başarıyla kaldırıldı."
+      not_found: "{0} kelimesi küfür listesinden bulunamadı."
+      success: "{0} kelimesi küfür listesinden başarıyla kaldırıldı."
   warnlist:
     success_title: "{0} için Uyarı Listesi"
     success_description: "Bu kullanıcının {0} uyarısı var."

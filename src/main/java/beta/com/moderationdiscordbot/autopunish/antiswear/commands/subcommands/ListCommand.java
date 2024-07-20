@@ -48,8 +48,14 @@ public class ListCommand extends ListenerAdapter {
             }
 
             List<String> swearWords = serverSettings.getAntiSwearWordsList(dcserverid);
+            if (swearWords == null) {
+                String errorMessage = languageManager.getMessage("commands.antiswear.list.no_words",serverSettings.getLanguage(dcserverid));
+                event.reply(errorMessage).queue();
+                return;
+            }
+
             EmbedBuilder embedBuilder = new EmbedBuilder();
-            embedBuilder.setTitle("Anti-Swear Words List");
+            embedBuilder.setTitle(languageManager.getMessage("commands.antiswear.list.title",serverSettings.getLanguage(dcserverid)));
             embedBuilder.setColor(Color.BLUE);
 
             StringBuilder wordsList = new StringBuilder();

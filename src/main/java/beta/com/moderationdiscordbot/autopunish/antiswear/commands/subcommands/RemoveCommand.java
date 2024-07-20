@@ -10,6 +10,8 @@ import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.util.List;
+
 public class RemoveCommand extends ListenerAdapter {
 
     private final EmbedBuilderManager embedBuilderManager;
@@ -46,7 +48,8 @@ public class RemoveCommand extends ListenerAdapter {
 
             String wordToRemove = event.getOption("word").getAsString();
 
-            if (!serverSettings.getAntiSwearWordsList(dcserverid).contains(wordToRemove.toLowerCase())) {
+            List<String> antiSwearWordsList = serverSettings.getAntiSwearWordsList(dcserverid);
+            if (antiSwearWordsList == null || !antiSwearWordsList.contains(wordToRemove.toLowerCase())) {
                 event.replyEmbeds(embedBuilderManager.createEmbed("commands.antiswear.remove.not_found", null, serverSettings.getLanguage(dcserverid), wordToRemove).build()).queue();
                 return;
             }

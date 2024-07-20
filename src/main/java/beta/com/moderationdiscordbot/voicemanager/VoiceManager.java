@@ -3,6 +3,7 @@ package beta.com.moderationdiscordbot.voicemanager;
 import beta.com.moderationdiscordbot.autopunish.antiswear.AntiSwear;
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
+import beta.com.moderationdiscordbot.voicemanager.auidomanager.AudioReceiver;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.Member;
@@ -20,17 +21,18 @@ public class VoiceManager extends ListenerAdapter {
     private final LanguageManager languageManager;
     private final AntiSwear antiSwear;
     private final Map<VoiceChannel, Map<Member, VoiceSession>> activeSessions = new HashMap<>();
+    private final AudioReceiver audioReceiver;
 
     public VoiceManager(ServerSettings settings, LanguageManager languageManager, AntiSwear antiSwear) {
         this.serverSettings = settings;
         this.languageManager = languageManager;
         this.antiSwear = antiSwear;
+        this.audioReceiver = new AudioReceiver();
     }
 
     @Override
     public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
         String guildId = event.getGuild().getId();
-
 
         if (!serverSettings.getVoiceAction(guildId)) {
             return;
@@ -53,10 +55,13 @@ public class VoiceManager extends ListenerAdapter {
         AudioManager audioManager = guild.getAudioManager();
         audioManager.openAudioConnection(channel);
 
+        if (audioManager.getReceivingHandler() == null) {
+            audioManager.setReceivingHandler(audioReceiver);
+        }
 
         activeSessions.putIfAbsent(channel, new HashMap<>());
 
-        VoiceSession session = new VoiceSession(audioManager, userDir, antiSwear, member, serverSettings, languageManager);
+        VoiceSession session = new VoiceSession(audioManager, userDir, antiSwear, member, serverSettings, languageManager, audioReceiver);
         activeSessions.get(channel).put(member, session);
         session.startRecording();
     }
@@ -69,7 +74,7 @@ public class VoiceManager extends ListenerAdapter {
                 session.stopRecordingAndAnalyze();
             }
 
-            if (channel.getMembers().size() == 1 && channel.getMembers().get(0).getUser().isBot()) {
+            if (channel.getMembers().isEmpty() || (channel.getMembers().size() == 1 && channel.getMembers().get(0).getUser().isBot())) {
                 guild.getAudioManager().closeAudioConnection();
                 activeSessions.remove(channel);
             }

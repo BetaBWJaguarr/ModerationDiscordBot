@@ -8,6 +8,7 @@ import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
+import beta.com.moderationdiscordbot.utils.ModLogEmbed;
 import beta.com.moderationdiscordbot.utils.ParseDuration;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.Channel;
@@ -27,6 +28,7 @@ public class ChannelBanCommand extends ListenerAdapter {
     private final BanLog banLog;
     private final HandleErrors errorManager;
     private final RateLimit rateLimit;
+    private final ModLogEmbed modLogEmbed;
 
     public ChannelBanCommand(ServerSettings serverSettings, LanguageManager languageManager, BanLog banLog, HandleErrors errorManager, RateLimit rateLimit) {
         this.languageManager = languageManager;
@@ -35,6 +37,7 @@ public class ChannelBanCommand extends ListenerAdapter {
         this.banLog = banLog;
         this.errorManager = errorManager;
         this.rateLimit = rateLimit;
+        this.modLogEmbed = new ModLogEmbed(languageManager, serverSettings);
     }
 
     @Override
@@ -104,6 +107,7 @@ public class ChannelBanCommand extends ListenerAdapter {
                                     String successMessageKey = durationInSeconds > 0 ? "commands.channel-ban.tempban" : "commands.channel-ban.permban";
 
                                     event.replyEmbeds(embedBuilderManager.createEmbed("commands.channel-ban.success", successMessageKey, serverSettings.getLanguage(dcserverid), username, channelName, reason).build()).queue();
+                                    modLogEmbed.sendLog(dcserverid, event, "commands.channel-ban.log_title", "commands.channel-ban.log_user", "commands.channel-ban.log_reason", username, reason);
                                 }, error -> {
                                     errorManager.sendErrorMessage((Exception) error, event.getChannel().asTextChannel());
                                 });

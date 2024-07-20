@@ -31,7 +31,8 @@ public class ServerSettings {
                 Updates.set("settings.antiSpamMessageLimit", MESSAGE_LIMIT_DEFAULT),
                 Updates.set("settings.language", DEFAULT_LANGUAGE),
                 Updates.set("settings.antiswearfeatures.enabled", false),
-                Updates.set("settings.autopunish", false)
+                Updates.set("settings.autopunish", false),
+                Updates.set("settings.voiceaction.enabled", false)
         );
         collection.updateOne(filter, update, new UpdateOptions().upsert(true));
     }

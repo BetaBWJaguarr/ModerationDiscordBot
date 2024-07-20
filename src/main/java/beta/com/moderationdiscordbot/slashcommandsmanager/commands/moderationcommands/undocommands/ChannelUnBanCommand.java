@@ -8,6 +8,7 @@ import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
+import beta.com.moderationdiscordbot.utils.ModLogEmbed;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -25,6 +26,7 @@ public class ChannelUnBanCommand extends ListenerAdapter {
     private final BanLog banLog;
     private final HandleErrors errorManager;
     private final RateLimit rateLimit;
+    private final ModLogEmbed modLogEmbed;
 
     public ChannelUnBanCommand(ServerSettings serverSettings, LanguageManager languageManager, BanLog banLog, HandleErrors errorManager, RateLimit rateLimit) {
         this.languageManager = languageManager;
@@ -33,6 +35,7 @@ public class ChannelUnBanCommand extends ListenerAdapter {
         this.banLog = banLog;
         this.errorManager = errorManager;
         this.rateLimit = rateLimit;
+        this.modLogEmbed = new ModLogEmbed(languageManager, serverSettings);
     }
 
     @Override
@@ -77,6 +80,7 @@ public class ChannelUnBanCommand extends ListenerAdapter {
                                         .queue(success -> {
                                             banLog.removeBanLog(dcserverid, userToUnbanId, channelId);
                                             event.replyEmbeds(embedBuilderManager.createEmbed("commands.channel-unban.success", null, serverSettings.getLanguage(dcserverid), username, channelName).build()).queue();
+                                            modLogEmbed.sendLog(dcserverid, event, "commands.channel-unban.log_title", "commands.channel-unban.log_user", null, username, null);
                                         }, error -> {
                                             errorManager.sendErrorMessage((Exception) error, event.getChannel().asTextChannel());
                                         });

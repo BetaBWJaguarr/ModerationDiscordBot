@@ -10,6 +10,8 @@ import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.util.List;
+
 public class AddCommand extends ListenerAdapter {
 
     private final EmbedBuilderManager embedBuilderManager;
@@ -65,11 +67,12 @@ public class AddCommand extends ListenerAdapter {
     }
 
     private boolean isWordAlreadyInList(String dcserverid, String wordToAdd, SlashCommandInteractionEvent event) {
-        if (serverSettings.getAntiSwearWordsList(dcserverid).contains(wordToAdd.toLowerCase())) {
-            event.replyEmbeds(embedBuilderManager.createEmbed("commands.antiswear.add.already_exists", null, serverSettings.getLanguage(dcserverid), wordToAdd).build()).queue();
-            return true;
+        List<String> antiSwearWordsList = serverSettings.getAntiSwearWordsList(dcserverid);
+        if (antiSwearWordsList == null || !antiSwearWordsList.contains(wordToAdd.toLowerCase())) {
+            return false;
         }
-        return false;
+        event.replyEmbeds(embedBuilderManager.createEmbed("commands.antiswear.add.already_exists", null, serverSettings.getLanguage(dcserverid), wordToAdd).build()).queue();
+        return true;
     }
 
     private void addWordToAntiSwearList(String dcserverid, String wordToAdd, SlashCommandInteractionEvent event) {

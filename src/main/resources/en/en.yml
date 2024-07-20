@@ -39,6 +39,8 @@ commands:
     user_not_found: "Specified user not found."
     invalid_user_or_channel: "Invalid user or channel specified."
     user_not_banned: "User is not banned from the channel."
+    log_title: "Channel Unban"
+    log_user: "User {0} unbanned"
   channel-ban:
     no_permissions: "You do not have sufficient permissions to use this command."
     invalid_duration: "Invalid duration. Please specify a valid duration."
@@ -48,6 +50,9 @@ commands:
     permban: "Permanent Ban"
     channel_not_found: "The specified channel was not found."
     already_banned: "User is already banned from the channel."
+    log_title: "Channel Ban"
+    log_user: "User {0} banned"
+    log_reason: "Reason for ban: {1}"
   antiswear:
     error:
       title: "Error"
@@ -58,6 +63,10 @@ commands:
     disable:
       title: "Anti-Swear Disabled"
       description: "Anti-swear feature has been successfully disabled."
+    list:
+      title: "Anti-Swear Words List"
+      no_words: "There are currently no swear words listed for this server."
+      no_permissions: "You do not have the necessary permissions to use this command."
     add:
       no_permissions: "You do not have the necessary permissions to use this command."
       already_exists: "{0} word is already in the swear word list."
