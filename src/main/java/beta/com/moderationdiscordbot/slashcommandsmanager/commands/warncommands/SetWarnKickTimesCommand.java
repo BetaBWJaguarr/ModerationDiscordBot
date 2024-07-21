@@ -32,26 +32,30 @@ public class SetWarnKickTimesCommand extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         try {
-            if (event.getName().equals("setwarnkick")) {
-                String dcserverid = event.getGuild().getId();
-
-                if (rateLimit.isRateLimited(event, embedBuilderManager, serverSettings)) {
-                    return;
-                }
-
-                PermissionsManager permissionsManager = new PermissionsManager();
-
-                if (!permissionsManager.checkPermissionAndOption(event, PermType.ADMINISTRATOR, embedBuilderManager, serverSettings, "commands.setwarnkick.no_permissions")) {
-                    return;
-                }
-
-                int kickTimes = event.getOption("times").getAsInt();
-                warnLog.setWarnKickTimes(dcserverid, kickTimes);
-
-                event.replyEmbeds(embedBuilderManager.createEmbed("commands.setwarnkick.success", null, serverSettings.getLanguage(dcserverid), kickTimes).build()).queue();
+            if ("setwarnkick".equals(event.getName())) {
+                handleSetWarnKick(event);
             }
         } catch (Exception e) {
             errorHandle.sendErrorMessage(e, event.getChannel().asTextChannel());
         }
+    }
+
+    private void handleSetWarnKick(SlashCommandInteractionEvent event) {
+        String dcserverid = event.getGuild().getId();
+
+        if (rateLimit.isRateLimited(event, embedBuilderManager, serverSettings)) {
+            return;
+        }
+
+        PermissionsManager permissionsManager = new PermissionsManager();
+
+        if (!permissionsManager.checkPermissionAndOption(event, PermType.ADMINISTRATOR, embedBuilderManager, serverSettings, "commands.setwarnkick.no_permissions")) {
+            return;
+        }
+
+        int kickTimes = event.getOption("times").getAsInt();
+        warnLog.setWarnKickTimes(dcserverid, kickTimes);
+
+        event.replyEmbeds(embedBuilderManager.createEmbed("commands.setwarnkick.success", null, serverSettings.getLanguage(dcserverid), kickTimes).build()).queue();
     }
 }

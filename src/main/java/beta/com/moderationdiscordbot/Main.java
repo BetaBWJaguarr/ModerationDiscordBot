@@ -30,75 +30,88 @@ import java.util.concurrent.TimeUnit;
 public class Main {
 
     public static void main(String[] args) {
+        DebugManager.logDebug("Loading environment variables...");
         Env env = new Env(".env");
         String token = env.getProperty("TOKEN");
 
+        DebugManager.logDebug("Initializing LanguageManager...");
         LanguageManager languageManager = new LanguageManager();
 
+        DebugManager.logDebug("Connecting to MongoDB...");
         MongoDB db = new MongoDB(env);
         ServerSettings serverSettings = new ServerSettings(db.getCollection("ServerSettings"));
         BanLog banLog = new BanLog(db.getCollection("BanLog"));
         MuteLog muteLog = new MuteLog(db.getCollection("MuteLog"));
         WarnLog warnLog = new WarnLog(db.getCollection("WarnLog"));
 
+        DebugManager.logDebug("Setting up error handling...");
+        HandleErrors handleErrors = new HandleErrors(languageManager, serverSettings);
 
-
-        //HandleExpections
-        HandleErrors handleErrors = new HandleErrors(languageManager,serverSettings);
-        //HandleExpections
-
-        //Commands
+        DebugManager.logDebug("Setting up command rate limits...");
         RateLimit rateLimit = new RateLimit(2, TimeUnit.SECONDS);
-        AntiSpamCommand antiSpamCommand = new AntiSpamCommand(serverSettings, languageManager, rateLimit,handleErrors);
-        AntiVirusCommand antiVirusCommand = new AntiVirusCommand(serverSettings, languageManager, rateLimit,handleErrors);
+        AntiSpamCommand antiSpamCommand = new AntiSpamCommand(serverSettings, languageManager, rateLimit, handleErrors);
+        AntiVirusCommand antiVirusCommand = new AntiVirusCommand(serverSettings, languageManager, rateLimit, handleErrors);
         CommandManager commandManager = new CommandManager(serverSettings, languageManager, handleErrors, banLog, muteLog, warnLog);
-        //Commands
 
         try {
+            DebugManager.logDebug("Building JDA...");
             JDABuilder jdaBuilder = JDABuilder.createDefault(token)
                     .enableIntents(GatewayIntent.GUILD_MEMBERS)
                     .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .setActivity(Activity.watching("Watching something"))
-                            .addEventListeners(antiSpamCommand)
-                            .addEventListeners(antiVirusCommand);
+                    .addEventListeners(antiSpamCommand)
+                    .addEventListeners(antiVirusCommand);
 
-                    commandManager.addCommandsToJDABuilder(jdaBuilder);
+            commandManager.addCommandsToJDABuilder(jdaBuilder);
 
+            DebugManager.logDebug("Logging into Discord...");
             JDA jda = jdaBuilder.build();
-
 
             final var botInfo = getInformation(jda);
 
-
-            //Scheduler;
-            SchedulerManager schedulerManager = new SchedulerManager(banLog,muteLog,jda);
+            DebugManager.logDebug("Starting scheduler...");
+            SchedulerManager schedulerManager = new SchedulerManager(banLog, muteLog, jda);
             schedulerManager.startSchedulers();
-            //Scheduler;
 
+            DebugManager.logDebug("Registering slash commands...");
             new RegisterSlashCommand(jda, botInfo).registerCommands();
 
+            DebugManager.logDebug("Initializing AntiSwear...");
+            AntiSwear antiSwear = new AntiSwear(serverSettings, languageManager);
 
-            AntiSwear antiSwear = new AntiSwear(serverSettings,languageManager);
-
+            DebugManager.logDebug("Registering events...");
             new RegisterEvents(jda, botInfo, languageManager, serverSettings, antiSpamCommand, antiVirusCommand, antiSwear).registerAll();
 
+            DebugManager.logDebug("Printing bot information...");
             botInfo.printInformation();
 
+            DebugManager.logDebug("Bot started successfully!");
+            DebugManager.logDebug("Bot name: " + Information.getBotName());
+            DebugManager.logDebug("Bot version: " + Information.getBotVersion());
+            DebugManager.logDebug("Developer: " + Information.getDeveloperName());
+            DebugManager.logDebug("Bot ID: " + Information.getBotId());
+            DebugManager.logDebug("Server count: " + Information.getServerCount());
+            DebugManager.logDebug("User count: " + Information.getUserCount());
+            DebugManager.logDebug("Command list: " + Information.getCommandList());
+            DebugManager.logDebug("Event list: " + Information.getEventList());
 
         } catch (Exception e) {
+            DebugManager.logError("An error occurred during bot startup: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     private static Information getInformation(JDA jda) {
+        DebugManager.logDebug("Gathering bot information...");
         Information botInfo = new Information("ModerationBot", "1.0", "Beta_BWJaguarr", jda.getSelfUser().getId());
         int serverCount = jda.getGuilds().size();
         int userCount = jda.getGuilds().stream().mapToInt(guild -> guild.getMembers().size()).sum();
         botInfo.setServerCount(serverCount);
         botInfo.setUserCount(userCount);
-        botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute","clear","warn","unwarn","kick","warnlist","antiswear","autopunish","channel","setwarnkick","autorole","voiceaction"));
-        botInfo.setEventList(Arrays.asList("UserJoinLeaveEvents", "AntiSpamEvent", "BotJoinServer", "AdvertiseChecking", "AntiVirusEvent","HighWarnKickEvent","AutoPunishEvent","VoiceManager"));
+        botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute", "clear", "warn", "unwarn", "kick", "warnlist", "antiswear", "autopunish", "channel", "setwarnkick", "autorole", "voiceaction"));
+        botInfo.setEventList(Arrays.asList("UserJoinLeaveEvents", "AntiSpamEvent", "BotJoinServer", "AdvertiseChecking", "AntiVirusEvent", "HighWarnKickEvent", "AutoPunishEvent", "VoiceManager"));
+        DebugManager.logDebug("Bot information gathered.");
         return botInfo;
     }
 }

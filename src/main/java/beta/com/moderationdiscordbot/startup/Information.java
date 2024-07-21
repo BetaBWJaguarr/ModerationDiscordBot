@@ -50,6 +50,54 @@ public class Information {
         eventList = events;
     }
 
+    public static int getActiveCommands() {
+        return activeCommands;
+    }
+
+    public static int getActiveEvents() {
+        return activeEvents;
+    }
+
+    public static LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public static String getBotName() {
+        return botName;
+    }
+
+    public static String getBotVersion() {
+        return botVersion;
+    }
+
+    public static String getDeveloperName() {
+        return developerName;
+    }
+
+    public static String getStatus() {
+        return status;
+    }
+
+    public static int getUserCount() {
+        return userCount;
+    }
+
+    public static int getServerCount() {
+        return serverCount;
+    }
+
+    public static String getBotId() {
+        return botId;
+    }
+
+    public static List<String> getCommandList() {
+        return commandList;
+    }
+
+    public static List<String> getEventList() {
+        return eventList;
+    }
+
     public void printInformation() {
         System.out.println("==================================");
         System.out.println("Bot Name: " + botName);
