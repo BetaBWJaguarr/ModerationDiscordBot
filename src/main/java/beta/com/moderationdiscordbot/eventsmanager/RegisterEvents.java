@@ -21,40 +21,30 @@ public class RegisterEvents extends ListenerAdapter {
     private final AntiVirusCommand antiVirusCommand;
     private final AntiSwear antiSwear;
 
-    public RegisterEvents(JDA jda, Information information, LanguageManager languageManager, ServerSettings serverSettings,
-                          AntiSpamCommand antiSpamCommand, AntiVirusCommand antiVirusCommand, AntiSwear antiSwear) {
+    public RegisterEvents(JDA jda, Information info, LanguageManager langManager, ServerSettings serverSettings,
+                          AntiSpamCommand spamCommand, AntiVirusCommand virusCommand, AntiSwear swear) {
         this.jda = jda;
-        this.information = information;
-        this.languageManager = languageManager;
+        this.information = info;
+        this.languageManager = langManager;
         this.serverSettings = serverSettings;
-        this.antiSpamCommand = antiSpamCommand;
-        this.antiVirusCommand = antiVirusCommand;
-        this.antiSwear = antiSwear;
+        this.antiSpamCommand = spamCommand;
+        this.antiVirusCommand = virusCommand;
+        this.antiSwear = swear;
     }
 
     public void registerAll() {
-        jda.addEventListener(new UserJoinLeaveEvents(languageManager, serverSettings));
-        information.incrementEvents();
+        addEvent(new UserJoinLeaveEvents(languageManager, serverSettings));
+        addEvent(new AntiSpamEvent(antiSpamCommand, languageManager, serverSettings));
+        addEvent(new BotJoinServer(serverSettings));
+        addEvent(new AdvertiseChecking(languageManager, serverSettings));
+        addEvent(new AntiVirusEvent(antiVirusCommand, languageManager, serverSettings));
+        addEvent(new AutoPunishEvent(antiSwear));
+        addEvent(new AutoRoleEvent(serverSettings, languageManager));
+        addEvent(new VoiceManager(serverSettings, languageManager, antiSwear));
+    }
 
-        jda.addEventListener(new AntiSpamEvent(antiSpamCommand, languageManager, serverSettings));
-        information.incrementEvents();
-
-        jda.addEventListener(new BotJoinServer(serverSettings));
-        information.incrementEvents();
-
-        jda.addEventListener(new AdvertiseChecking(languageManager, serverSettings));
-        information.incrementEvents();
-
-        jda.addEventListener(new AntiVirusEvent(antiVirusCommand, languageManager, serverSettings));
-        information.incrementEvents();
-
-        jda.addEventListener(new AutoPunishEvent(antiSwear));
-        information.incrementEvents();
-
-        jda.addEventListener(new AutoRoleEvent(serverSettings, languageManager));
-        information.incrementEvents();
-
-        jda.addEventListener(new VoiceManager(serverSettings, languageManager,antiSwear));
+    private void addEvent(ListenerAdapter event) {
+        jda.addEventListener(event);
         information.incrementEvents();
     }
 }

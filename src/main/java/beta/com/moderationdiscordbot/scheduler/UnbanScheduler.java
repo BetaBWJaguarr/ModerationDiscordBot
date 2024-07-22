@@ -22,50 +22,50 @@ public class UnbanScheduler {
         this.jda = jda;
     }
 
+    private void processUnban(Guild guild, Document banLog) {
+        String userId = banLog.getString("userId");
+        Date banDuration = banLog.getDate("duration");
+        String channelId = banLog.getString("channelId");
+
+        if (banDuration != null && new Date().after(banDuration)) {
+            TextChannel textChannel = guild.getTextChannelById(channelId);
+            Member member = guild.getMemberById(userId);
+
+            if (textChannel != null && member != null) {
+                try {
+                    textChannel.upsertPermissionOverride(member)
+                            .clear(Permission.MESSAGE_SEND)
+                            .queue(
+                                    success -> this.banLog.removeBanLog(guild.getId(), userId, channelId),
+                                    error -> {}
+                            );
+                } catch (PermissionException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                guild.unban(UserSnowflake.fromId(userId)).queue(
+                        success -> this.banLog.removeBanLog(guild.getId(), userId),
+                        error -> {}
+                );
+            }
+        }
+    }
+
     public void checkAndUnbanUsers(String serverId) {
         List<Document> banLogs = banLog.getBanLogs(serverId);
-        if (banLogs == null || banLogs.isEmpty()) {
-            return;
-        }
-
-        Guild guild = jda.getGuildById(serverId);
-        if (guild == null) {
-            return;
-        }
-
-        for (Document banLog : banLogs) {
-            Date banDuration = banLog.getDate("duration");
-            String channelId = banLog.getString("channelId");
-            if (banDuration != null && new Date().after(banDuration)) {
-                String userId = banLog.getString("userId");
-                TextChannel textChannel = guild.getTextChannelById(channelId);
-                if (textChannel != null) {
-                    Member member = guild.getMemberById(userId);
-                    if (member != null) {
-                        try {
-                            textChannel.upsertPermissionOverride(member)
-                                    .clear(Permission.MESSAGE_SEND)
-                                    .queue(success -> {
-                                        this.banLog.removeBanLog(serverId, userId,channelId);
-                                    }, error -> {
-                                    });
-                        } catch (PermissionException e) {
-                        }
-                    }
-                } else {
-                    guild.unban(UserSnowflake.fromId(userId)).queue(success -> {
-                        this.banLog.removeBanLog(serverId, userId);
-                    });
+        if (banLogs != null && !banLogs.isEmpty()) {
+            Guild guild = jda.getGuildById(serverId);
+            if (guild != null) {
+                for (Document banLog : banLogs) {
+                    processUnban(guild, banLog);
                 }
             }
         }
     }
 
     public void checkAndUnbanUsersInAllGuilds() {
-        List<Guild> guilds = jda.getGuilds();
-        for (Guild guild : guilds) {
-            String serverId = guild.getId();
-            checkAndUnbanUsers(serverId);
+        for (Guild guild : jda.getGuilds()) {
+            checkAndUnbanUsers(guild.getId());
         }
     }
 }

@@ -7,6 +7,32 @@ import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettin
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
+/**
+ * The {@code RateLimit} class is responsible for managing rate limits for users issuing commands in a Discord bot.
+ * It ensures that users can only issue commands at a specified rate, preventing spam and potential abuse.
+ * The rate limit is specified in a given time unit (e.g., seconds, minutes).
+ * If a user exceeds the rate limit, they will receive a message indicating how much time remains until they can issue another command.
+ * <p>
+ * This class utilizes a {@code ConcurrentHashMap} to store user timestamps, ensuring thread-safe operations.
+ * The {@code cooldown} period is stored in milliseconds and is initialized through the constructor.
+ * </p>
+ * <p>
+ * The class provides methods to check if a user is allowed to issue a command, to get the remaining cooldown time
+ * for a user, and to handle rate-limited responses in a {@code SlashCommandInteractionEvent}.
+ * </p>
+ * <p>
+ * Example usage:
+ * <pre>
+ * {@code
+ * RateLimit rateLimit = new RateLimit(30, TimeUnit.SECONDS);
+ * if (!rateLimit.isRateLimited(event, embedBuilderManager, serverSettings)) {
+ *     // Handle command execution
+ * }
+ * }
+ * </pre>
+ * </p>
+ */
+
 public class RateLimit {
 
     private final ConcurrentHashMap<String, Long> userTimestamps = new ConcurrentHashMap<>();

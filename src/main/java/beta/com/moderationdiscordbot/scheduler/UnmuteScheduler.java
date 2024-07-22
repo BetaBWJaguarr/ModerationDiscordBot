@@ -18,37 +18,36 @@ public class UnmuteScheduler {
         this.jda = jda;
     }
 
-    public void checkAndUnmuteUsers(String serverId) {
-        List<Document> muteLogs = muteLog.getMuteLogs(serverId);
-        if (muteLogs == null || muteLogs.isEmpty()) {
-            return;
-        }
+    private void processUnmute(Guild guild, Document muteLog) {
+        String userId = muteLog.getString("userId");
+        Date muteDuration = muteLog.getDate("duration");
 
-        Guild guild = jda.getGuildById(serverId);
-        if (guild == null) {
-            return;
-        }
-
-        Role muteRole = guild.getRolesByName("Muted", true).get(0);
-
-        for (Document muteLog : muteLogs) {
-            Date muteDuration = muteLog.getDate("duration");
-            if (muteDuration != null && new Date().after(muteDuration)) {
-                String userId = muteLog.getString("userId");
+        if (muteDuration != null && new Date().after(muteDuration)) {
+            Role muteRole = guild.getRolesByName("Muted", true).stream().findFirst().orElse(null);
+            if (muteRole != null) {
                 guild.retrieveMemberById(userId).queue(member -> {
-                    guild.removeRoleFromMember(member, muteRole).queue();
-                    this.muteLog.removeMuteLog(serverId, userId);
+                    guild.removeRoleFromMember(member, muteRole).queue(
+                            success -> this.muteLog.removeMuteLog(guild.getId(), userId),
+                            error -> {
+
+                            }
+                    );
                 });
             }
         }
     }
 
+    public void checkAndUnmuteUsers(String serverId) {
+        List<Document> muteLogs = muteLog.getMuteLogs(serverId);
+        if (muteLogs != null && !muteLogs.isEmpty()) {
+            Guild guild = jda.getGuildById(serverId);
+            if (guild != null) {
+                muteLogs.forEach(muteLog -> processUnmute(guild, muteLog));
+            }
+        }
+    }
 
     public void checkAndUnmuteUsersInAllGuilds() {
-        List<Guild> guilds = jda.getGuilds();
-        for (Guild guild : guilds) {
-            String serverId = guild.getId();
-            checkAndUnmuteUsers(serverId);
-        }
+        jda.getGuilds().forEach(guild -> checkAndUnmuteUsers(guild.getId()));
     }
 }

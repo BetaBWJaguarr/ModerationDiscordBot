@@ -48,43 +48,36 @@ public class ModerationLog {
         this.collection = collection;
     }
 
-    public void addLog(String serverId, String userId, String reason, Date duration, String logType, String logKey) {
-        addLog(serverId, userId, reason, duration, logType, logKey, null);
-    }
-
     public void addLog(String serverId, String userId, String reason, Date duration, String logType, String logKey, String channelId) {
         try {
-            var filter = Filters.eq("serverId", serverId);
-            var logDocument = new Document(logKey, userId)
+            Document logDocument = new Document(logKey, userId)
                     .append("reason", reason)
                     .append("duration", duration);
             if (channelId != null && !channelId.isEmpty()) {
                 logDocument.append("channelId", channelId);
             }
-            var update = Updates.push(logType, logDocument);
-            collection.updateOne(filter, update, new UpdateOptions().upsert(true));
+            collection.updateOne(Filters.eq("serverId", serverId),
+                    Updates.push(logType, logDocument),
+                    new UpdateOptions().upsert(true));
         } catch (MongoException e) {
             System.err.println("Error updating document in MongoDB: " + e.getMessage());
         }
     }
 
+    public void addLog(String serverId, String userId, String reason, Date duration, String logType, String logKey) {
+        addLog(serverId, userId, reason, duration, logType, logKey, null);
+    }
+
     public List<Document> getLogs(String serverId, String logType) {
         try {
-            var filter = Filters.eq("serverId", serverId);
-            Document document = collection.find(filter).first();
-
+            Document document = collection.find(Filters.eq("serverId", serverId)).first();
             if (document != null) {
                 return (List<Document>) document.get(logType);
             }
         } catch (MongoException e) {
             System.err.println("Error retrieving document from MongoDB: " + e.getMessage());
         }
-
         return null;
-    }
-
-    public void removeLog(String serverId, String userId, String logType, String logKey) {
-        removeLog(serverId, userId, logType, logKey, null);
     }
 
     public void removeLog(String serverId, String userId, String logType, String logKey, String channelId) {
@@ -93,10 +86,13 @@ public class ModerationLog {
             if (channelId != null && !channelId.isEmpty()) {
                 filter = Filters.and(filter, Filters.eq(logType + ".channelId", channelId));
             }
-            var update = Updates.pull(logType, new Document(logKey, userId));
-            collection.updateOne(filter, update);
+            collection.updateOne(filter, Updates.pull(logType, new Document(logKey, userId)));
         } catch (MongoException e) {
             System.err.println("Error removing document from MongoDB: " + e.getMessage());
         }
+    }
+
+    public void removeLog(String serverId, String userId, String logType, String logKey) {
+        removeLog(serverId, userId, logType, logKey, null);
     }
 }

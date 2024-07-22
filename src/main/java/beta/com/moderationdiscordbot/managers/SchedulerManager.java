@@ -14,16 +14,10 @@ public class SchedulerManager {
 
     private final UnbanScheduler unbanScheduler;
     private final UnmuteScheduler unmuteScheduler;
-    private final BanLog banLog;
-    private final MuteLog muteLog;
-    private final JDA jda;
 
-    public SchedulerManager(BanLog banLog, MuteLog muteLog,JDA jda) {
-        this.banLog = banLog;
-        this.muteLog = muteLog;
-        this.jda = jda;
-        this.unbanScheduler = new UnbanScheduler(banLog,jda);
-        this.unmuteScheduler = new UnmuteScheduler(muteLog,jda);
+    public SchedulerManager(BanLog banLog, MuteLog muteLog, JDA jda) {
+        this.unbanScheduler = new UnbanScheduler(banLog, jda);
+        this.unmuteScheduler = new UnmuteScheduler(muteLog, jda);
     }
 
     public void startSchedulers() {
@@ -37,5 +31,4 @@ public class SchedulerManager {
             unmuteScheduler.checkAndUnmuteUsersInAllGuilds();
         }, 0, 3, TimeUnit.SECONDS);
     }
-
 }

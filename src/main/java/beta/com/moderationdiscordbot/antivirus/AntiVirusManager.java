@@ -6,6 +6,62 @@ import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+/**
+ * The {@code AntiVirusManager} class provides antivirus functionalities to detect and handle potentially malicious files.
+ * It is designed to identify suspicious content based on predefined signatures, patterns, file extensions, and other heuristic indicators.
+ * The class supports scanning of various file types, including plain text files, zip archives, and executable files.
+ *
+ * <p>This class is equipped to:
+ * <ul>
+ *     <li>Check files for known virus signatures and patterns.</li>
+ *     <li>Identify dangerous URL patterns and script tags.</li>
+ *     <li>Detect files with potentially dangerous extensions.</li>
+ *     <li>Analyze zip files for hidden viruses.</li>
+ *     <li>Examine executable files for dangerous DLL functions.</li>
+ *     <li>Recognize encrypted data and ransomware signatures.</li>
+ *     <li>Verify that files have the necessary permissions.</li>
+ * </ul>
+ *
+ * <p>Usage example:
+ * <pre>
+ * {@code
+ * AntiVirusManager avManager = new AntiVirusManager();
+ * File fileToCheck = new File("example.zip");
+ * boolean isInfected = avManager.isFileInfected(fileToCheck);
+ * System.out.println("Is the file infected? " + isInfected);
+ * }
+ * </pre>
+ *
+ * <p>Dependencies:
+ * <ul>
+ *     <li>{@code java.io.*}: For file operations and input streams.</li>
+ *     <li>{@code java.nio.charset.StandardCharsets}: For character encoding.</li>
+ *     <li>{@code java.util.Scanner}: For reading file contents.</li>
+ *     <li>{@code java.util.zip.*}: For handling zip files.</li>
+ * </ul>
+ *
+ * <p>The class provides methods to:
+ * <ul>
+ *     <li>{@link #isFileInfected(File)} - Check if a file is infected or malicious.</li>
+ *     <li>{@link #containsSignature(String, String[])} - Determine if content contains specific signatures.</li>
+ *     <li>{@link #containsPattern(String, String[])} - Check if content matches dangerous patterns.</li>
+ *     <li>{@link #isDangerousFileExtension(String)} - Identify dangerous file extensions.</li>
+ *     <li>{@link #isZipFile(String)} - Check if the file is a zip archive.</li>
+ *     <li>{@link #containsVirusInZip(InputStream)} - Scan a zip file for viruses.</li>
+ *     <li>{@link #readFromFile(File)} - Read content from a file.</li>
+ *     <li>{@link #readZipEntry(ZipInputStream)} - Read content from a zip entry.</li>
+ *     <li>{@link #containsDangerousDLLFunctions(File)} - Detect dangerous functions in DLL files.</li>
+ *     <li>{@link #isExecutableFile(String)} - Check if a file is an executable.</li>
+ *     <li>{@link #hasRequiredPermissions(File)} - Verify if the file has necessary permissions.</li>
+ *     <li>{@link #checkPermission(File, String)} - Check specific file permissions.</li>
+ * </ul>
+ *
+ * @see java.io.File
+ * @see java.io.InputStream
+ * @see java.util.Scanner
+ * @see java.util.zip.ZipInputStream
+ */
+
 public class AntiVirusManager {
 
     private static final String[] SIGNATURES = {
