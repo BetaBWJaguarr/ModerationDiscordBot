@@ -46,24 +46,23 @@ public class VoiceManager extends ListenerAdapter {
     }
 
     private void handleVoiceJoin(Guild guild, VoiceChannel channel, Member member) {
-        String serverDir = "recordings/" + guild.getName();
-        String channelDir = serverDir + "/" + channel.getName();
-        String userDir = channelDir + "/" + member.getEffectiveName();
+        try {
+            String userDir = createUserDirectory(guild, channel, member);
+            AudioManager audioManager = guild.getAudioManager();
+            audioManager.openAudioConnection(channel);
 
-        new File(userDir).mkdirs();
+            if (audioManager.getReceivingHandler() == null) {
+                audioManager.setReceivingHandler(audioReceiver);
+            }
 
-        AudioManager audioManager = guild.getAudioManager();
-        audioManager.openAudioConnection(channel);
+            activeSessions.computeIfAbsent(channel, k -> new HashMap<>());
 
-        if (audioManager.getReceivingHandler() == null) {
-            audioManager.setReceivingHandler(audioReceiver);
+            VoiceSession session = new VoiceSession(audioManager, userDir, antiSwear, member, serverSettings, languageManager, audioReceiver);
+            activeSessions.get(channel).put(member, session);
+            session.startRecording();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        activeSessions.putIfAbsent(channel, new HashMap<>());
-
-        VoiceSession session = new VoiceSession(audioManager, userDir, antiSwear, member, serverSettings, languageManager, audioReceiver);
-        activeSessions.get(channel).put(member, session);
-        session.startRecording();
     }
 
     private void handleVoiceLeave(Guild guild, VoiceChannel channel, Member member) {
@@ -74,10 +73,30 @@ public class VoiceManager extends ListenerAdapter {
                 session.stopRecordingAndAnalyze();
             }
 
-            if (channel.getMembers().isEmpty() || (channel.getMembers().size() == 1 && channel.getMembers().get(0).getUser().isBot())) {
+            if (shouldCloseConnection(channel)) {
                 guild.getAudioManager().closeAudioConnection();
                 activeSessions.remove(channel);
             }
         }
+    }
+
+    private String createUserDirectory(Guild guild, VoiceChannel channel, Member member) {
+        String serverDir = "recordings/" + guild.getName();
+        String channelDir = serverDir + "/" + channel.getName();
+        String userDir = channelDir + "/" + member.getEffectiveName();
+
+        File dir = new File(userDir);
+        if (!dir.exists()) {
+            boolean dirsCreated = dir.mkdirs();
+            if (!dirsCreated) {
+                System.err.println("Failed to create directories: " + userDir);
+            }
+        }
+        return userDir;
+    }
+
+    private boolean shouldCloseConnection(VoiceChannel channel) {
+        return channel.getMembers().isEmpty() ||
+                (channel.getMembers().size() == 1 && channel.getMembers().get(0).getUser().isBot());
     }
 }

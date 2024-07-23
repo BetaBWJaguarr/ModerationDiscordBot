@@ -1,6 +1,15 @@
 no_reason: "No reason provided."
 commands:
   rate_limit: "Please wait {0} seconds and try again."
+  verify:
+    no_permissions: "You do not have permission to use this command."
+    invalid_level: "The provided level is invalid. Please provide a valid number."
+    invalid_status: "The provided status is invalid. Please provide a valid status."
+    missing_status: "You must provide a status for verification."
+    success_accepted: "User has been successfully verified."
+    success_rejected: "User verification has been rejected."
+    user_not_found: "User not found. Please make sure the user ID is correct."
+    invalid_mention: "Invalid user mention. Please mention a valid user."
   voiceaction:
     enable:
       title: "Profanity Filter Enabled"
@@ -40,7 +49,7 @@ commands:
     invalid_user_or_channel: "Invalid user or channel specified."
     user_not_banned: "User is not banned from the channel."
     log_title: "Channel Unban"
-    log_user: "User {0} unbanned"
+    log_user: "User unbanned"
   channel-ban:
     no_permissions: "You do not have sufficient permissions to use this command."
     invalid_duration: "Invalid duration. Please specify a valid duration."
@@ -51,8 +60,8 @@ commands:
     channel_not_found: "The specified channel was not found."
     already_banned: "User is already banned from the channel."
     log_title: "Channel Ban"
-    log_user: "User {0} banned"
-    log_reason: "Reason for ban: {1}"
+    log_user: "User banned:"
+    log_reason: "Reason for ban:"
   antiswear:
     error:
       title: "Error"

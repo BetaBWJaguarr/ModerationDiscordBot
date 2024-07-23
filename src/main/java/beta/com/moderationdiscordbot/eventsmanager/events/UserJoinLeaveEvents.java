@@ -1,7 +1,10 @@
 package beta.com.moderationdiscordbot.eventsmanager.events;
 
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
+import beta.com.moderationdiscordbot.databasemanager.VerifySystem.VerifyMongo;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
+import beta.com.moderationdiscordbot.memberverifysystem.MemberVerifySystem;
+import beta.com.moderationdiscordbot.memberverifysystem.Status;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -14,15 +17,19 @@ import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.Period;
+import java.util.UUID;
 
 public class UserJoinLeaveEvents extends ListenerAdapter {
 
     private final LanguageManager languageManager;
     private final ServerSettings serverSettings;
+    private final VerifyMongo verifyMongo;
 
-    public UserJoinLeaveEvents(LanguageManager languageManager, ServerSettings serverSettings) {
+
+    public UserJoinLeaveEvents(LanguageManager languageManager, ServerSettings serverSettings, VerifyMongo verifyMongo) {
         this.languageManager = languageManager;
         this.serverSettings = serverSettings;
+        this.verifyMongo = verifyMongo;
     }
 
     private void sendMemberEventMessage(TextChannel channel, String action, OffsetDateTime eventTime, String avatarUrl,
@@ -70,6 +77,16 @@ public class UserJoinLeaveEvents extends ListenerAdapter {
                     .map(g -> g.getMember(user))
                     .map(m -> m.getRoles().size())
                     .orElse(0) : 0;
+
+            MemberVerifySystem memberVerify = new MemberVerifySystem(
+                    UUID.randomUUID(),
+                    user.getName(),
+                    0,
+                    Status.PENDING
+            );
+
+
+            verifyMongo.upsertMemberVerifySystem(memberVerify);
 
             sendMemberEventMessage(channel, action, eventTime, user.getAvatarUrl(), isBot,roleCount,hasGifAvatar, isVerified, discordServerId, hasProfilePicture,user);
 

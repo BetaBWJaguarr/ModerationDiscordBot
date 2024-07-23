@@ -1,6 +1,15 @@
 no_reason: "Sebep belirtilmedi."
 commands:
   rate_limit: "Lütfen {0} saniye bekleyin ve tekrar deneyin."
+  verify:
+    no_permissions: "Bu komutu kullanmak için yeterli izniniz yok."
+    invalid_level: "Verilen seviye geçersiz. Lütfen geçerli bir sayı girin."
+    invalid_status: "Verilen durum geçersiz. Lütfen geçerli bir durum girin."
+    missing_status: "Doğrulama için bir durum sağlamalısınız."
+    success_accepted: "Kullanıcı başarıyla doğrulandı."
+    success_rejected: "Kullanıcı doğrulaması reddedildi."
+    user_not_found: "Kullanıcı bulunamadı. Lütfen kullanıcı ID'sinin doğru olduğundan emin olun."
+    invalid_mention: "Geçersiz kullanıcı etiketlemesi. Lütfen geçerli bir kullanıcı etiketleyin."
   voiceaction:
     enable:
       title: "Küfür Engelleyici Etkinleştirildi"
@@ -40,7 +49,7 @@ commands:
     invalid_user_or_channel: "Geçersiz kullanıcı veya kanal belirtildi."
     user_not_banned: "Kullanıcı bu kanaldan yasaklı değil."
     log_title: "Kanal Yasağı Kaldırıldı"
-    log_user: "Kullanıcı {0} yasağı kaldırıldı"
+    log_user: "Kullanıcı yasağı kaldırıldı"
   channel-ban:
     no_permissions: "Bu komutu kullanmak için yeterli izne sahip değilsiniz."
     invalid_duration: "Geçersiz süre. Lütfen geçerli bir süre belirtin."
@@ -51,8 +60,8 @@ commands:
     channel_not_found: "Belirtilen kanal bulunamadı."
     already_banned: "Kullanıcı zaten bu kanaldan yasaklanmış."
     log_title: "Kanal Yasağı"
-    log_user: "Kullanıcı {0} yasaklandı"
-    log_reason: "Yasaklama Nedeni: {1}"
+    log_user: "Kullanıcı yasaklandı:"
+    log_reason: "Yasaklama Nedeni:"
   antiswear:
     error:
       title: "Hata"

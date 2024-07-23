@@ -1,7 +1,7 @@
 package beta.com.moderationdiscordbot;
 
-import beta.com.moderationdiscordbot.advertisemanager.AdvertiseChecking;
 import beta.com.moderationdiscordbot.autopunish.antiswear.AntiSwear;
+import beta.com.moderationdiscordbot.databasemanager.VerifySystem.VerifyMongo;
 import beta.com.moderationdiscordbot.managers.CommandManager;
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.BanLog;
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.MuteLog;
@@ -10,7 +10,6 @@ import beta.com.moderationdiscordbot.databasemanager.MongoDB;
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.envmanager.Env;
 import beta.com.moderationdiscordbot.eventsmanager.RegisterEvents;
-import beta.com.moderationdiscordbot.eventsmanager.events.*;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.managers.SchedulerManager;
@@ -39,6 +38,7 @@ public class Main {
 
         DebugManager.logDebug("Connecting to MongoDB...");
         MongoDB db = new MongoDB(env);
+        VerifyMongo verifyMongo = new VerifyMongo(db);
         ServerSettings serverSettings = new ServerSettings(db.getCollection("ServerSettings"));
         BanLog banLog = new BanLog(db.getCollection("BanLog"));
         MuteLog muteLog = new MuteLog(db.getCollection("MuteLog"));
@@ -51,7 +51,7 @@ public class Main {
         RateLimit rateLimit = new RateLimit(2, TimeUnit.SECONDS);
         AntiSpamCommand antiSpamCommand = new AntiSpamCommand(serverSettings, languageManager, rateLimit, handleErrors);
         AntiVirusCommand antiVirusCommand = new AntiVirusCommand(serverSettings, languageManager, rateLimit, handleErrors);
-        CommandManager commandManager = new CommandManager(serverSettings, languageManager, handleErrors, banLog, muteLog, warnLog);
+        CommandManager commandManager = new CommandManager(serverSettings, languageManager, handleErrors, banLog, muteLog, warnLog,verifyMongo);
 
         try {
             DebugManager.logDebug("Building JDA...");
@@ -81,7 +81,7 @@ public class Main {
             AntiSwear antiSwear = new AntiSwear(serverSettings, languageManager);
 
             DebugManager.logDebug("Registering events...");
-            new RegisterEvents(jda, botInfo, languageManager, serverSettings, antiSpamCommand, antiVirusCommand, antiSwear).registerAll();
+            new RegisterEvents(jda, botInfo, languageManager, serverSettings, antiSpamCommand, antiVirusCommand, antiSwear,verifyMongo).registerAll();
 
             DebugManager.logDebug("Printing bot information...");
             botInfo.printInformation();
@@ -109,7 +109,7 @@ public class Main {
         int userCount = jda.getGuilds().stream().mapToInt(guild -> guild.getMembers().size()).sum();
         botInfo.setServerCount(serverCount);
         botInfo.setUserCount(userCount);
-        botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute", "clear", "warn", "unwarn", "kick", "warnlist", "antiswear", "autopunish", "channel", "setwarnkick", "autorole", "voiceaction"));
+        botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute", "clear", "warn", "unwarn", "kick", "warnlist", "antiswear", "autopunish", "channel", "setwarnkick", "autorole", "voiceaction","verify"));
         botInfo.setEventList(Arrays.asList("UserJoinLeaveEvents", "AntiSpamEvent", "BotJoinServer", "AdvertiseChecking", "AntiVirusEvent", "HighWarnKickEvent", "AutoPunishEvent", "VoiceManager"));
         DebugManager.logDebug("Bot information gathered.");
         return botInfo;

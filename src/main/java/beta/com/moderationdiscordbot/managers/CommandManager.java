@@ -9,6 +9,7 @@ import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.BanL
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.MuteLog;
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.WarnLog;
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
+import beta.com.moderationdiscordbot.databasemanager.VerifySystem.VerifyMongo;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
@@ -19,6 +20,7 @@ import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcom
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.undocommands.Unban;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.undocommands.Unmute;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.modlogcommands.ModLogCommand;
+import beta.com.moderationdiscordbot.slashcommandsmanager.commands.verifycommands.VerifyCommands;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.warncommands.SetWarnKickTimesCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.warncommands.UnWarnCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.warncommands.WarnCommand;
@@ -39,14 +41,16 @@ public class CommandManager {
     private final BanLog banLog;
     private final MuteLog muteLog;
     private final WarnLog warnLog;
+    private final VerifyMongo verifyMongo;
 
-    public CommandManager(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors handleErrors, BanLog banLog, MuteLog muteLog, WarnLog warnLog) {
+    public CommandManager(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors handleErrors, BanLog banLog, MuteLog muteLog, WarnLog warnLog, VerifyMongo verifyMongo) {
         this.serverSettings = serverSettings;
         this.languageManager = languageManager;
         this.handleErrors = handleErrors;
         this.banLog = banLog;
         this.muteLog = muteLog;
         this.warnLog = warnLog;
+        this.verifyMongo = verifyMongo;
         initializeCommands();
     }
 
@@ -80,6 +84,7 @@ public class CommandManager {
         commands.add(new ClearEmbedCommand(serverSettings, languageManager, handleErrors, rateLimit));
         commands.add(new ClearContentCommand(serverSettings, languageManager, handleErrors, rateLimit));
         commands.add(new VoiceEnableCommand(serverSettings, languageManager, rateLimit));
+        commands.add(new VerifyCommands(serverSettings, languageManager, handleErrors, rateLimit,verifyMongo));
     }
 
     public void addCommandsToJDABuilder(JDABuilder builder) {

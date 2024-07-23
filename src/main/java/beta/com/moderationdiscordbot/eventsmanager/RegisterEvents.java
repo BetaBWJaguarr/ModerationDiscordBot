@@ -2,7 +2,9 @@ package beta.com.moderationdiscordbot.eventsmanager;
 
 import beta.com.moderationdiscordbot.advertisemanager.AdvertiseChecking;
 import beta.com.moderationdiscordbot.autopunish.antiswear.AntiSwear;
+import beta.com.moderationdiscordbot.databasemanager.MongoDB;
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
+import beta.com.moderationdiscordbot.databasemanager.VerifySystem.VerifyMongo;
 import beta.com.moderationdiscordbot.eventsmanager.events.*;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.AntiSpamCommand;
@@ -20,9 +22,10 @@ public class RegisterEvents extends ListenerAdapter {
     private final AntiSpamCommand antiSpamCommand;
     private final AntiVirusCommand antiVirusCommand;
     private final AntiSwear antiSwear;
+    private final VerifyMongo verifyMongo;
 
     public RegisterEvents(JDA jda, Information info, LanguageManager langManager, ServerSettings serverSettings,
-                          AntiSpamCommand spamCommand, AntiVirusCommand virusCommand, AntiSwear swear) {
+                          AntiSpamCommand spamCommand, AntiVirusCommand virusCommand, AntiSwear swear, VerifyMongo verifyMongo) {
         this.jda = jda;
         this.information = info;
         this.languageManager = langManager;
@@ -30,10 +33,11 @@ public class RegisterEvents extends ListenerAdapter {
         this.antiSpamCommand = spamCommand;
         this.antiVirusCommand = virusCommand;
         this.antiSwear = swear;
+        this.verifyMongo = verifyMongo;
     }
 
     public void registerAll() {
-        addEvent(new UserJoinLeaveEvents(languageManager, serverSettings));
+        addEvent(new UserJoinLeaveEvents(languageManager, serverSettings,verifyMongo));
         addEvent(new AntiSpamEvent(antiSpamCommand, languageManager, serverSettings));
         addEvent(new BotJoinServer(serverSettings));
         addEvent(new AdvertiseChecking(languageManager, serverSettings));

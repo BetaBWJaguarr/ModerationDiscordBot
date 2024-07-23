@@ -157,6 +157,10 @@ public class RegisterSlashCommand {
                 {"voiceaction", "VoiceAction Command",
                         new SubcommandData("enable", "Enable the voice action system"),
                         new SubcommandData("disable", "Disable the voice action system")},
+                {"verify", "Verify a user",
+                        new OptionData(OptionType.STRING, "username", "The user to verify", true),
+                        new OptionData(OptionType.STRING,"level","The level of the user",true),
+                        new OptionData(OptionType.STRING,"status","The status of the user",true)},
         };
 
         for (Object[] command : commands) {
