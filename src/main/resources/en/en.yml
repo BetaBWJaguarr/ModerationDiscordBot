@@ -2,6 +2,7 @@ no_reason: "No reason provided."
 commands:
   rate_limit: "Please wait {0} seconds and try again."
   verify:
+    system_disabled: "The verification system is currently disabled. Please enable it before using this command."
     no_permissions: "You do not have permission to use this command."
     invalid_level: "The provided level is invalid. Please provide a valid number."
     invalid_status: "The provided status is invalid. Please provide a valid status."
@@ -10,7 +11,17 @@ commands:
     success_rejected: "User verification has been rejected."
     user_not_found: "User not found. Please make sure the user ID is correct."
     invalid_mention: "Invalid user mention. Please mention a valid user."
+    missing_action: "Please specify an action: 'enable' or 'disable'."
+    enabled: "Verification system has been enabled."
+    disabled: "Verification system has been disabled."
+    invalid_action: "Invalid action specified. Use 'enable' or 'disable'."
   voiceaction:
+    already_enabled:
+      title: "Voice action already enabled"
+      description: "The voice action feature is already enabled. Is there anything else you need to do?"
+    already_disabled:
+      title: "Voice action already disabled"
+      description: "The voice action feature is already disabled. Is there anything else you need to do?"
     enable:
       title: "Profanity Filter Enabled"
       description: "Voice action profanity filter has been successfully enabled."
@@ -20,6 +31,12 @@ commands:
     error:
       title: "Error"
       description: "You do not have permission to use this command."
+      disabled: "The voice action feature is disabled. Please contact an administrator."
+      not_in_channel: "You are not in a voice channel. Join a voice channel and try again."
+      bot_already_in_channel: "The bot is already in a voice channel. Please check if the bot is in another channel."
+    success:
+      title: "Success"
+      started_recording: "The bot has successfully joined the voice channel and started recording."
     toggle:
       error:
         title: "Toggle Error"
@@ -230,7 +247,9 @@ events:
     log:
       title: "Server Events"
       user: "User: {0}"
-      action: "Action: {0}"
+      action:
+        join: "Joined"
+        leave: "Left"
     reliability:
       low: "Low"
       medium: "Medium"

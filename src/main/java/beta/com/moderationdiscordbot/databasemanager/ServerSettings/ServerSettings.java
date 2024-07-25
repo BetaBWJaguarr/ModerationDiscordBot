@@ -32,7 +32,8 @@ public class ServerSettings {
                 Updates.set("settings.language", DEFAULT_LANGUAGE),
                 Updates.set("settings.antiswearfeatures.enabled", false),
                 Updates.set("settings.autopunish", false),
-                Updates.set("settings.voiceaction.enabled", false)
+                Updates.set("settings.voiceaction.enabled", false),
+                Updates.set("settings.verifysystem.enabled", false)
         );
         collection.updateOne(filter, update, new UpdateOptions().upsert(true));
     }
@@ -172,6 +173,28 @@ public class ServerSettings {
                 if (settings != null && settings.containsKey("voiceaction")) {
                     Document voiceAction = (Document) settings.get("voiceaction");
                     return voiceAction.getBoolean("enabled");
+                }
+            }
+        } catch (MongoException e) {
+            // Handle MongoException
+        }
+        return false;
+    }
+
+    //Verify System Feature
+    public void setVerifySystem(String discordServerId, boolean enabled) {
+        ServerSettingsHelper.setBooleanSetting(collection, discordServerId, "verifysystem.enabled", enabled);
+    }
+
+    public boolean getVerifySystem(String discordServerId) {
+        try {
+            var filter = Filters.eq("_id", discordServerId);
+            Document document = collection.find(filter).first();
+            if (document != null) {
+                Document settings = (Document) document.get("settings");
+                if (settings != null && settings.containsKey("verifysystem")) {
+                    Document verifySystem = (Document) settings.get("verifysystem");
+                    return verifySystem.getBoolean("enabled");
                 }
             }
         } catch (MongoException e) {

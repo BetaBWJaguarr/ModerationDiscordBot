@@ -37,7 +37,7 @@ public class VerifyCommands extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        if (event.getName().equals("verify")) {
+        if (event.getName().equals("verify") && event.getSubcommandName().equals("user")) {
             PermissionsManager permissionsManager = new PermissionsManager();
 
             if (!permissionsManager.checkPermissionAndOption(event, PermType.MANAGE_CHANNEL, embedBuilderManager, serverSettings, "commands.verify.no_permissions")) {
@@ -49,6 +49,15 @@ public class VerifyCommands extends ListenerAdapter {
             }
 
             String dcserverid = event.getGuild().getId();
+
+
+            boolean isVerifySystemEnabled = serverSettings.getVerifySystem(dcserverid);
+            if (!isVerifySystemEnabled) {
+                event.replyEmbeds(embedBuilderManager.createEmbed("commands.verify.system_disabled", null, serverSettings.getLanguage(dcserverid)).build())
+                        .setEphemeral(true)
+                        .queue();
+                return;
+            }
 
             String mention = event.getOption("username").getAsString();
             Pattern mentionPattern = Pattern.compile("<@!?(\\d+)>");
@@ -101,7 +110,7 @@ public class VerifyCommands extends ListenerAdapter {
 
 
 
-                    MemberVerifySystem existingRecord = verifyMongo.findMemberVerifySystem(UUID.fromString(userToVerifyId));
+                    MemberVerifySystem existingRecord = verifyMongo.findMemberVerifySystem(username, dcserverid);
 
                     MemberVerifySystem memberVerify;
                     if (existingRecord != null) {
@@ -120,7 +129,7 @@ public class VerifyCommands extends ListenerAdapter {
                         );
                     }
 
-                    verifyMongo.upsertMemberVerifySystem(memberVerify);
+                    verifyMongo.upsertMemberVerifySystem(memberVerify, dcserverid);
 
                     String statusMessageKey = status == Status.VERIFIED ? "commands.verify.success_accepted" : "commands.verify.success_rejected";
                     event.replyEmbeds(embedBuilderManager.createEmbed(statusMessageKey, null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();

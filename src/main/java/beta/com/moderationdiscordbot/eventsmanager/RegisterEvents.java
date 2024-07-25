@@ -23,9 +23,10 @@ public class RegisterEvents extends ListenerAdapter {
     private final AntiVirusCommand antiVirusCommand;
     private final AntiSwear antiSwear;
     private final VerifyMongo verifyMongo;
+    private final VoiceManager voiceManager;
 
     public RegisterEvents(JDA jda, Information info, LanguageManager langManager, ServerSettings serverSettings,
-                          AntiSpamCommand spamCommand, AntiVirusCommand virusCommand, AntiSwear swear, VerifyMongo verifyMongo) {
+                          AntiSpamCommand spamCommand, AntiVirusCommand virusCommand, AntiSwear swear, VerifyMongo verifyMongo, VoiceManager voiceManager) {
         this.jda = jda;
         this.information = info;
         this.languageManager = langManager;
@@ -34,6 +35,7 @@ public class RegisterEvents extends ListenerAdapter {
         this.antiVirusCommand = virusCommand;
         this.antiSwear = swear;
         this.verifyMongo = verifyMongo;
+        this.voiceManager = voiceManager;
     }
 
     public void registerAll() {
@@ -44,7 +46,7 @@ public class RegisterEvents extends ListenerAdapter {
         addEvent(new AntiVirusEvent(antiVirusCommand, languageManager, serverSettings));
         addEvent(new AutoPunishEvent(antiSwear));
         addEvent(new AutoRoleEvent(serverSettings, languageManager));
-        addEvent(new VoiceManager(serverSettings, languageManager, antiSwear));
+        addEvent(voiceManager);
     }
 
     private void addEvent(ListenerAdapter event) {

@@ -43,7 +43,7 @@ public class VoiceEnableCommand extends ListenerAdapter {
     }
 
     private void handleVoiceActionToggle(SlashCommandInteractionEvent event, String discordServerId, String language, boolean enable) {
-        if (!event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+        if (!event.getMember().hasPermission(Permission.VOICE_SPEAK)) {
             sendErrorEmbed(event, "commands.voiceaction.error.title", "commands.voiceaction.error.description", language);
             return;
         }
@@ -52,14 +52,28 @@ public class VoiceEnableCommand extends ListenerAdapter {
             return;
         }
 
-        boolean success = setVoiceActionEnabled(discordServerId, enable);
-        if (success) {
-            String titleKey = enable ? "commands.voiceaction.enable.title" : "commands.voiceaction.disable.title";
-            String descKey = enable ? "commands.voiceaction.enable.description" : "commands.voiceaction.disable.description";
+        boolean currentStatus = serverSettings.getVoiceAction(discordServerId);
+
+        if (currentStatus == enable) {
+            String messageKey = enable
+                    ? "commands.voiceaction.already_enabled.title"
+                    : "commands.voiceaction.already_disabled.title";
+            String descriptionKey = enable
+                    ? "commands.voiceaction.already_enabled.description"
+                    : "commands.voiceaction.already_disabled.description";
             Color color = enable ? Color.GREEN : Color.RED;
-            sendSuccessEmbed(event, titleKey, descKey, language, color);
+
+            sendSuccessEmbed(event, messageKey, descriptionKey, language, color);
         } else {
-            sendErrorEmbed(event, "commands.voiceaction.toggle.error.title", "commands.voiceaction.toggle.error.description", language);
+            boolean success = setVoiceActionEnabled(discordServerId, enable);
+            if (success) {
+                String titleKey = enable ? "commands.voiceaction.enable.title" : "commands.voiceaction.disable.title";
+                String descKey = enable ? "commands.voiceaction.enable.description" : "commands.voiceaction.disable.description";
+                Color color = enable ? Color.GREEN : Color.RED;
+                sendSuccessEmbed(event, titleKey, descKey, language, color);
+            } else {
+                sendErrorEmbed(event, "commands.voiceaction.toggle.error.title", "commands.voiceaction.toggle.error.description", language);
+            }
         }
     }
 

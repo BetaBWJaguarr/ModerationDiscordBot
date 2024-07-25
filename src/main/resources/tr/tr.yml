@@ -2,6 +2,7 @@ no_reason: "Sebep belirtilmedi."
 commands:
   rate_limit: "Lütfen {0} saniye bekleyin ve tekrar deneyin."
   verify:
+    system_disabled: "Doğrulama sistemi şu anda devre dışı. Bu komutu kullanmadan önce etkinleştirin."
     no_permissions: "Bu komutu kullanmak için yeterli izniniz yok."
     invalid_level: "Verilen seviye geçersiz. Lütfen geçerli bir sayı girin."
     invalid_status: "Verilen durum geçersiz. Lütfen geçerli bir durum girin."
@@ -10,7 +11,17 @@ commands:
     success_rejected: "Kullanıcı doğrulaması reddedildi."
     user_not_found: "Kullanıcı bulunamadı. Lütfen kullanıcı ID'sinin doğru olduğundan emin olun."
     invalid_mention: "Geçersiz kullanıcı etiketlemesi. Lütfen geçerli bir kullanıcı etiketleyin."
+    missing_action: "Bir eylem belirtmelisiniz: 'enable' veya 'disable'."
+    enabled: "Doğrulama sistemi etkinleştirildi."
+    disabled: "Doğrulama sistemi devre dışı bırakıldı."
+    invalid_action: "Geçersiz eylem belirtildi. 'enable' veya 'disable' kullanın."
   voiceaction:
+    already_enabled:
+      title: "Sesli eylem zaten açık"
+      description: "Sesli eylem özelliği zaten açıktır. Yapmanız gereken başka bir şey var mı?"
+    already_disabled:
+      title: "Sesli eylem zaten kapalı"
+      description: "Sesli eylem özelliği zaten kapalıdır. Yapmanız gereken başka bir şey var mı?"
     enable:
       title: "Küfür Engelleyici Etkinleştirildi"
       description: "Ses eylem küfür engelleyici başarıyla etkinleştirildi."
@@ -20,6 +31,12 @@ commands:
     error:
       title: "Hata"
       description: "Bu komutu kullanma izniniz yok."
+      disabled: "Sesli eylem özelliği kapalı. Lütfen yönetici ile iletişime geçin."
+      not_in_channel: "Bir sesli kanalda değilsiniz. Bir sesli kanala katılın ve tekrar deneyin."
+      bot_already_in_channel: "Bot zaten sesli kanalda. Lütfen botun başka bir kanalda olup olmadığını kontrol edin."
+    success:
+      title: "Başarı"
+      started_recording: "Bot başarıyla sesli kanala katıldı ve kayıt yapmaya başladı."
     toggle:
       error:
         title: "Toggle Hatası"
@@ -231,7 +248,9 @@ events:
     log:
       title: "Sunucu Olayları"
       user: "Kullanıcı: {0}"
-      action: "Aksiyon: {0}"
+      action:
+        join: "Katıldı"
+        leave: "Ayrıldı"
     reliability:
       low: "Düşük"
       medium: "Orta"

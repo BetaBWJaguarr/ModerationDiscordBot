@@ -16,6 +16,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 public class VoiceSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(VoiceSession.class);
@@ -46,28 +47,30 @@ public class VoiceSession {
     }
 
     public void stopRecordingAndAnalyze() {
-        audioReceiver.saveAudioToFile(userDir, member.getUser());
-        File audioFile = new File(userDir + "/output.wav");
+        CompletableFuture.runAsync(() -> {
+            audioReceiver.saveAudioToFile(userDir, member.getUser());
+            File audioFile = new File(userDir + "/output.wav");
 
-        if (audioFile.exists()) {
-            try {
-                String text = SpeechToTextAPI.convertSpeechToText(audioFile.getAbsolutePath(), VOSK_MODEL_PATH);
-                if (antiSwear.containsProfanity(text, member.getGuild().getId())) {
-                    LOGGER.warn("Profanity detected for user: {}", member.getEffectiveName());
-                    sendWarningDM();
+            if (audioFile.exists()) {
+                try {
+                    String text = SpeechToTextAPI.convertSpeechToText(audioFile.getAbsolutePath(), VOSK_MODEL_PATH);
+                    if (antiSwear.containsProfanity(text, member.getGuild().getId())) {
+                        LOGGER.warn("Profanity detected for user: {}", member.getEffectiveName());
+                        sendWarningDM();
+                    }
+                } catch (IOException | UnsupportedAudioFileException e) {
+                    LOGGER.error("Error during speech-to-text conversion or profanity detection", e);
+                } finally {
+                    if (!audioFile.delete()) {
+                        LOGGER.error("Failed to delete audio file: {}", audioFile.getAbsolutePath());
+                    }
                 }
-            } catch (IOException | UnsupportedAudioFileException e) {
-                LOGGER.error("Error during speech-to-text conversion or profanity detection", e);
-            } finally {
-                if (!audioFile.delete()) {
-                    LOGGER.error("Failed to delete audio file: {}", audioFile.getAbsolutePath());
-                }
+            } else {
+                LOGGER.info("Audio file not found for user: {}", member.getEffectiveName());
             }
-        } else {
-            LOGGER.info("Audio file not found for user: {}", member.getEffectiveName());
-        }
 
-        audioReceiver.closeAudioStreams(member.getUser());
+            audioReceiver.closeAudioStreams(member.getUser());
+        });
     }
 
     private void sendWarningDM() {

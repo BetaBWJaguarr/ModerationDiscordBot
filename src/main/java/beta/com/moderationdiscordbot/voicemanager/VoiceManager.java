@@ -38,31 +38,36 @@ public class VoiceManager extends ListenerAdapter {
             return;
         }
 
-        if (event.getChannelJoined() instanceof VoiceChannel) {
-            handleVoiceJoin(event.getGuild(), (VoiceChannel) event.getChannelJoined(), event.getMember());
-        } else if (event.getChannelLeft() instanceof VoiceChannel) {
+        if (event.getChannelLeft() instanceof VoiceChannel) {
             handleVoiceLeave(event.getGuild(), (VoiceChannel) event.getChannelLeft(), event.getMember());
         }
     }
 
-    private void handleVoiceJoin(Guild guild, VoiceChannel channel, Member member) {
-        try {
-            String userDir = createUserDirectory(guild, channel, member);
-            AudioManager audioManager = guild.getAudioManager();
-            audioManager.openAudioConnection(channel);
+    public void joinAndStartRecording(VoiceChannel voiceChannel) {
+        Guild guild = voiceChannel.getGuild();
+        AudioManager audioManager = guild.getAudioManager();
+        audioManager.openAudioConnection(voiceChannel);
 
-            if (audioManager.getReceivingHandler() == null) {
-                audioManager.setReceivingHandler(audioReceiver);
-            }
-
-            activeSessions.computeIfAbsent(channel, k -> new HashMap<>());
-
-            VoiceSession session = new VoiceSession(audioManager, userDir, antiSwear, member, serverSettings, languageManager, audioReceiver);
-            activeSessions.get(channel).put(member, session);
-            session.startRecording();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (audioManager.getReceivingHandler() == null) {
+            audioManager.setReceivingHandler(audioReceiver);
         }
+
+        activeSessions.computeIfAbsent(voiceChannel, k -> new HashMap<>());
+
+        for (Member member : voiceChannel.getMembers()) {
+            if (!member.getUser().isBot()) {
+                String userDir = createUserDirectory(guild, voiceChannel, member);
+
+                VoiceSession session = new VoiceSession(audioManager, userDir, antiSwear, member, serverSettings, languageManager, audioReceiver);
+                activeSessions.get(voiceChannel).put(member, session);
+                session.startRecording();
+            }
+        }
+    }
+
+    public boolean isBotInChannel(Guild guild) {
+        AudioManager audioManager = guild.getAudioManager();
+        return audioManager.isConnected();
     }
 
     private void handleVoiceLeave(Guild guild, VoiceChannel channel, Member member) {

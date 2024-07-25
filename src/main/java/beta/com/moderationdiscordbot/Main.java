@@ -17,6 +17,7 @@ import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RegisterSlashCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.*;
 import beta.com.moderationdiscordbot.startup.Information;
+import beta.com.moderationdiscordbot.voicemanager.VoiceManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -47,11 +48,13 @@ public class Main {
         DebugManager.logDebug("Setting up error handling...");
         HandleErrors handleErrors = new HandleErrors(languageManager, serverSettings);
 
-        DebugManager.logDebug("Setting up command rate limits...");
+        DebugManager.logDebug("Setting up command rate limits and utils...");
         RateLimit rateLimit = new RateLimit(2, TimeUnit.SECONDS);
         AntiSpamCommand antiSpamCommand = new AntiSpamCommand(serverSettings, languageManager, rateLimit, handleErrors);
         AntiVirusCommand antiVirusCommand = new AntiVirusCommand(serverSettings, languageManager, rateLimit, handleErrors);
-        CommandManager commandManager = new CommandManager(serverSettings, languageManager, handleErrors, banLog, muteLog, warnLog,verifyMongo);
+        AntiSwear antiSwear = new AntiSwear(serverSettings, languageManager);
+        VoiceManager voiceManager = new VoiceManager(serverSettings, languageManager, antiSwear);
+        CommandManager commandManager = new CommandManager(serverSettings, languageManager, handleErrors, banLog, muteLog, warnLog,verifyMongo,voiceManager);
 
         try {
             DebugManager.logDebug("Building JDA...");
@@ -78,10 +81,9 @@ public class Main {
             new RegisterSlashCommand(jda, botInfo).registerCommands();
 
             DebugManager.logDebug("Initializing AntiSwear...");
-            AntiSwear antiSwear = new AntiSwear(serverSettings, languageManager);
 
             DebugManager.logDebug("Registering events...");
-            new RegisterEvents(jda, botInfo, languageManager, serverSettings, antiSpamCommand, antiVirusCommand, antiSwear,verifyMongo).registerAll();
+            new RegisterEvents(jda, botInfo, languageManager, serverSettings, antiSpamCommand, antiVirusCommand, antiSwear,verifyMongo,voiceManager).registerAll();
 
             DebugManager.logDebug("Printing bot information...");
             botInfo.printInformation();

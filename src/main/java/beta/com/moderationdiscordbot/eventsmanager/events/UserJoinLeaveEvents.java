@@ -25,7 +25,6 @@ public class UserJoinLeaveEvents extends ListenerAdapter {
     private final ServerSettings serverSettings;
     private final VerifyMongo verifyMongo;
 
-
     public UserJoinLeaveEvents(LanguageManager languageManager, ServerSettings serverSettings, VerifyMongo verifyMongo) {
         this.languageManager = languageManager;
         this.serverSettings = serverSettings;
@@ -33,15 +32,15 @@ public class UserJoinLeaveEvents extends ListenerAdapter {
     }
 
     private void sendMemberEventMessage(TextChannel channel, String action, OffsetDateTime eventTime, String avatarUrl,
-                                        boolean isBot,int RoleCount,boolean GifAvatar, boolean isVerified, String discordServerId, boolean hasProfilePicture,User user) {
+                                        boolean isBot, int roleCount, boolean isGifAvatar, boolean isVerified, String discordServerId, boolean hasProfilePicture, User user) {
         String language = serverSettings.getLanguage(discordServerId);
-        String reliability = calculateReliability(isBot,GifAvatar, isVerified, user.getTimeCreated(), hasProfilePicture, language);
+        String reliability = calculateReliability(isBot, isGifAvatar, isVerified, user.getTimeCreated(), hasProfilePicture, language);
 
         EmbedBuilder eb = new EmbedBuilder()
                 .setTitle(action.equals("Join") ? languageManager.getMessage("events.joinquit.titles.join_title", language) : languageManager.getMessage("events.joinquit.titles.leave_title", language))
                 .setColor(action.equals("Join") ? Color.GREEN : Color.RED)
                 .setThumbnail(avatarUrl)
-                .addField(languageManager.getMessage("events.joinquit.titles.role_count_title", language), String.valueOf(RoleCount), true)
+                .addField(languageManager.getMessage("events.joinquit.titles.role_count_title", language), String.valueOf(roleCount), true)
                 .addField(languageManager.getMessage("events.joinquit.titles.is_bot_title", language), String.valueOf(isBot), true)
                 .addField(languageManager.getMessage("events.joinquit.titles.is_verified_title", language), String.valueOf(isVerified), true)
                 .addField(languageManager.getMessage("events.joinquit.titles.event_time_title", language), eventTime.toString(), true)
@@ -50,7 +49,7 @@ public class UserJoinLeaveEvents extends ListenerAdapter {
         channel.sendMessageEmbeds(eb.build()).queue();
     }
 
-    private String calculateReliability(boolean isBot,boolean isGifAvatar, boolean isVerified, OffsetDateTime accountCreationDate, boolean hasProfilePicture, String language) {
+    private String calculateReliability(boolean isBot, boolean isGifAvatar, boolean isVerified, OffsetDateTime accountCreationDate, boolean hasProfilePicture, String language) {
         Period accountAge = Period.between(accountCreationDate.toLocalDate(), LocalDate.now());
         int accountAgeYears = accountAge.getYears();
         boolean isAccountOldEnough = accountAgeYears > 1;
@@ -78,17 +77,17 @@ public class UserJoinLeaveEvents extends ListenerAdapter {
                     .map(m -> m.getRoles().size())
                     .orElse(0) : 0;
 
-            MemberVerifySystem memberVerify = new MemberVerifySystem(
-                    UUID.randomUUID(),
-                    user.getName(),
-                    0,
-                    Status.PENDING
-            );
+            if (action.equals("Join")) {
+                MemberVerifySystem memberVerify = new MemberVerifySystem(
+                        UUID.randomUUID(),
+                        user.getName(),
+                        0,
+                        Status.PENDING
+                );
+                verifyMongo.upsertMemberVerifySystem(memberVerify, discordServerId);
+            }
 
-
-            verifyMongo.upsertMemberVerifySystem(memberVerify);
-
-            sendMemberEventMessage(channel, action, eventTime, user.getAvatarUrl(), isBot,roleCount,hasGifAvatar, isVerified, discordServerId, hasProfilePicture,user);
+            sendMemberEventMessage(channel, action, eventTime, user.getAvatarUrl(), isBot, roleCount, hasGifAvatar, isVerified, discordServerId, hasProfilePicture, user);
 
             String modLogChannelId = serverSettings.getModLogChannel(discordServerId);
             if (modLogChannelId != null) {
@@ -100,7 +99,8 @@ public class UserJoinLeaveEvents extends ListenerAdapter {
                     String formattedUserMessage = MessageFormat.format(userMessageTemplate, user.getName());
                     embedBuilder.addField(formattedUserMessage, "", false);
 
-                    String actionMessageTemplate = languageManager.getMessage("events.joinquit.log.action", serverSettings.getLanguage(discordServerId));
+                    String actionKey = action.toLowerCase();
+                    String actionMessageTemplate = languageManager.getMessage("events.joinquit.log.action." + actionKey, serverSettings.getLanguage(discordServerId));
                     String formattedActionMessage = MessageFormat.format(actionMessageTemplate, action);
                     embedBuilder.addField(formattedActionMessage, "", false);
                     embedBuilder.setColor(action.equals("Join") ? Color.GREEN : Color.RED);
