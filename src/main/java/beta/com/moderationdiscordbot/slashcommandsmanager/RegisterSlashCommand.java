@@ -157,7 +157,8 @@ public class RegisterSlashCommand {
                 {"voiceaction", "VoiceAction Command",
                         new SubcommandData("enable", "Enable the voice action system"),
                         new SubcommandData("disable", "Disable the voice action system"),
-                        new SubcommandData("request", "Request a voice action")},
+                        new SubcommandData("request", "Request a voice action"),
+                        new SubcommandData("end","End a voice action")},
                 {"verify", "Verify a user",
                         new SubcommandData("user", "Toggle the verification system")
                                 .addOption(OptionType.STRING, "username", "The user to verify", true)

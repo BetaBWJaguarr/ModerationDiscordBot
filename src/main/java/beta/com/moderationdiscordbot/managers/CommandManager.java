@@ -29,6 +29,7 @@ import beta.com.moderationdiscordbot.slashcommandsmanager.commands.warncommands.
 import beta.com.moderationdiscordbot.voicemanager.VoiceManager;
 import beta.com.moderationdiscordbot.voicemanager.commands.VoiceEnableCommand;
 import beta.com.moderationdiscordbot.voicemanager.commands.VoiceRequest;
+import beta.com.moderationdiscordbot.voicemanager.commands.VoiceRequestEnd;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -92,6 +93,7 @@ public class CommandManager {
         commands.add(new VerifyCommands(serverSettings, languageManager, handleErrors, rateLimit,verifyMongo));
         commands.add(new VoiceRequest(voiceManager,languageManager,serverSettings,rateLimit));
         commands.add(new VerifyToggleCommands(serverSettings, languageManager, handleErrors, rateLimit));
+        commands.add(new VoiceRequestEnd(voiceManager,languageManager,serverSettings,rateLimit));
     }
 
     public void addCommandsToJDABuilder(JDABuilder builder) {

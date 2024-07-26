@@ -16,6 +16,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 
 public class VoiceSession {
@@ -48,28 +49,28 @@ public class VoiceSession {
 
     public void stopRecordingAndAnalyze() {
         CompletableFuture.runAsync(() -> {
-            audioReceiver.saveAudioToFile(userDir, member.getUser());
-            File audioFile = new File(userDir + "/output.wav");
+            File audioFile = new File(Paths.get(userDir, "output.wav").toString());
 
-            if (audioFile.exists()) {
-                try {
+            try {
+                audioReceiver.saveAudioToFile(userDir, member.getUser());
+
+                if (audioFile.exists()) {
                     String text = SpeechToTextAPI.convertSpeechToText(audioFile.getAbsolutePath(), VOSK_MODEL_PATH);
                     if (antiSwear.containsProfanity(text, member.getGuild().getId())) {
                         LOGGER.warn("Profanity detected for user: {}", member.getEffectiveName());
                         sendWarningDM();
                     }
-                } catch (IOException | UnsupportedAudioFileException e) {
-                    LOGGER.error("Error during speech-to-text conversion or profanity detection", e);
-                } finally {
-                    if (!audioFile.delete()) {
-                        LOGGER.error("Failed to delete audio file: {}", audioFile.getAbsolutePath());
-                    }
+                } else {
+                    LOGGER.info("Audio file not found for user: {}", member.getEffectiveName());
                 }
-            } else {
-                LOGGER.info("Audio file not found for user: {}", member.getEffectiveName());
+            } catch (IOException | UnsupportedAudioFileException e) {
+                LOGGER.error("Error during speech-to-text conversion or profanity detection for user: {}", member.getEffectiveName(), e);
+            } finally {
+                if (!audioFile.delete()) {
+                    LOGGER.error("Failed to delete audio file: {}", audioFile.getAbsolutePath());
+                }
+                audioReceiver.closeAudioStreams(member.getUser());
             }
-
-            audioReceiver.closeAudioStreams(member.getUser());
         });
     }
 

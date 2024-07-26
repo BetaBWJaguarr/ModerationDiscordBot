@@ -10,6 +10,7 @@ import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import beta.com.moderationdiscordbot.memberverifysystem.MemberVerifySystem;
 import beta.com.moderationdiscordbot.memberverifysystem.Status;
+import beta.com.moderationdiscordbot.utils.ModLogEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -25,6 +26,7 @@ public class VerifyCommands extends ListenerAdapter {
     private final HandleErrors errorManager;
     private final RateLimit rateLimit;
     private final VerifyMongo verifyMongo;
+    private final ModLogEmbed modLogEmbed;
 
     public VerifyCommands(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors errorManager, RateLimit rateLimit, VerifyMongo verifyMongo) {
         this.languageManager = languageManager;
@@ -33,6 +35,7 @@ public class VerifyCommands extends ListenerAdapter {
         this.errorManager = errorManager;
         this.rateLimit = rateLimit;
         this.verifyMongo = verifyMongo;
+        this.modLogEmbed = new ModLogEmbed(languageManager, serverSettings);
     }
 
     @Override
@@ -49,8 +52,6 @@ public class VerifyCommands extends ListenerAdapter {
             }
 
             String dcserverid = event.getGuild().getId();
-
-
             boolean isVerifySystemEnabled = serverSettings.getVerifySystem(dcserverid);
             if (!isVerifySystemEnabled) {
                 event.replyEmbeds(embedBuilderManager.createEmbed("commands.verify.system_disabled", null, serverSettings.getLanguage(dcserverid)).build())
@@ -68,7 +69,6 @@ public class VerifyCommands extends ListenerAdapter {
                 event.getGuild().retrieveMemberById(userToVerifyId).queue(userToVerify -> {
                     String userId = userToVerify.getUser().getId();
                     String username = userToVerify.getUser().getName();
-
 
                     Integer level;
                     String levelStr = event.getOption("level") != null ? event.getOption("level").getAsString() : null;
@@ -108,8 +108,6 @@ public class VerifyCommands extends ListenerAdapter {
                         return;
                     }
 
-
-
                     MemberVerifySystem existingRecord = verifyMongo.findMemberVerifySystem(username, dcserverid);
 
                     MemberVerifySystem memberVerify;
@@ -133,6 +131,22 @@ public class VerifyCommands extends ListenerAdapter {
 
                     String statusMessageKey = status == Status.VERIFIED ? "commands.verify.success_accepted" : "commands.verify.success_rejected";
                     event.replyEmbeds(embedBuilderManager.createEmbed(statusMessageKey, null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
+
+                    String titleKey = "commands.verify.modlog.title";
+                    String userKey = "commands.verify.modlog.user";
+                    String reasonKey = "commands.verify.modlog.status";
+                    String reasonMessageKey = status == Status.VERIFIED ? "commands.verify.modlog.success" : "commands.verify.modlog.failure";
+                    String reason = languageManager.getMessage(reasonMessageKey, serverSettings.getLanguage(dcserverid));
+
+                    modLogEmbed.sendLog(
+                            dcserverid,
+                            event,
+                            titleKey,
+                            userKey,
+                            reasonKey,
+                            username,
+                            reason
+                    );
 
                 }, failure -> {
                     event.replyEmbeds(embedBuilderManager.createEmbed("commands.verify.user_not_found", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();

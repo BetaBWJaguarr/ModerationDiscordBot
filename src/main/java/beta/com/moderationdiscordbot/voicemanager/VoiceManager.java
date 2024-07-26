@@ -104,4 +104,20 @@ public class VoiceManager extends ListenerAdapter {
         return channel.getMembers().isEmpty() ||
                 (channel.getMembers().size() == 1 && channel.getMembers().get(0).getUser().isBot());
     }
+
+
+    public void stopRecordingAndLeaveChannel(VoiceChannel voiceChannel) {
+        Guild guild = voiceChannel.getGuild();
+        AudioManager audioManager = guild.getAudioManager();
+
+        Map<Member, VoiceSession> channelSessions = activeSessions.get(voiceChannel);
+        if (channelSessions != null) {
+            for (VoiceSession session : channelSessions.values()) {
+                session.stopRecordingAndAnalyze();
+            }
+            activeSessions.remove(voiceChannel);
+        }
+
+        audioManager.closeAudioConnection();
+    }
 }

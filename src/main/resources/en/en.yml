@@ -2,6 +2,12 @@ no_reason: "No reason provided."
 commands:
   rate_limit: "Please wait {0} seconds and try again."
   verify:
+    modlog:
+      title: "User Verification"
+      user: "User:"
+      status: "Status:"
+      success: "User has been successfully verified."
+      failure: "User verification failed."
     system_disabled: "The verification system is currently disabled. Please enable it before using this command."
     no_permissions: "You do not have permission to use this command."
     invalid_level: "The provided level is invalid. Please provide a valid number."
@@ -16,6 +22,11 @@ commands:
     disabled: "Verification system has been disabled."
     invalid_action: "Invalid action specified. Use 'enable' or 'disable'."
   voiceaction:
+    modlog:
+      title: "Voice Channel Request"
+      user: "User:"
+      action: "Action:"
+      request: "User has requested to start recording in the voice channel."
     already_enabled:
       title: "Voice action already enabled"
       description: "The voice action feature is already enabled. Is there anything else you need to do?"
@@ -34,9 +45,11 @@ commands:
       disabled: "The voice action feature is disabled. Please contact an administrator."
       not_in_channel: "You are not in a voice channel. Join a voice channel and try again."
       bot_already_in_channel: "The bot is already in a voice channel. Please check if the bot is in another channel."
+      bot_not_in_channel: "The bot is not currently in a voice channel."
     success:
       title: "Success"
       started_recording: "The bot has successfully joined the voice channel and started recording."
+      stopped_recording: "Recording stopped."
     toggle:
       error:
         title: "Toggle Error"
