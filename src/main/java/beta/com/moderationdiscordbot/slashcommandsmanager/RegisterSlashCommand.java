@@ -136,6 +136,8 @@ public class RegisterSlashCommand {
                                 .addOption(OptionType.STRING, "word", "The word to add", true),
                         new SubcommandData("remove", "Add a word to the anti-swear filter")
                                 .addOption(OptionType.STRING, "word", "The word to remove", true),
+                        new SubcommandData("punishment-type", "Set the punishment type for anti-swear")
+                                .addOption(OptionType.STRING, "type", "The punishment type (warn/mute)", true),
                         new SubcommandData("list", "List all the words in the anti-swear filter")},
                 {"autopunish", "AutoPunish Command",
                         new SubcommandData("enable", "Enable the auto-punish system"),
@@ -164,6 +166,8 @@ public class RegisterSlashCommand {
                                 .addOption(OptionType.STRING, "username", "The user to verify", true)
                                 .addOption(OptionType.STRING, "level", "The level of the user", true)
                                 .addOption(OptionType.STRING, "status", "The status of the user", true),
+                        new SubcommandData("setrole", "Set the role to verify")
+                                .addOption(OptionType.ROLE, "role", "The role to set", true),
                         new SubcommandData("toggle", "Toggle the verification system")
                                 .addOption(OptionType.STRING, "action", "The action to perform (enable/disable)", true)},
         };

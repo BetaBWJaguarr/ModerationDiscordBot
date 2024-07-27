@@ -8,10 +8,17 @@ commands:
       status: "Durum:"
       success: "Kullanıcı başarıyla doğrulandı."
       failure: "Kullanıcı doğrulama başarısız oldu."
+    setrole:
+      success: "Doğrulama rolü başarıyla ayarlandı!"
+      role_set: "Doğrulama için atanan rol:"
+      role_assigned: "Doğrulama rolü başarıyla kullanıcıya atandı."
+      role_assignment_failed: "Doğrulama rolü ataması başarısız oldu."
+      role_not_found: "Doğrulama rolü sunucu ayarlarında bulunamadı."
     system_disabled: "Doğrulama sistemi şu anda devre dışı. Bu komutu kullanmadan önce etkinleştirin."
     no_permissions: "Bu komutu kullanmak için yeterli izniniz yok."
+    missing_level: "Doğrulama için bir seviye sağlamalısınız."
     invalid_level: "Verilen seviye geçersiz. Lütfen geçerli bir sayı girin."
-    invalid_status: "Verilen durum geçersiz. Lütfen geçerli bir durum girin."
+    invalid_status: "Verilen durum geçersiz. Lütfen geçerli bir durum girin: VERIFIED, REJECTED veya PENDING."
     missing_status: "Doğrulama için bir durum sağlamalısınız."
     success_accepted: "Kullanıcı başarıyla doğrulandı."
     success_rejected: "Kullanıcı doğrulaması reddedildi."
@@ -93,6 +100,9 @@ commands:
     log_user: "Kullanıcı yasaklandı:"
     log_reason: "Yasaklama Nedeni:"
   antiswear:
+    punishment-type:
+      punishment_type_set: "Ceza türü başarıyla ayarlandı: {0}"
+      invalid_type: "Geçersiz ceza türü. Lütfen 'warn' veya 'mute' girin."
     error:
       title: "Hata"
       description: "Bu komutu kullanmak için yeterli izniniz yok."
@@ -158,7 +168,6 @@ commands:
       title: "Kullanıcı Uyarıldı"
       user: "Uyarılan Kullanıcı:"
       reason: "Sebep:"
-
   clear:
     channel_not_found: "Kanal bulunamadı."
     success: "Başarıyla {0} kanalında {1} adet mesaj silindi."

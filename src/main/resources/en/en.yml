@@ -8,10 +8,17 @@ commands:
       status: "Status:"
       success: "User has been successfully verified."
       failure: "User verification failed."
+    setrole:
+      success: "Verification role set successfully!"
+      role_set: "Role assigned for verification:"
+      role_assigned: "The verified role has been successfully assigned."
+      role_assignment_failed: "Failed to assign the verified role to the user."
+      role_not_found: "The verified role was not found in the server settings."
     system_disabled: "The verification system is currently disabled. Please enable it before using this command."
     no_permissions: "You do not have permission to use this command."
+    missing_level: "You must provide a level for verification."
     invalid_level: "The provided level is invalid. Please provide a valid number."
-    invalid_status: "The provided status is invalid. Please provide a valid status."
+    invalid_status: "The provided status is invalid. Please provide a valid status: VERIFIED, REJECTED, or PENDING."
     missing_status: "You must provide a status for verification."
     success_accepted: "User has been successfully verified."
     success_rejected: "User verification has been rejected."
@@ -93,6 +100,9 @@ commands:
     log_user: "User banned:"
     log_reason: "Reason for ban:"
   antiswear:
+    punishment-type:
+      punishment_type_set: "Punishment type successfully set to: {0}"
+      invalid_type: "Invalid punishment type. Please enter 'warn' or 'mute'."
     error:
       title: "Error"
       description: "You do not have sufficient permissions to use this command."

@@ -150,6 +150,28 @@ public class ServerSettings {
         return new ArrayList<>();
     }
 
+
+    public void setAntiSwearPunishmentType(String discordServerId, String punishmentType) {
+        ServerSettingsHelper.setStringSetting(collection, discordServerId, "antiswearfeatures.punishment-type", punishmentType);
+    }
+
+    public String getAntiSwearPunishmentType(String discordServerId) {
+        try {
+            var filter = Filters.eq("_id", discordServerId);
+            Document document = collection.find(filter).first();
+            if (document != null) {
+                Document settings = (Document) document.get("settings");
+                if (settings != null && settings.containsKey("antiswearfeatures")) {
+                    Document antiswearFeatures = (Document) settings.get("antiswearfeatures");
+                    return antiswearFeatures.getString("punishment-type");
+                }
+            }
+        } catch (MongoException e) {
+            System.err.println("Error retrieving document from MongoDB: " + e.getMessage());
+        }
+        return "warn";
+    }
+
     // Auto Role Feature
     public void setAutoRole(String discordServerId, String roleId) {
         ServerSettingsHelper.setStringSetting(collection, discordServerId, "autoRole", roleId);
@@ -201,5 +223,13 @@ public class ServerSettings {
             // Handle MongoException
         }
         return false;
+    }
+
+    public void setVerifiedRole(String discordServerId, String roleId) {
+        ServerSettingsHelper.setStringSetting(collection, discordServerId, "verifysystem.verifiedRole", roleId);
+    }
+
+    public String getVerifiedRole(String discordServerId) {
+        return ServerSettingsHelper.getStringSetting(collection, discordServerId, "verifysystem.verifiedRole", null);
     }
 }

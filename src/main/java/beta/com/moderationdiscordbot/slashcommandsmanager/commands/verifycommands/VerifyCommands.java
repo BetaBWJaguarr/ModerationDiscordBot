@@ -11,6 +11,8 @@ import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import beta.com.moderationdiscordbot.memberverifysystem.MemberVerifySystem;
 import beta.com.moderationdiscordbot.memberverifysystem.Status;
 import beta.com.moderationdiscordbot.utils.ModLogEmbed;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -129,8 +131,25 @@ public class VerifyCommands extends ListenerAdapter {
 
                     verifyMongo.upsertMemberVerifySystem(memberVerify, dcserverid);
 
-                    String statusMessageKey = status == Status.VERIFIED ? "commands.verify.success_accepted" : "commands.verify.success_rejected";
-                    event.replyEmbeds(embedBuilderManager.createEmbed(statusMessageKey, null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
+
+                    if (status == Status.VERIFIED) {
+                        String verifiedRoleId = serverSettings.getVerifiedRole(dcserverid);
+                        Role verifiedRole = event.getGuild().getRoleById(verifiedRoleId);
+
+                        if (verifiedRole != null) {
+                            event.getGuild().addRoleToMember(userToVerify, verifiedRole).queue(
+                                    success -> event.replyEmbeds(embedBuilderManager.createEmbed("commands.verify.success_accepted", null, serverSettings.getLanguage(dcserverid))
+                                            .setDescription(languageManager.getMessage("commands.verify.role_assigned", serverSettings.getLanguage(dcserverid)))
+                                            .build()).setEphemeral(true).queue(),
+                                    failure -> event.replyEmbeds(embedBuilderManager.createEmbed("commands.verify.role_assignment_failed", null, serverSettings.getLanguage(dcserverid))
+                                            .build()).setEphemeral(true).queue()
+                            );
+                        } else {
+                            event.replyEmbeds(embedBuilderManager.createEmbed("commands.verify.role_not_found", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
+                        }
+                    } else {
+                        event.replyEmbeds(embedBuilderManager.createEmbed("commands.verify.success_rejected", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
+                    }
 
                     String titleKey = "commands.verify.modlog.title";
                     String userKey = "commands.verify.modlog.user";

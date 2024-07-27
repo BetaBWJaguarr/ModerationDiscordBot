@@ -4,6 +4,7 @@ import beta.com.moderationdiscordbot.autopunish.AutoPunishEnableCommands;
 import beta.com.moderationdiscordbot.autopunish.antiswear.commands.AntiSwearCommand;
 import beta.com.moderationdiscordbot.autopunish.antiswear.commands.subcommands.AddCommand;
 import beta.com.moderationdiscordbot.autopunish.antiswear.commands.subcommands.ListCommand;
+import beta.com.moderationdiscordbot.autopunish.antiswear.commands.subcommands.PunishmentTypeCommand;
 import beta.com.moderationdiscordbot.autopunish.antiswear.commands.subcommands.RemoveCommand;
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.BanLog;
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.MuteLog;
@@ -21,6 +22,7 @@ import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcom
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.undocommands.Unmute;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.modlogcommands.ModLogCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.verifycommands.VerifyCommands;
+import beta.com.moderationdiscordbot.slashcommandsmanager.commands.verifycommands.VerifySetRole;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.verifycommands.VerifyToggleCommands;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.warncommands.SetWarnKickTimesCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.warncommands.UnWarnCommand;
@@ -94,6 +96,8 @@ public class CommandManager {
         commands.add(new VoiceRequest(voiceManager,languageManager,serverSettings,rateLimit));
         commands.add(new VerifyToggleCommands(serverSettings, languageManager, handleErrors, rateLimit));
         commands.add(new VoiceRequestEnd(voiceManager,languageManager,serverSettings,rateLimit));
+        commands.add(new VerifySetRole(serverSettings, languageManager, handleErrors, rateLimit));
+        commands.add(new PunishmentTypeCommand(serverSettings, languageManager,rateLimit,handleErrors));
     }
 
     public void addCommandsToJDABuilder(JDABuilder builder) {
