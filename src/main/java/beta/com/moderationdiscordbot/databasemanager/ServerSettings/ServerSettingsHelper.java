@@ -39,8 +39,16 @@ public class ServerSettingsHelper {
             Document document = collection.find(filter).first();
             if (document != null) {
                 Document settings = (Document) document.get("settings");
-                if (settings != null && settings.containsKey(settingKey)) {
-                    return settings.getString(settingKey);
+                if (settings != null) {
+                    String[] keys = settingKey.split("\\.");
+                    Document currentDocument = settings;
+                    for (int i = 0; i < keys.length - 1; i++) {
+                        currentDocument = (Document) currentDocument.get(keys[i]);
+                        if (currentDocument == null) {
+                            return defaultValue;
+                        }
+                    }
+                    return currentDocument.getString(keys[keys.length - 1]);
                 }
             }
         } catch (MongoException e) {

@@ -5,6 +5,7 @@ import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettin
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
+import beta.com.moderationdiscordbot.utils.ModLogEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -15,6 +16,7 @@ public class VoiceRequestEnd extends ListenerAdapter {
     private final LanguageManager languageManager;
     private final ServerSettings serverSettings;
     private final RateLimit rateLimit;
+    private final ModLogEmbed modLogEmbed;
 
     public VoiceRequestEnd(VoiceManager voiceManager, LanguageManager languageManager, ServerSettings serverSettings, RateLimit rateLimit) {
         this.voiceManager = voiceManager;
@@ -22,6 +24,7 @@ public class VoiceRequestEnd extends ListenerAdapter {
         this.embedManager = new EmbedBuilderManager(languageManager);
         this.serverSettings = serverSettings;
         this.rateLimit = rateLimit;
+        this.modLogEmbed = new ModLogEmbed(languageManager, serverSettings);
     }
 
     @Override
@@ -61,5 +64,22 @@ public class VoiceRequestEnd extends ListenerAdapter {
 
         voiceManager.stopRecordingAndLeaveChannel(voiceChannel);
         event.replyEmbeds(embedManager.createEmbed("commands.voiceaction.success.title", "commands.voiceaction.success.stopped_recording", language).build()).queue();
+
+
+        String titleKey = "commands.voiceaction.modlog.requestend.title";
+        String userKey = "commands.voiceaction.modlog.requestend.user";
+        String actionKey = "commands.voiceaction.modlog.requestend.action";
+        String actionMessage = languageManager.getMessage("commands.voiceaction.modlog.requestend.end", language);
+
+
+        modLogEmbed.sendLog(
+                discordServerId,
+                event,
+                titleKey,
+                userKey,
+                actionKey,
+                event.getMember().getEffectiveName(),
+                actionMessage
+        );
     }
 }

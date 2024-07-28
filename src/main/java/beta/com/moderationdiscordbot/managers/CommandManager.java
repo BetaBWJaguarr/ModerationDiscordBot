@@ -21,6 +21,7 @@ import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcom
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.undocommands.Unban;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.undocommands.Unmute;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.modlogcommands.ModLogCommand;
+import beta.com.moderationdiscordbot.slashcommandsmanager.commands.punishmentsearchcommands.PunishmentSearchCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.verifycommands.VerifyCommands;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.verifycommands.VerifySetRole;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.verifycommands.VerifyToggleCommands;
@@ -98,6 +99,7 @@ public class CommandManager {
         commands.add(new VoiceRequestEnd(voiceManager,languageManager,serverSettings,rateLimit));
         commands.add(new VerifySetRole(serverSettings, languageManager, handleErrors, rateLimit));
         commands.add(new PunishmentTypeCommand(serverSettings, languageManager,rateLimit,handleErrors));
+        commands.add(new PunishmentSearchCommand(serverSettings, languageManager, handleErrors, rateLimit));
     }
 
     public void addCommandsToJDABuilder(JDABuilder builder) {

@@ -7,6 +7,7 @@ import beta.com.moderationdiscordbot.permissionsmanager.PermissionsManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
+import beta.com.moderationdiscordbot.utils.ModLogEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -20,6 +21,7 @@ public class VerifySetRole extends ListenerAdapter {
     private final LanguageManager languageManager;
     private final HandleErrors errorManager;
     private final RateLimit rateLimit;
+    private final ModLogEmbed modLogEmbed; // Added ModLogEmbed
 
     public VerifySetRole(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors errorManager, RateLimit rateLimit) {
         this.languageManager = languageManager;
@@ -27,6 +29,7 @@ public class VerifySetRole extends ListenerAdapter {
         this.serverSettings = serverSettings;
         this.errorManager = errorManager;
         this.rateLimit = rateLimit;
+        this.modLogEmbed = new ModLogEmbed(languageManager, serverSettings); // Initialize ModLogEmbed
     }
 
     @Override
@@ -44,6 +47,13 @@ public class VerifySetRole extends ListenerAdapter {
             }
 
             String dcserverid = event.getGuild().getId();
+            boolean isVerifySystemEnabled = serverSettings.getVerifySystem(dcserverid);
+            if (!isVerifySystemEnabled) {
+                event.replyEmbeds(embedBuilderManager.createEmbed("commands.verify.system_disabled", null, serverSettings.getLanguage(dcserverid)).build())
+                        .setEphemeral(true)
+                        .queue();
+                return;
+            }
 
             Role role = event.getOption("role").getAsRole();
             String roleId = role.getId();
@@ -54,6 +64,24 @@ public class VerifySetRole extends ListenerAdapter {
                     .setColor(Color.GREEN)
                     .addField(languageManager.getMessage("commands.verify.setrole.role_set", serverSettings.getLanguage(dcserverid)), role.getName(), false)
                     .build()).queue();
+
+            sendRoleSetLog(event, dcserverid, role.getName());
         }
+    }
+
+    private void sendRoleSetLog(SlashCommandInteractionEvent event, String serverId, String roleName) {
+        String titleKey = "commands.verify.modlog.setrole.title";
+        String userKey = "commands.verify.modlog.setrole.user";
+        String roleSetKey = "commands.verify.modlog.setrole.role_set";
+
+        modLogEmbed.sendLog(
+                serverId,
+                event,
+                titleKey,
+                userKey,
+                roleSetKey,
+                event.getUser().getName(),
+                roleName
+        );
     }
 }

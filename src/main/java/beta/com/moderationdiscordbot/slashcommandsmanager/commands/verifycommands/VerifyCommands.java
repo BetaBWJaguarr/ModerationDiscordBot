@@ -11,7 +11,6 @@ import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import beta.com.moderationdiscordbot.memberverifysystem.MemberVerifySystem;
 import beta.com.moderationdiscordbot.memberverifysystem.Status;
 import beta.com.moderationdiscordbot.utils.ModLogEmbed;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -71,6 +70,17 @@ public class VerifyCommands extends ListenerAdapter {
                 event.getGuild().retrieveMemberById(userToVerifyId).queue(userToVerify -> {
                     String userId = userToVerify.getUser().getId();
                     String username = userToVerify.getUser().getName();
+
+                    String verifiedRoleId = serverSettings.getVerifiedRole(dcserverid);
+                    Role verifiedRole = event.getGuild().getRoleById(verifiedRoleId);
+
+
+                    if (verifiedRole != null && userToVerify.getRoles().contains(verifiedRole)) {
+                        event.replyEmbeds(embedBuilderManager.createEmbed("commands.verify.already_verified", null, serverSettings.getLanguage(dcserverid)).build())
+                                .setEphemeral(true)
+                                .queue();
+                        return;
+                    }
 
                     Integer level;
                     String levelStr = event.getOption("level") != null ? event.getOption("level").getAsString() : null;
@@ -133,19 +143,16 @@ public class VerifyCommands extends ListenerAdapter {
 
 
                     if (status == Status.VERIFIED) {
-                        String verifiedRoleId = serverSettings.getVerifiedRole(dcserverid);
-                        Role verifiedRole = event.getGuild().getRoleById(verifiedRoleId);
-
                         if (verifiedRole != null) {
                             event.getGuild().addRoleToMember(userToVerify, verifiedRole).queue(
                                     success -> event.replyEmbeds(embedBuilderManager.createEmbed("commands.verify.success_accepted", null, serverSettings.getLanguage(dcserverid))
-                                            .setDescription(languageManager.getMessage("commands.verify.role_assigned", serverSettings.getLanguage(dcserverid)))
+                                            .setDescription(languageManager.getMessage("commands.verify.setrole.role_assigned", serverSettings.getLanguage(dcserverid)))
                                             .build()).setEphemeral(true).queue(),
-                                    failure -> event.replyEmbeds(embedBuilderManager.createEmbed("commands.verify.role_assignment_failed", null, serverSettings.getLanguage(dcserverid))
+                                    failure -> event.replyEmbeds(embedBuilderManager.createEmbed("commands.verify.setrole.role_assignment_failed", null, serverSettings.getLanguage(dcserverid))
                                             .build()).setEphemeral(true).queue()
                             );
                         } else {
-                            event.replyEmbeds(embedBuilderManager.createEmbed("commands.verify.role_not_found", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
+                            event.replyEmbeds(embedBuilderManager.createEmbed("commands.verify.setrole.role_not_found", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();
                         }
                     } else {
                         event.replyEmbeds(embedBuilderManager.createEmbed("commands.verify.success_rejected", null, serverSettings.getLanguage(dcserverid)).build()).setEphemeral(true).queue();

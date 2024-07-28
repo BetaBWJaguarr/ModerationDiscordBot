@@ -1,8 +1,20 @@
 no_reason: "No reason provided."
 commands:
   rate_limit: "Please wait {0} seconds and try again."
+  punishmentsearch:
+    invalid_type: "Invalid punishment type provided."
+    invalid_predicate: "Invalid predicate provided."
+    missing_value: "The selected predicate requires an additional value."
+    started: "Punishment search initiated."
+    field_type: "Search Type"
+    field_predicate: "Predicate"
+    field_value: "Value"
   verify:
     modlog:
+      setrole:
+        title: "Role Set for Verification"
+        user: "User:"
+        role_set: "Set Role:"
       title: "User Verification"
       user: "User:"
       status: "Status:"
@@ -14,6 +26,7 @@ commands:
       role_assigned: "The verified role has been successfully assigned."
       role_assignment_failed: "Failed to assign the verified role to the user."
       role_not_found: "The verified role was not found in the server settings."
+    already_verified: "User is already verified!"
     system_disabled: "The verification system is currently disabled. Please enable it before using this command."
     no_permissions: "You do not have permission to use this command."
     missing_level: "You must provide a level for verification."
@@ -30,10 +43,16 @@ commands:
     invalid_action: "Invalid action specified. Use 'enable' or 'disable'."
   voiceaction:
     modlog:
-      title: "Voice Channel Request"
-      user: "User:"
-      action: "Action:"
-      request: "User has requested to start recording in the voice channel."
+      request:
+        title: "Voice Channel Request"
+        user: "User:"
+        action: "Action:"
+        request: "User has requested to start recording in the voice channel."
+      requestend:
+        title: "Voice Channel Request Ended"
+        user: "User:"
+        action: "Action:"
+        end: "User has requested to stop recording in the voice channel."
     already_enabled:
       title: "Voice action already enabled"
       description: "The voice action feature is already enabled. Is there anything else you need to do?"

@@ -170,6 +170,10 @@ public class RegisterSlashCommand {
                                 .addOption(OptionType.ROLE, "role", "The role to set", true),
                         new SubcommandData("toggle", "Toggle the verification system")
                                 .addOption(OptionType.STRING, "action", "The action to perform (enable/disable)", true)},
+                {"punishment-search", "Search for punishments",
+                        new OptionData(OptionType.STRING, "type", "The type of punishment to search for (mute/ban/warn)", true),
+                        new OptionData(OptionType.STRING, "predicate", "The search predicate (e.g., username, reason)", true),
+                        new OptionData(OptionType.STRING, "value", "The value to search for", false)},
         };
 
         for (Object[] command : commands) {

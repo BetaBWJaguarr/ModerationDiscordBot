@@ -1,8 +1,20 @@
 no_reason: "Sebep belirtilmedi."
 commands:
   rate_limit: "Lütfen {0} saniye bekleyin ve tekrar deneyin."
+  punishmentsearch:
+    invalid_type: "Geçersiz ceza türü belirtildi."
+    invalid_predicate: "Geçersiz öncül belirtildi."
+    missing_value: "Seçilen öncül için ek bir değer gerekiyor."
+    started: "Ceza araması başlatıldı."
+    field_type: "Arama Türü"
+    field_predicate: "Öncül"
+    field_value: "Değer"
   verify:
     modlog:
+      setrole:
+        title: "Doğrulama İçin Rol Ayarlandı"
+        user: "Kullanıcı:"
+        role_set: "Ayarlanan Rol:"
       title: "Kullanıcı Doğrulama"
       user: "Kullanıcı:"
       status: "Durum:"
@@ -14,6 +26,7 @@ commands:
       role_assigned: "Doğrulama rolü başarıyla kullanıcıya atandı."
       role_assignment_failed: "Doğrulama rolü ataması başarısız oldu."
       role_not_found: "Doğrulama rolü sunucu ayarlarında bulunamadı."
+    already_verified: "Kullanıcı zaten doğrulanmış!"
     system_disabled: "Doğrulama sistemi şu anda devre dışı. Bu komutu kullanmadan önce etkinleştirin."
     no_permissions: "Bu komutu kullanmak için yeterli izniniz yok."
     missing_level: "Doğrulama için bir seviye sağlamalısınız."
@@ -30,10 +43,16 @@ commands:
     invalid_action: "Geçersiz eylem belirtildi. 'enable' veya 'disable' kullanın."
   voiceaction:
     modlog:
-      title: "Sesli Kanal Talebi"
-      user: "Kullanıcı:"
-      action: "Aksiyon:"
-      request: "Kullanıcı sesli kanalda kayıt başlatma talebinde bulundu."
+      request:
+        title: "Sesli Kanal Talebi"
+        user: "Kullanıcı:"
+        action: "Aksiyon:"
+        request: "Kullanıcı sesli kanalda kayıt başlatma talebinde bulundu."
+      requestend:
+        title: "Sesli Kanal Talebi Sonlandırıldı"
+        user: "Kullanıcı:"
+        action: "Aksiyon:"
+        end: "Kullanıcı sesli kanalda kayıt başlatma talebini sonlandırdı."
     already_enabled:
       title: "Sesli eylem zaten açık"
       description: "Sesli eylem özelliği zaten açıktır. Yapmanız gereken başka bir şey var mı?"

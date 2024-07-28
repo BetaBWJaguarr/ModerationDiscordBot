@@ -74,10 +74,10 @@ public class VoiceRequest extends ListenerAdapter {
         event.replyEmbeds(embedManager.createEmbed("commands.voiceaction.success.title", "commands.voiceaction.success.started_recording", language).build()).queue();
 
 
-        String titleKey = "commands.voiceaction.modlog.title";
-        String userKey = "commands.voiceaction.modlog.user";
-        String actionKey = "commands.voiceaction.modlog.action";
-        String actionMessage = languageManager.getMessage("commands.voiceaction.modlog.request", language);
+        String titleKey = "commands.voiceaction.modlog.request.title";
+        String userKey = "commands.voiceaction.modlog.request.user";
+        String actionKey = "commands.voiceaction.modlog.request.action";
+        String actionMessage = languageManager.getMessage("commands.voiceaction.modlog.request.request", language);
 
         modLogEmbed.sendLog(
                 discordServerId,
