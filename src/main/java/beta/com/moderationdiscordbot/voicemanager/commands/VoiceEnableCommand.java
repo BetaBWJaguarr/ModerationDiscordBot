@@ -4,6 +4,7 @@ import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettin
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
+import beta.com.moderationdiscordbot.utils.ModLogEmbed;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -15,11 +16,15 @@ public class VoiceEnableCommand extends ListenerAdapter {
     private final ServerSettings serverSettings;
     private final EmbedBuilderManager embedManager;
     private final RateLimit rateLimit;
+    private final ModLogEmbed modLogEmbed;
+    private final LanguageManager languageManager;
 
-    public VoiceEnableCommand(ServerSettings serverSettings, LanguageManager languageManager, RateLimit rateLimit) {
+    public VoiceEnableCommand(ServerSettings serverSettings, LanguageManager languageManager, RateLimit rateLimit, LanguageManager languageManager1) {
         this.serverSettings = serverSettings;
         this.embedManager = new EmbedBuilderManager(languageManager);
         this.rateLimit = rateLimit;
+        this.languageManager = languageManager1;
+        this.modLogEmbed = new ModLogEmbed(languageManager, serverSettings);
     }
 
     @Override
@@ -64,6 +69,8 @@ public class VoiceEnableCommand extends ListenerAdapter {
             Color color = enable ? Color.GREEN : Color.RED;
 
             sendSuccessEmbed(event, messageKey, descriptionKey, language, color);
+
+            sendModLog(event, discordServerId, language, enable);
         } else {
             boolean success = setVoiceActionEnabled(discordServerId, enable);
             if (success) {
@@ -71,6 +78,8 @@ public class VoiceEnableCommand extends ListenerAdapter {
                 String descKey = enable ? "commands.voiceaction.enable.description" : "commands.voiceaction.disable.description";
                 Color color = enable ? Color.GREEN : Color.RED;
                 sendSuccessEmbed(event, titleKey, descKey, language, color);
+
+                sendModLog(event, discordServerId, language, enable);
             } else {
                 sendErrorEmbed(event, "commands.voiceaction.toggle.error.title", "commands.voiceaction.toggle.error.description", language);
             }
@@ -95,5 +104,24 @@ public class VoiceEnableCommand extends ListenerAdapter {
     private void sendSuccessEmbed(SlashCommandInteractionEvent event, String titleKey, String descKey, String language, Color color) {
         event.replyEmbeds(embedManager.createEmbedWithColor(titleKey, descKey, language, color).build())
                 .queue();
+    }
+
+    private void sendModLog(SlashCommandInteractionEvent event, String discordServerId, String language, boolean enable) {
+        String titleKey = enable ? "commands.voiceaction.enable.title" : "commands.voiceaction.disable.title";
+        String userKey = "commands.voiceaction.modlog.request.user";
+        String actionKey = "commands.voiceaction.modlog.request.action";
+        String actionMessage = enable
+                ? languageManager.getMessage("commands.voiceaction.enable.description", language)
+                : languageManager.getMessage("commands.voiceaction.disable.description", language);
+
+        modLogEmbed.sendLog(
+                discordServerId,
+                event,
+                titleKey,
+                userKey,
+                actionKey,
+                event.getMember().getEffectiveName(),
+                actionMessage
+        );
     }
 }

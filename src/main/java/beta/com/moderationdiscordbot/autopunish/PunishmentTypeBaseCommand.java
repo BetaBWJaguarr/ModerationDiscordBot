@@ -1,4 +1,4 @@
-package beta.com.moderationdiscordbot.autopunish.antiswear.commands.subcommands;
+package beta.com.moderationdiscordbot.autopunish;
 
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
@@ -8,15 +8,15 @@ import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class PunishmentTypeCommand extends ListenerAdapter {
+public abstract class PunishmentTypeBaseCommand extends ListenerAdapter {
 
-    private final EmbedBuilderManager embedBuilderManager;
-    private final ServerSettings serverSettings;
-    private final LanguageManager languageManager;
-    private final RateLimit rateLimit;
-    private final HandleErrors errorManager;
+    protected final EmbedBuilderManager embedBuilderManager;
+    protected final ServerSettings serverSettings;
+    protected final LanguageManager languageManager;
+    protected final RateLimit rateLimit;
+    protected final HandleErrors errorManager;
 
-    public PunishmentTypeCommand(ServerSettings serverSettings, LanguageManager languageManager, RateLimit rateLimit, HandleErrors errorManager) {
+    public PunishmentTypeBaseCommand(ServerSettings serverSettings, LanguageManager languageManager, RateLimit rateLimit, HandleErrors errorManager) {
         this.languageManager = languageManager;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.serverSettings = serverSettings;
@@ -39,16 +39,16 @@ public class PunishmentTypeCommand extends ListenerAdapter {
             String serverId = event.getGuild().getId();
 
             if ("warn".equalsIgnoreCase(punishmentType) || "mute".equalsIgnoreCase(punishmentType)) {
-                serverSettings.setAntiSwearPunishmentType(serverId, punishmentType);
+                setPunishmentType(serverId, punishmentType);
                 event.replyEmbeds(embedBuilderManager.createEmbed(
-                        "commands.antiswear.punishment-type.punishment_type_set",
+                        "commands.punishment-type.punishment_type_set",
                         null,
                         serverSettings.getLanguage(serverId),
                         punishmentType
                 ).build()).queue();
             } else {
                 event.replyEmbeds(embedBuilderManager.createEmbed(
-                        "commands.antiswear.punishment-type.invalid_type",
+                        "commands.punishment-type.invalid_type",
                         null,
                         serverSettings.getLanguage(serverId)
                 ).build()).setEphemeral(true).queue();
@@ -58,7 +58,7 @@ public class PunishmentTypeCommand extends ListenerAdapter {
         }
     }
 
-    private boolean isCommandApplicable(SlashCommandInteractionEvent event) {
-        return "antiswear".equals(event.getName()) && "punishment-type".equals(event.getSubcommandName());
-    }
+    protected abstract boolean isCommandApplicable(SlashCommandInteractionEvent event);
+
+    protected abstract void setPunishmentType(String serverId, String punishmentType);
 }

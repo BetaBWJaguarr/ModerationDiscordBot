@@ -55,6 +55,27 @@ public class ServerSettings {
         ServerSettingsHelper.setIntegerSetting(collection, discordServerId, "antiSpamTimeLimit", timeLimit);
     }
 
+    public void setAntiSpamPunishmentType(String discordServerId, String punishmentType) {
+        ServerSettingsHelper.setStringSetting(collection, discordServerId, "antispamfeatures.punishment-type", punishmentType);
+    }
+
+    public String getAntiSpamPunishmentType(String discordServerId) {
+        try {
+            var filter = Filters.eq("_id", discordServerId);
+            Document document = collection.find(filter).first();
+            if (document != null) {
+                Document settings = (Document) document.get("settings");
+                if (settings != null && settings.containsKey("antispamfeatures")) {
+                    Document antispamFeatures = (Document) settings.get("antispamfeatures");
+                    return antispamFeatures.getString("punishment-type");
+                }
+            }
+        } catch (MongoException e) {
+            System.err.println("Error retrieving document from MongoDB: " + e.getMessage());
+        }
+        return "warn";
+    }
+
     // Language Feature
     public String getLanguage(String discordServerId) {
         return ServerSettingsHelper.getStringSetting(collection, discordServerId, "language", DEFAULT_LANGUAGE);

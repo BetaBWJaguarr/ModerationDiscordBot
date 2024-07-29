@@ -1,14 +1,18 @@
 no_reason: "Sebep belirtilmedi."
 commands:
   rate_limit: "Lütfen {0} saniye bekleyin ve tekrar deneyin."
+  punishment-type:
+    punishment_type_set: "Ceza türü başarıyla ayarlandı: {0}"
+    invalid_type: "Geçersiz ceza türü. Lütfen 'warn' veya 'mute' girin."
   punishmentsearch:
-    invalid_type: "Geçersiz ceza türü belirtildi."
-    invalid_predicate: "Geçersiz öncül belirtildi."
-    missing_value: "Seçilen öncül için ek bir değer gerekiyor."
-    started: "Ceza araması başlatıldı."
-    field_type: "Arama Türü"
-    field_predicate: "Öncül"
-    field_value: "Değer"
+    missing_arguments: "Arama için gerekli argümanları sağlayın."
+    invalid_type: "Geçersiz ceza türü sağlandı."
+    invalid_predicate: "Bu arama türü için geçersiz öngörü sağlandı."
+    missing_value: "Seçilen öngörü bir değer gerektiriyor. Lütfen bir değer sağlayın."
+    no_results: "Belirtilen arama kriterlerine uygun sonuç bulunamadı."
+    results_found: "Aramanız için bulunan sonuçlar:"
+    field_result: "Arama Sonuçları"
+    result: "Arama Sonuçları"
   verify:
     modlog:
       setrole:
@@ -119,9 +123,6 @@ commands:
     log_user: "Kullanıcı yasaklandı:"
     log_reason: "Yasaklama Nedeni:"
   antiswear:
-    punishment-type:
-      punishment_type_set: "Ceza türü başarıyla ayarlandı: {0}"
-      invalid_type: "Geçersiz ceza türü. Lütfen 'warn' veya 'mute' girin."
     error:
       title: "Hata"
       description: "Bu komutu kullanmak için yeterli izniniz yok."

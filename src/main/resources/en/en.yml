@@ -1,14 +1,18 @@
 no_reason: "No reason provided."
 commands:
   rate_limit: "Please wait {0} seconds and try again."
+  punishment-type:
+    punishment_type_set: "Punishment type successfully set to: {0}"
+    invalid_type: "Invalid punishment type. Please enter 'warn' or 'mute'."
   punishmentsearch:
+    missing_arguments: "Please provide the required arguments for the search."
     invalid_type: "Invalid punishment type provided."
-    invalid_predicate: "Invalid predicate provided."
-    missing_value: "The selected predicate requires an additional value."
-    started: "Punishment search initiated."
-    field_type: "Search Type"
-    field_predicate: "Predicate"
-    field_value: "Value"
+    invalid_predicate: "Invalid predicate provided for this search type."
+    missing_value: "The selected predicate requires a value. Please provide a value."
+    no_results: "No results found for the specified search criteria."
+    results_found: "Results found for your search:"
+    field_result: "Search Results"
+    result: "Search Results"
   verify:
     modlog:
       setrole:
@@ -119,9 +123,6 @@ commands:
     log_user: "User banned:"
     log_reason: "Reason for ban:"
   antiswear:
-    punishment-type:
-      punishment_type_set: "Punishment type successfully set to: {0}"
-      invalid_type: "Invalid punishment type. Please enter 'warn' or 'mute'."
     error:
       title: "Error"
       description: "You do not have sufficient permissions to use this command."

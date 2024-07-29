@@ -1,4 +1,4 @@
-package beta.com.moderationdiscordbot.autopunish.antiswear;
+package beta.com.moderationdiscordbot.autopunish;
 
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;

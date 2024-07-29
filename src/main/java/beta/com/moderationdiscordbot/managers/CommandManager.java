@@ -3,8 +3,8 @@ package beta.com.moderationdiscordbot.managers;
 import beta.com.moderationdiscordbot.autopunish.AutoPunishEnableCommands;
 import beta.com.moderationdiscordbot.autopunish.antiswear.commands.AntiSwearCommand;
 import beta.com.moderationdiscordbot.autopunish.antiswear.commands.subcommands.AddCommand;
+import beta.com.moderationdiscordbot.autopunish.antiswear.commands.subcommands.AntiSwearPunishmentTypeCommand;
 import beta.com.moderationdiscordbot.autopunish.antiswear.commands.subcommands.ListCommand;
-import beta.com.moderationdiscordbot.autopunish.antiswear.commands.subcommands.PunishmentTypeCommand;
 import beta.com.moderationdiscordbot.autopunish.antiswear.commands.subcommands.RemoveCommand;
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.BanLog;
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.MuteLog;
@@ -92,13 +92,14 @@ public class CommandManager {
         commands.add(new SetWarnKickTimesCommand(serverSettings, languageManager, warnLog, handleErrors, rateLimit));
         commands.add(new ClearEmbedCommand(serverSettings, languageManager, handleErrors, rateLimit));
         commands.add(new ClearContentCommand(serverSettings, languageManager, handleErrors, rateLimit));
-        commands.add(new VoiceEnableCommand(serverSettings, languageManager, rateLimit));
+        commands.add(new VoiceEnableCommand(serverSettings, languageManager, rateLimit,languageManager));
         commands.add(new VerifyCommands(serverSettings, languageManager, handleErrors, rateLimit,verifyMongo));
         commands.add(new VoiceRequest(voiceManager,languageManager,serverSettings,rateLimit));
         commands.add(new VerifyToggleCommands(serverSettings, languageManager, handleErrors, rateLimit));
         commands.add(new VoiceRequestEnd(voiceManager,languageManager,serverSettings,rateLimit));
         commands.add(new VerifySetRole(serverSettings, languageManager, handleErrors, rateLimit));
-        commands.add(new PunishmentTypeCommand(serverSettings, languageManager,rateLimit,handleErrors));
+        commands.add(new AntiSpamPunishmentTypeCommand(serverSettings, languageManager, rateLimit, handleErrors));
+        commands.add(new AntiSwearPunishmentTypeCommand(serverSettings, languageManager, rateLimit, handleErrors));
         commands.add(new PunishmentSearchCommand(serverSettings, languageManager, handleErrors, rateLimit));
     }
 
