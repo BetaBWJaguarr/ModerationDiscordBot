@@ -4,6 +4,7 @@ commands:
   punishment-type:
     punishment_type_set: "Punishment type successfully set to: {0}"
     invalid_type: "Invalid punishment type. Please enter 'warn' or 'mute'."
+    auto_punish_disabled: "Auto punish is currently disabled for this server. Please enable it to use punishment commands."
   punishmentsearch:
     missing_arguments: "Please provide the required arguments for the search."
     invalid_type: "Invalid punishment type provided."
@@ -286,6 +287,8 @@ commands:
       enabled: "AntiVirus successfully enabled."
       disabled: "AntiVirus successfully disabled."
 events:
+  antiswear-event:
+    description: "Profanity was detected in the message, so you have been punished."
   joinquit:
     log:
       title: "Server Events"
@@ -323,4 +326,3 @@ errorshandle:
   error:
     title: "Error Occurred!"
     description: "Details of the error are as follows:"
-

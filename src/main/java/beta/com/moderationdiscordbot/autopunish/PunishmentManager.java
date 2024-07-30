@@ -75,6 +75,7 @@ public class PunishmentManager {
                         muteLog.addMuteLog(serverId, targetMember.getUser().getId(), reason, new Date(System.currentTimeMillis() + finalDurationInSeconds * 1000L));
                     }
 
+                    //TODO For now, mute logs are not sent to the mod log channel
                     modLogEmbed.sendLog(serverId, null, "commands.mute.log.title", "commands.mute.log.user", "commands.mute.log.reason", targetMember.getUser().getName(), reason);
                 },
                 error -> {

@@ -38,6 +38,15 @@ public abstract class PunishmentTypeBaseCommand extends ListenerAdapter {
             String punishmentType = event.getOption("type").getAsString();
             String serverId = event.getGuild().getId();
 
+            if (!serverSettings.isAutoPunishEnabled(serverId)) {
+                event.replyEmbeds(embedBuilderManager.createEmbed(
+                        "commands.punishment-type.auto_punish_disabled",
+                        null,
+                        serverSettings.getLanguage(serverId)
+                ).build()).setEphemeral(true).queue();
+                return;
+            }
+
             if ("warn".equalsIgnoreCase(punishmentType) || "mute".equalsIgnoreCase(punishmentType)) {
                 setPunishmentType(serverId, punishmentType);
                 event.replyEmbeds(embedBuilderManager.createEmbed(

@@ -1,6 +1,7 @@
 package beta.com.moderationdiscordbot.managers;
 
 import beta.com.moderationdiscordbot.autopunish.AutoPunishEnableCommands;
+import beta.com.moderationdiscordbot.autopunish.antispam.commands.AntiSpamPunishmentTypeCommand;
 import beta.com.moderationdiscordbot.autopunish.antiswear.commands.AntiSwearCommand;
 import beta.com.moderationdiscordbot.autopunish.antiswear.commands.subcommands.AddCommand;
 import beta.com.moderationdiscordbot.autopunish.antiswear.commands.subcommands.AntiSwearPunishmentTypeCommand;

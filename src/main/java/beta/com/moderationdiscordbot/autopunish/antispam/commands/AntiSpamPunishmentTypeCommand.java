@@ -1,4 +1,4 @@
-package beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands;
+package beta.com.moderationdiscordbot.autopunish.antispam.commands;
 
 import beta.com.moderationdiscordbot.autopunish.PunishmentTypeBaseCommand;
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;

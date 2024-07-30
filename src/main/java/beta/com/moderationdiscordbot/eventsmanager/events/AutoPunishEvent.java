@@ -1,6 +1,8 @@
 package beta.com.moderationdiscordbot.eventsmanager.events;
 
 import beta.com.moderationdiscordbot.autopunish.antiswear.AntiSwear;
+import beta.com.moderationdiscordbot.langmanager.LanguageManager;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -13,9 +15,11 @@ public class AutoPunishEvent extends ListenerAdapter {
 
     private final ScheduledExecutorService executorService;
     private final AntiSwear antiSwear;
+    private final LanguageManager languageManager;
 
-    public AutoPunishEvent(AntiSwear antiSwear) {
+    public AutoPunishEvent(AntiSwear antiSwear, LanguageManager languageManager) {
         this.antiSwear = antiSwear;
+        this.languageManager = languageManager;
         this.executorService = Executors.newSingleThreadScheduledExecutor();
     }
 
@@ -33,7 +37,7 @@ public class AutoPunishEvent extends ListenerAdapter {
 
         executorService.schedule(() -> {
             if (antiSwear.containsProfanity(event.getMessage().getContentRaw().toLowerCase(), guildId)) {
-                MessageEmbed embed = antiSwear.handleProfanity(guildId, event.getAuthor().getAsMention());
+                MessageEmbed embed = antiSwear.handleProfanity(guildId, event.getMember(), languageManager.getMessage("events.antiswear-event.description", guildId));
                 if (embed != null) {
                     event.getMessage().delete().queue();
                     event.getChannel().sendMessageEmbeds(embed).queue();

@@ -1,8 +1,8 @@
-package beta.com.moderationdiscordbot.eventsmanager.events;
+package beta.com.moderationdiscordbot.autopunish.antispam;
 
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
-import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.AntiSpamCommand;
+import beta.com.moderationdiscordbot.autopunish.antispam.commands.AntiSpamCommand;
 import beta.com.moderationdiscordbot.utils.MessageDetails;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -51,6 +51,10 @@ public class AntiSpamEvent extends ListenerAdapter {
         }
 
         String discordServerId = event.getGuild().getId();
+
+        if (!serverSettings.isAutoPunishEnabled(event.getGuild().getId())) {
+            return;
+        }
 
         if (!antiSpamCommand.isAntiSpamEnabled(discordServerId)) {
             return;

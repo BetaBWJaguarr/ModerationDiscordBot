@@ -1,5 +1,6 @@
 package beta.com.moderationdiscordbot;
 
+import beta.com.moderationdiscordbot.autopunish.antispam.commands.AntiSpamCommand;
 import beta.com.moderationdiscordbot.autopunish.antiswear.AntiSwear;
 import beta.com.moderationdiscordbot.databasemanager.VerifySystem.VerifyMongo;
 import beta.com.moderationdiscordbot.managers.CommandManager;
@@ -52,7 +53,7 @@ public class Main {
         RateLimit rateLimit = new RateLimit(2, TimeUnit.SECONDS);
         AntiSpamCommand antiSpamCommand = new AntiSpamCommand(serverSettings, languageManager, rateLimit, handleErrors);
         AntiVirusCommand antiVirusCommand = new AntiVirusCommand(serverSettings, languageManager, rateLimit, handleErrors);
-        AntiSwear antiSwear = new AntiSwear(serverSettings, languageManager);
+        AntiSwear antiSwear = new AntiSwear(serverSettings, languageManager,muteLog);
         VoiceManager voiceManager = new VoiceManager(serverSettings, languageManager, antiSwear);
         CommandManager commandManager = new CommandManager(serverSettings, languageManager, handleErrors, banLog, muteLog, warnLog,verifyMongo,voiceManager);
 

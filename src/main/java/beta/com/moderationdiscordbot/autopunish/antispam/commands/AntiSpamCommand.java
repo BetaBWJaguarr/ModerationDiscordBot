@@ -1,4 +1,4 @@
-package beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands;
+package beta.com.moderationdiscordbot.autopunish.antispam.commands;
 
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
@@ -35,19 +35,6 @@ public class AntiSpamCommand extends ListenerAdapter {
             String discordServerId = event.getGuild().getId();
             String language = serverSettings.getLanguage(discordServerId);
 
-            if (rateLimit.isRateLimited(event, embedManager, serverSettings)) {
-                return;
-            }
-
-            if (!event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
-                event.replyEmbeds(embedManager.createEmbedWithColor(
-                        "commands.antispam.error.title",
-                        "commands.antispam.error.description",
-                        language,
-                        Color.RED).build()).setEphemeral(true).queue();
-                return;
-            }
-
             String subcommand = event.getSubcommandName();
             if (subcommand != null) {
                 switch (subcommand) {
@@ -57,8 +44,12 @@ public class AntiSpamCommand extends ListenerAdapter {
                     case "timelimit":
                         handleSetTimeLimit(event, discordServerId, language);
                         break;
-                    default:
+                    case "enable":
                         handleToggleAntiSpam(event, discordServerId, language);
+                        break;
+                    case "disable":
+                        handleToggleAntiSpam(event, discordServerId, language);
+                        break;
                 }
             }
         } catch (Exception e) {
@@ -67,6 +58,10 @@ public class AntiSpamCommand extends ListenerAdapter {
     }
 
     private void handleSetMessageLimit(SlashCommandInteractionEvent event, String discordServerId, String language) {
+
+        if (!checkPermissionsAndRateLimit(event, language)) {
+            return;
+        }
         try {
             int messageLimit = event.getOption("value").getAsInt();
             serverSettings.setAntiSpamMessageLimit(discordServerId, messageLimit);
@@ -82,6 +77,10 @@ public class AntiSpamCommand extends ListenerAdapter {
     }
 
     private void handleSetTimeLimit(SlashCommandInteractionEvent event, String discordServerId, String language) {
+        if (!checkPermissionsAndRateLimit(event, language)) {
+            return;
+        }
+
         try {
             int timeLimit = event.getOption("value").getAsInt();
             serverSettings.setAntiSpamTimeLimit(discordServerId, timeLimit);
@@ -97,6 +96,11 @@ public class AntiSpamCommand extends ListenerAdapter {
     }
 
     private void handleToggleAntiSpam(SlashCommandInteractionEvent event, String discordServerId, String language) {
+
+        if (!checkPermissionsAndRateLimit(event, language)) {
+            return;
+        }
+
         try {
             boolean antiSpamEnabled = serverSettings.getAntiSpam(discordServerId);
             serverSettings.setAntiSpam(discordServerId, !antiSpamEnabled);
@@ -109,6 +113,24 @@ public class AntiSpamCommand extends ListenerAdapter {
         } catch (Exception e) {
             errorManager.sendErrorMessage(e, event.getChannel().asTextChannel());
         }
+    }
+
+
+    private boolean checkPermissionsAndRateLimit(SlashCommandInteractionEvent event, String language) {
+        if (rateLimit.isRateLimited(event, embedManager, serverSettings)) {
+            return false;
+        }
+
+        if (!event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+            event.replyEmbeds(embedManager.createEmbedWithColor(
+                    "commands.antispam.error.title",
+                    "commands.antispam.error.description",
+                    language,
+                    Color.RED).build()).setEphemeral(true).queue();
+            return false;
+        }
+
+        return true;
     }
 
     public boolean isAntiSpamEnabled(String discordServerId) {

@@ -4,6 +4,7 @@ commands:
   punishment-type:
     punishment_type_set: "Ceza türü başarıyla ayarlandı: {0}"
     invalid_type: "Geçersiz ceza türü. Lütfen 'warn' veya 'mute' girin."
+    auto_punish_disabled: "Otomatik ceza sistemi şu anda bu sunucu için devre dışı. Ceza komutlarını kullanmak için lütfen etkinleştirin."
   punishmentsearch:
     missing_arguments: "Arama için gerekli argümanları sağlayın."
     invalid_type: "Geçersiz ceza türü sağlandı."
@@ -286,6 +287,8 @@ commands:
       enabled: "AntiVirus başarıyla etkinleştirildi."
       disabled: "AntiVirus başarıyla devre dışı bırakıldı."
 events:
+  antiswear-event:
+    description: "Küfür ettiğiniz için cezalandırıldınız!"
   joinquit:
     log:
       title: "Sunucu Olayları"

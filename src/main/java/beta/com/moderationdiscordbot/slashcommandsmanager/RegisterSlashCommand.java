@@ -84,7 +84,7 @@ public class RegisterSlashCommand {
                         new SubcommandData("timelimit", "Set the anti-spam time limit")
                                 .addOption(OptionType.INTEGER, "value", "The new time limit", true),
                         new SubcommandData("enable", "Set the anti-spam enable or false"),
-                        new SubcommandData("punishment-type", "Set the punishment type for anti-swear")
+                        new SubcommandData("punishment-type", "Set the punishment type for anti-spam")
                                 .addOption(OptionType.STRING, "type", "The punishment type (warn/mute)", true)},
                 {"ban", "Ban a user from the server",
                         new OptionData(OptionType.STRING, "username", "The username (mentionable) of the user to ban", true),

@@ -1,13 +1,13 @@
 package beta.com.moderationdiscordbot.eventsmanager;
 
 import beta.com.moderationdiscordbot.advertisemanager.AdvertiseChecking;
+import beta.com.moderationdiscordbot.autopunish.antispam.AntiSpamEvent;
 import beta.com.moderationdiscordbot.autopunish.antiswear.AntiSwear;
-import beta.com.moderationdiscordbot.databasemanager.MongoDB;
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.databasemanager.VerifySystem.VerifyMongo;
 import beta.com.moderationdiscordbot.eventsmanager.events.*;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
-import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.AntiSpamCommand;
+import beta.com.moderationdiscordbot.autopunish.antispam.commands.AntiSpamCommand;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.moderationcommands.AntiVirusCommand;
 import beta.com.moderationdiscordbot.startup.Information;
 import beta.com.moderationdiscordbot.voicemanager.VoiceManager;
@@ -44,7 +44,7 @@ public class RegisterEvents extends ListenerAdapter {
         addEvent(new BotJoinServer(serverSettings));
         addEvent(new AdvertiseChecking(languageManager, serverSettings));
         addEvent(new AntiVirusEvent(antiVirusCommand, languageManager, serverSettings));
-        addEvent(new AutoPunishEvent(antiSwear));
+        addEvent(new AutoPunishEvent(antiSwear,languageManager));
         addEvent(new AutoRoleEvent(serverSettings, languageManager));
         addEvent(voiceManager);
     }
