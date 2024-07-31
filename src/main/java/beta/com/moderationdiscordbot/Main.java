@@ -25,12 +25,13 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         DebugManager.logDebug("Loading environment variables...");
         Env env = new Env(".env");
         String token = env.getProperty("TOKEN");
@@ -112,7 +113,7 @@ public class Main {
         int userCount = jda.getGuilds().stream().mapToInt(guild -> guild.getMembers().size()).sum();
         botInfo.setServerCount(serverCount);
         botInfo.setUserCount(userCount);
-        botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute", "clear", "warn", "unwarn", "kick", "warnlist", "antiswear", "autopunish", "channel", "setwarnkick", "autorole", "voiceaction","verify"));
+        botInfo.setCommandList(Arrays.asList("ping", "mute", "setlanguage", "antispam", "ban", "modlog", "antivirus", "unban", "unmute", "clear", "warn", "unwarn", "kick", "warnlist", "antiswear", "autopunish", "channel", "setwarnkick", "autorole", "voiceaction","verify","punishmentsearch"));
         botInfo.setEventList(Arrays.asList("UserJoinLeaveEvents", "AntiSpamEvent", "BotJoinServer", "AdvertiseChecking", "AntiVirusEvent", "HighWarnKickEvent", "AutoPunishEvent", "VoiceManager"));
         DebugManager.logDebug("Bot information gathered.");
         return botInfo;

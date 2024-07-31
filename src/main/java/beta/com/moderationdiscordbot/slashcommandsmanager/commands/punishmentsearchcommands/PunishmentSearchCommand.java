@@ -1,5 +1,6 @@
 package beta.com.moderationdiscordbot.slashcommandsmanager.commands.punishmentsearchcommands;
 
+import beta.com.moderationdiscordbot.filtersortmodule.FilterSortModule;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.punishmentsearchcommands.typemanager.SearchTypeManager;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
@@ -9,6 +10,7 @@ import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.io.IOException;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Arrays;
@@ -23,6 +25,7 @@ public class PunishmentSearchCommand extends ListenerAdapter {
     private final LanguageManager languageManager;
     private final HandleErrors errorManager;
     private final RateLimit rateLimit;
+    private final FilterSortModule filterSortModule;
 
     private static final Map<SearchTypeManager, List<String>> VALID_PREDICATES;
 
@@ -33,12 +36,13 @@ public class PunishmentSearchCommand extends ListenerAdapter {
         VALID_PREDICATES.put(SearchTypeManager.WARN, Arrays.asList("username", "reason", "date_range"));
     }
 
-    public PunishmentSearchCommand(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors errorManager, RateLimit rateLimit) {
+    public PunishmentSearchCommand(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors errorManager, RateLimit rateLimit, String sessionId) {
         this.serverSettings = serverSettings;
         this.languageManager = languageManager;
         this.errorManager = errorManager;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.rateLimit = rateLimit;
+        this.filterSortModule = new FilterSortModule(sessionId);
     }
 
     @Override
@@ -116,7 +120,7 @@ public class PunishmentSearchCommand extends ListenerAdapter {
     private void executeSearch(SlashCommandInteractionEvent event, SearchTypeManager searchType, String predicate, String value) {
         String language = serverSettings.getLanguage(event.getGuild().getId());
 
-        performSearch(searchType, predicate, value, result -> {
+        performSearch(event, predicate, value, result -> {
             String resultsFormatted = formatResults(result);
 
             event.replyEmbeds(embedBuilderManager.createEmbed("commands.punishmentsearch.result", null, language)
@@ -125,8 +129,42 @@ public class PunishmentSearchCommand extends ListenerAdapter {
         });
     }
 
-    private void performSearch(SearchTypeManager searchType, String predicate, String value, Consumer<List<String>> callback) {
-        // TODO: Implement the actual search logic here
+    private void performSearch(SlashCommandInteractionEvent event, String predicate, String value, Consumer<List<String>> callback) {
+        String jsonPayload = createJsonPayload(predicate, value);
+        try {
+            String response = filterSortModule.postMatch(jsonPayload);
+            List<String> results = parseResults(response);
+            callback.accept(results);
+        } catch (IOException e) {
+            e.printStackTrace();
+            event.replyEmbeds(embedBuilderManager.createEmbed("commands.punishmentsearch.error", null,
+                            serverSettings.getLanguage(event.getGuild().getId())).build())
+                    .setEphemeral(true).queue();
+        }
+    }
+
+    private String createJsonPayload(String predicate, String value) {
+        String dbName = "";
+        String collectionName = "";
+        String connectionString = "";
+
+        return String.format("{\n" +
+                        "  \"db_name\": \"%s\",\n" +
+                        "  \"collection_name\": \"%s\",\n" +
+                        "  \"connection_string\": \"%s\",\n" +
+                        "  \"match\": {\n" +
+                        "    \"users\": {\n" +
+                        "      \"$elemMatch\": {\n" +
+                        "        \"%s\": \"%s\"\n" +
+                        "      }\n" +
+                        "    }\n" +
+                        "  }\n" +
+                        "}",
+                dbName, collectionName, connectionString, predicate, value);
+    }
+
+    private List<String> parseResults(String response) {
+        return Arrays.asList(response.split("\n"));
     }
 
     private String formatResults(List<String> results) {

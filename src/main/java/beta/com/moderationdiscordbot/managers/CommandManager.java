@@ -13,6 +13,7 @@ import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.Warn
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.databasemanager.VerifySystem.VerifyMongo;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
+import beta.com.moderationdiscordbot.filtersortmodule.auth.AuthService;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.PingCommand;
@@ -37,6 +38,7 @@ import beta.com.moderationdiscordbot.voicemanager.commands.VoiceRequestEnd;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -52,7 +54,7 @@ public class CommandManager {
     private final VerifyMongo verifyMongo;
     private final VoiceManager voiceManager;
 
-    public CommandManager(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors handleErrors, BanLog banLog, MuteLog muteLog, WarnLog warnLog, VerifyMongo verifyMongo, VoiceManager voiceManager) {
+    public CommandManager(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors handleErrors, BanLog banLog, MuteLog muteLog, WarnLog warnLog, VerifyMongo verifyMongo, VoiceManager voiceManager) throws IOException {
         this.serverSettings = serverSettings;
         this.languageManager = languageManager;
         this.handleErrors = handleErrors;
@@ -64,8 +66,10 @@ public class CommandManager {
         initializeCommands();
     }
 
-    private void initializeCommands() {
+    private void initializeCommands() throws IOException {
         RateLimit rateLimit = new RateLimit(2, TimeUnit.SECONDS);
+        AuthService authService = new AuthService();
+        String session_id = authService.login("email", "password");
 
         commands.add(new AutoRoleCommand(serverSettings, languageManager, handleErrors, rateLimit));
         commands.add(new PingCommand(serverSettings, languageManager, rateLimit));
@@ -101,7 +105,7 @@ public class CommandManager {
         commands.add(new VerifySetRole(serverSettings, languageManager, handleErrors, rateLimit));
         commands.add(new AntiSpamPunishmentTypeCommand(serverSettings, languageManager, rateLimit, handleErrors));
         commands.add(new AntiSwearPunishmentTypeCommand(serverSettings, languageManager, rateLimit, handleErrors));
-        commands.add(new PunishmentSearchCommand(serverSettings, languageManager, handleErrors, rateLimit));
+        commands.add(new PunishmentSearchCommand(serverSettings, languageManager, handleErrors, rateLimit,session_id));
     }
 
     public void addCommandsToJDABuilder(JDABuilder builder) {
