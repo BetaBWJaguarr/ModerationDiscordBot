@@ -27,44 +27,42 @@ public abstract class PunishmentTypeBaseCommand extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         try {
-            if (!isCommandApplicable(event)) {
+            if (!isCommandApplicable(event) || rateLimit.isRateLimited(event, embedBuilderManager, serverSettings)) {
                 return;
             }
 
-            if (rateLimit.isRateLimited(event, embedBuilderManager, serverSettings)) {
+            String serverId = event.getGuild().getId();
+            if (!serverSettings.isAutoPunishEnabled(serverId)) {
+                sendEphemeralReply(event, "commands.punishment-type.auto_punish_disabled", serverId);
                 return;
             }
 
             String punishmentType = event.getOption("type").getAsString();
-            String serverId = event.getGuild().getId();
-
-            if (!serverSettings.isAutoPunishEnabled(serverId)) {
-                event.replyEmbeds(embedBuilderManager.createEmbed(
-                        "commands.punishment-type.auto_punish_disabled",
-                        null,
-                        serverSettings.getLanguage(serverId)
-                ).build()).setEphemeral(true).queue();
-                return;
-            }
-
-            if ("warn".equalsIgnoreCase(punishmentType) || "mute".equalsIgnoreCase(punishmentType)) {
+            if (isValidPunishmentType(punishmentType)) {
                 setPunishmentType(serverId, punishmentType);
-                event.replyEmbeds(embedBuilderManager.createEmbed(
-                        "commands.punishment-type.punishment_type_set",
-                        null,
-                        serverSettings.getLanguage(serverId),
-                        punishmentType
-                ).build()).queue();
+                sendReply(event, "commands.punishment-type.punishment_type_set", serverId, punishmentType);
             } else {
-                event.replyEmbeds(embedBuilderManager.createEmbed(
-                        "commands.punishment-type.invalid_type",
-                        null,
-                        serverSettings.getLanguage(serverId)
-                ).build()).setEphemeral(true).queue();
+                sendEphemeralReply(event, "commands.punishment-type.invalid_type", serverId);
             }
         } catch (Exception e) {
             errorManager.sendErrorMessage(e, event.getChannel().asTextChannel());
         }
+    }
+
+    protected boolean isValidPunishmentType(String punishmentType) {
+        return "warn".equalsIgnoreCase(punishmentType) || "mute".equalsIgnoreCase(punishmentType);
+    }
+
+    protected void sendReply(SlashCommandInteractionEvent event, String messageKey, String serverId, String... args) {
+        event.replyEmbeds(
+                embedBuilderManager.createEmbed(messageKey, null, serverSettings.getLanguage(serverId), args).build()
+        ).queue();
+    }
+
+    protected void sendEphemeralReply(SlashCommandInteractionEvent event, String messageKey, String serverId) {
+        event.replyEmbeds(
+                embedBuilderManager.createEmbed(messageKey, null, serverSettings.getLanguage(serverId)).build()
+        ).setEphemeral(true).queue();
     }
 
     protected abstract boolean isCommandApplicable(SlashCommandInteractionEvent event);

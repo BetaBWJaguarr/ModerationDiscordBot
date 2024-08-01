@@ -37,6 +37,7 @@ public class VerifyCommands extends ListenerAdapter {
     private final ModLogEmbed modLogEmbed;
     private MemberVerifySystem memberVerify;
     private String dcserverid;
+    private User adminuser;
 
 
     private final Map<String, Message> verificationMessages;
@@ -77,6 +78,7 @@ public class VerifyCommands extends ListenerAdapter {
             String mention = event.getOption("username").getAsString();
             Pattern mentionPattern = Pattern.compile("<@!?(\\d+)>");
             Matcher matcher = mentionPattern.matcher(mention);
+            adminuser = event.getUser();
 
             if (matcher.find()) {
                 String userToVerifyId = matcher.group(1);
@@ -181,6 +183,17 @@ public class VerifyCommands extends ListenerAdapter {
 
                 verificationMessages.put(user.getId(), message);
 
+                String verificationSentMessage = languageManager.getMessage("commands.verify.sent_message", serverSettings.getLanguage(dcserverid))
+                        .replace("{username}", username);
+
+                adminuser.openPrivateChannel().queue(channel -> {
+                    EmbedBuilder confirmationEmbed = new EmbedBuilder()
+                            .setColor(Color.GREEN)
+                            .setTitle(languageManager.getMessage("commands.verify.sent_title", serverSettings.getLanguage(dcserverid)))
+                            .setDescription(verificationSentMessage);
+                    channel.sendMessageEmbeds(confirmationEmbed.build()).queue();
+                });
+
                 message.delete().queueAfter(verificationTimeout, TimeUnit.HOURS, aVoid -> {
                     if (verificationMessages.containsKey(user.getId())) {
                         verificationMessages.remove(user.getId());
@@ -218,8 +231,16 @@ public class VerifyCommands extends ListenerAdapter {
                         verificationMessages.remove(user.getId());
                         message.delete().queue();
 
-                        EmbedBuilder confirmationEmbed = embedBuilderManager.createEmbed("commands.verify.success", null, serverSettings.getLanguage(dcserverid));
-                        event.getChannel().sendMessageEmbeds(confirmationEmbed.build()).queue();
+                        String verificationSuccessMessage = languageManager.getMessage("commands.verify.success_message", serverSettings.getLanguage(dcserverid));
+
+                        adminuser.openPrivateChannel().queue(channel -> {
+                            EmbedBuilder confirmationEmbed = new EmbedBuilder()
+                                    .setColor(Color.GREEN)
+                                    .setTitle(languageManager.getMessage("commands.verify.success_title", serverSettings.getLanguage(dcserverid)))
+                                    .setDescription(verificationSuccessMessage);
+                            channel.sendMessageEmbeds(confirmationEmbed.build()).queue();
+                        });
+
                         verifyMongo.upsertMemberVerifySystem(memberVerify, dcserverid);
                     }, failure -> {
                         EmbedBuilder errorEmbed = embedBuilderManager.createEmbed("commands.verify.role_add_failed", null, serverSettings.getLanguage(dcserverid));
@@ -232,6 +253,7 @@ public class VerifyCommands extends ListenerAdapter {
             }
         }
     }
+
 
     private void handleVerificationTimeout(User user, SlashCommandInteractionEvent event) {
         String dcserverid = event.getGuild().getId();

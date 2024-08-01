@@ -85,7 +85,7 @@ public class Main {
             DebugManager.logDebug("Initializing AntiSwear...");
 
             DebugManager.logDebug("Registering events...");
-            new RegisterEvents(jda, botInfo, languageManager, serverSettings, antiSpamCommand, antiVirusCommand, antiSwear,verifyMongo,voiceManager).registerAll();
+            new RegisterEvents(jda, botInfo, languageManager, serverSettings, antiSpamCommand, antiVirusCommand, antiSwear,verifyMongo,voiceManager,muteLog).registerAll();
 
             DebugManager.logDebug("Printing bot information...");
             botInfo.printInformation();

@@ -3,6 +3,7 @@ package beta.com.moderationdiscordbot.eventsmanager;
 import beta.com.moderationdiscordbot.advertisemanager.AdvertiseChecking;
 import beta.com.moderationdiscordbot.autopunish.antispam.AntiSpamEvent;
 import beta.com.moderationdiscordbot.autopunish.antiswear.AntiSwear;
+import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.MuteLog;
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.databasemanager.VerifySystem.VerifyMongo;
 import beta.com.moderationdiscordbot.eventsmanager.events.*;
@@ -24,9 +25,10 @@ public class RegisterEvents extends ListenerAdapter {
     private final AntiSwear antiSwear;
     private final VerifyMongo verifyMongo;
     private final VoiceManager voiceManager;
+    private final MuteLog muteLog;
 
     public RegisterEvents(JDA jda, Information info, LanguageManager langManager, ServerSettings serverSettings,
-                          AntiSpamCommand spamCommand, AntiVirusCommand virusCommand, AntiSwear swear, VerifyMongo verifyMongo, VoiceManager voiceManager) {
+                          AntiSpamCommand spamCommand, AntiVirusCommand virusCommand, AntiSwear swear, VerifyMongo verifyMongo, VoiceManager voiceManager, MuteLog muteLog) {
         this.jda = jda;
         this.information = info;
         this.languageManager = langManager;
@@ -36,11 +38,12 @@ public class RegisterEvents extends ListenerAdapter {
         this.antiSwear = swear;
         this.verifyMongo = verifyMongo;
         this.voiceManager = voiceManager;
+        this.muteLog = muteLog;
     }
 
     public void registerAll() {
         addEvent(new UserJoinLeaveEvents(languageManager, serverSettings,verifyMongo));
-        addEvent(new AntiSpamEvent(antiSpamCommand, languageManager, serverSettings));
+        addEvent(new AntiSpamEvent(antiSpamCommand, languageManager, serverSettings,muteLog));
         addEvent(new BotJoinServer(serverSettings));
         addEvent(new AdvertiseChecking(languageManager, serverSettings));
         addEvent(new AntiVirusEvent(antiVirusCommand, languageManager, serverSettings));

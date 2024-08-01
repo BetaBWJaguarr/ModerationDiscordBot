@@ -7,10 +7,10 @@ import java.io.IOException;
 
 public class AuthService {
 
-    private static final String LOGIN_URL = "http://127.0.0.1:500/auth/login";
+    private static final String LOGIN_URL = "http://127.0.0.1:5000/filtermanager/auth/login";
     private final OkHttpClient client = new OkHttpClient();
 
-    public String login(String email, String password) throws IOException {
+    public String login(String email, String password) {
         String jsonPayload = String.format("{\"email\":\"%s\",\"password\":\"%s\"}", email, password);
         RequestBody body = RequestBody.create(jsonPayload, MediaType.parse("application/json; charset=utf-8"));
         Request request = new Request.Builder()
@@ -24,6 +24,9 @@ public class AuthService {
             String responseBody = response.body().string();
             JSONObject jsonResponse = new JSONObject(responseBody);
             return jsonResponse.getString("session_id");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }
