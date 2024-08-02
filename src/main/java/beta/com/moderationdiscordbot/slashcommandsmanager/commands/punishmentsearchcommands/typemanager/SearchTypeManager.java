@@ -1,9 +1,9 @@
 package beta.com.moderationdiscordbot.slashcommandsmanager.commands.punishmentsearchcommands.typemanager;
 
 public enum SearchTypeManager {
-    WARN(SearchCategory.USERNAME, SearchCategory.FILTERS),
-    MUTE(SearchCategory.USERNAME, SearchCategory.FILTERS),
-    BAN(SearchCategory.USERNAME, SearchCategory.FILTERS);
+    WARN(SearchCategory.USERNAME, SearchCategory.FILTERS, SearchCategory.MATCH),
+    MUTE(SearchCategory.USERNAME, SearchCategory.FILTERS, SearchCategory.SORT),
+    BAN(SearchCategory.USERNAME, SearchCategory.FILTERS, SearchCategory.MULTI_FILTER);
 
     private final SearchCategory[] categories;
 
@@ -17,7 +17,10 @@ public enum SearchTypeManager {
 
     public enum SearchCategory {
         USERNAME,
-        FILTERS;
+        FILTERS,
+        MATCH,
+        SORT,
+        MULTI_FILTER;
 
         public enum Filters {
             REASON(ReasonFilter.CONTAINS, ReasonFilter.EQUALS),

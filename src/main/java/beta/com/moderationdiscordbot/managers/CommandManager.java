@@ -69,7 +69,7 @@ public class CommandManager {
     private void initializeCommands() throws IOException {
         RateLimit rateLimit = new RateLimit(2, TimeUnit.SECONDS);
         AuthService authService = new AuthService();
-        String session_id = authService.login("email", "password");
+        String session_id = authService.login("tunarasimocak@gmail.com", "tunaocak2++?");
 
         commands.add(new AutoRoleCommand(serverSettings, languageManager, handleErrors, rateLimit));
         commands.add(new PingCommand(serverSettings, languageManager, rateLimit));

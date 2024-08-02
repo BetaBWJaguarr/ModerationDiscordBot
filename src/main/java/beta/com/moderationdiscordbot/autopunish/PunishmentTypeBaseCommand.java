@@ -12,12 +12,10 @@ public abstract class PunishmentTypeBaseCommand extends ListenerAdapter {
 
     protected final EmbedBuilderManager embedBuilderManager;
     protected final ServerSettings serverSettings;
-    protected final LanguageManager languageManager;
     protected final RateLimit rateLimit;
     protected final HandleErrors errorManager;
 
     public PunishmentTypeBaseCommand(ServerSettings serverSettings, LanguageManager languageManager, RateLimit rateLimit, HandleErrors errorManager) {
-        this.languageManager = languageManager;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.serverSettings = serverSettings;
         this.rateLimit = rateLimit;
@@ -26,26 +24,20 @@ public abstract class PunishmentTypeBaseCommand extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        try {
-            if (!isCommandApplicable(event) || rateLimit.isRateLimited(event, embedBuilderManager, serverSettings)) {
-                return;
-            }
+        if (rateLimit.isRateLimited(event, embedBuilderManager, serverSettings) || !isCommandApplicable(event)) return;
 
-            String serverId = event.getGuild().getId();
-            if (!serverSettings.isAutoPunishEnabled(serverId)) {
-                sendEphemeralReply(event, "commands.punishment-type.auto_punish_disabled", serverId);
-                return;
-            }
+        String serverId = event.getGuild().getId();
+        if (!serverSettings.isAutoPunishEnabled(serverId)) {
+            sendReply(event, "commands.punishment-type.auto_punish_disabled", serverId, "true");
+            return;
+        }
 
-            String punishmentType = event.getOption("type").getAsString();
-            if (isValidPunishmentType(punishmentType)) {
-                setPunishmentType(serverId, punishmentType);
-                sendReply(event, "commands.punishment-type.punishment_type_set", serverId, punishmentType);
-            } else {
-                sendEphemeralReply(event, "commands.punishment-type.invalid_type", serverId);
-            }
-        } catch (Exception e) {
-            errorManager.sendErrorMessage(e, event.getChannel().asTextChannel());
+        String punishmentType = event.getOption("type").getAsString();
+        if (isValidPunishmentType(punishmentType)) {
+            setPunishmentType(serverId, punishmentType);
+            sendReply(event, "commands.punishment-type.punishment_type_set", serverId, punishmentType, "false");
+        } else {
+            sendReply(event, "commands.punishment-type.invalid_type", serverId, "true");
         }
     }
 
@@ -54,15 +46,12 @@ public abstract class PunishmentTypeBaseCommand extends ListenerAdapter {
     }
 
     protected void sendReply(SlashCommandInteractionEvent event, String messageKey, String serverId, String... args) {
-        event.replyEmbeds(
-                embedBuilderManager.createEmbed(messageKey, null, serverSettings.getLanguage(serverId), args).build()
-        ).queue();
-    }
-
-    protected void sendEphemeralReply(SlashCommandInteractionEvent event, String messageKey, String serverId) {
-        event.replyEmbeds(
-                embedBuilderManager.createEmbed(messageKey, null, serverSettings.getLanguage(serverId)).build()
-        ).setEphemeral(true).queue();
+        var embed = embedBuilderManager.createEmbed(messageKey, null, serverSettings.getLanguage(serverId), args);
+        if (args.length > 0 && Boolean.parseBoolean(args[0])) {
+            event.replyEmbeds(embed.build()).setEphemeral(true).queue();
+        } else {
+            event.replyEmbeds(embed.build()).queue();
+        }
     }
 
     protected abstract boolean isCommandApplicable(SlashCommandInteractionEvent event);

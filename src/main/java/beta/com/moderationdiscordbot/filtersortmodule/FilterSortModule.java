@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class FilterSortModule {
 
-    private static final String BASE_URL = "http://127.0.0.1:500/filtermanager/";
+    private static final String BASE_URL = "http://127.0.0.1:5000/filtermanager/";
     private final OkHttpClient client = new OkHttpClient();
     private final String sessionId;
 
@@ -19,7 +19,7 @@ public class FilterSortModule {
         return new Request.Builder()
                 .url(BASE_URL + endpoint)
                 .post(body)
-                .addHeader("Authorization", "Bearer " + sessionId);
+                .addHeader("Authorization", sessionId);
     }
 
     public String postMatch(String jsonPayload) throws IOException {
