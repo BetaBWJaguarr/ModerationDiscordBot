@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 
 import java.awt.*;
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class PunishmentManager {
     }
 
     public void warn(Member targetMember, String reason, String serverId) {
-        String dmDescription = String.format(languageManager.getMessage("commands.warn.dm_description", serverSettings.getLanguage(serverId)), reason);
+        String dmDescription = MessageFormat.format(languageManager.getMessage("commands.warn.dm_description", serverSettings.getLanguage(serverId)), reason);
         MessageEmbed dmEmbed = new EmbedBuilder()
                 .setTitle(languageManager.getMessage("commands.warn.dm_title", serverSettings.getLanguage(serverId)))
                 .setDescription(dmDescription)
@@ -74,9 +75,6 @@ public class PunishmentManager {
                     } else {
                         muteLog.addMuteLog(serverId, targetMember.getUser().getId(), reason, new Date(System.currentTimeMillis() + finalDurationInSeconds * 1000L));
                     }
-
-                    //TODO For now, mute logs are not sent to the mod log channel
-                    modLogEmbed.sendLog(serverId, null, "commands.mute.log.title", "commands.mute.log.user", "commands.mute.log.reason", targetMember.getUser().getName(), reason);
                 },
                 error -> {
                     System.err.println("Failed to mute " + targetMember.getUser().getAsTag() + ": " + error.getMessage());

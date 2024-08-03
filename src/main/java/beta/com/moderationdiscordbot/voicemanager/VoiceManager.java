@@ -38,8 +38,9 @@ public class VoiceManager extends ListenerAdapter {
             return;
         }
 
-        if (event.getChannelLeft() instanceof VoiceChannel) {
-            handleVoiceLeave(event.getGuild(), (VoiceChannel) event.getChannelLeft(), event.getMember());
+        VoiceChannel channelLeft = (VoiceChannel) event.getChannelLeft();
+        if (channelLeft != null) {
+            handleVoiceLeave(event.getGuild(), channelLeft, event.getMember());
         }
     }
 
@@ -58,7 +59,7 @@ public class VoiceManager extends ListenerAdapter {
             if (!member.getUser().isBot()) {
                 String userDir = createUserDirectory(guild, voiceChannel, member);
 
-                VoiceSession session = new VoiceSession(audioManager, userDir, antiSwear, member, serverSettings, languageManager, audioReceiver);
+                VoiceSession session = new VoiceSession(userDir, antiSwear, member, languageManager, audioReceiver);
                 activeSessions.get(voiceChannel).put(member, session);
                 session.startRecording();
             }
@@ -104,7 +105,6 @@ public class VoiceManager extends ListenerAdapter {
         return channel.getMembers().isEmpty() ||
                 (channel.getMembers().size() == 1 && channel.getMembers().get(0).getUser().isBot());
     }
-
 
     public void stopRecordingAndLeaveChannel(VoiceChannel voiceChannel) {
         Guild guild = voiceChannel.getGuild();

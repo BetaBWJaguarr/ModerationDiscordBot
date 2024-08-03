@@ -56,7 +56,7 @@ public class Main {
         AntiVirusCommand antiVirusCommand = new AntiVirusCommand(serverSettings, languageManager, rateLimit, handleErrors);
         AntiSwear antiSwear = new AntiSwear(serverSettings, languageManager,muteLog);
         VoiceManager voiceManager = new VoiceManager(serverSettings, languageManager, antiSwear);
-        CommandManager commandManager = new CommandManager(serverSettings, languageManager, handleErrors, banLog, muteLog, warnLog,verifyMongo,voiceManager);
+        CommandManager commandManager = new CommandManager(serverSettings, languageManager, handleErrors, banLog, muteLog, warnLog,verifyMongo,voiceManager,env);
 
         try {
             DebugManager.logDebug("Building JDA...");

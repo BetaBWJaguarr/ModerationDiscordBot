@@ -24,34 +24,38 @@ public class AutoPunishEnableCommands extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        if (event.getName().equals("autopunish")) {
-            String discordServerId = event.getGuild().getId();
-            String language = serverSettings.getLanguage(discordServerId);
+        if (!event.getName().equals("autopunish")) {
+            return;
+        }
 
-            if (rateLimit.isRateLimited(event, embedManager, serverSettings)) {
-                return;
-            }
+        String discordServerId = event.getGuild().getId();
+        String language = serverSettings.getLanguage(discordServerId);
 
-            if (!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-                event.replyEmbeds(embedManager.createEmbedWithColor(
-                        "commands.autopunish.error.title",
-                        "commands.autopunish.error.description",
-                        language,
-                        Color.RED).build()).setEphemeral(true).queue();
-                return;
-            }
+        if (rateLimit.isRateLimited(event, embedManager, serverSettings)) {
+            return;
+        }
 
-            String subcommand = event.getSubcommandName();
-            if (subcommand != null) {
-                switch (subcommand) {
-                    case "enable":
-                        handleEnableAutoPunish(event, discordServerId, language);
-                        break;
-                    case "disable":
-                        handleDisableAutoPunish(event, discordServerId, language);
-                        break;
-                }
-            }
+        if (!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+            event.replyEmbeds(embedManager.createEmbedWithColor(
+                    "commands.autopunish.error.title",
+                    "commands.autopunish.error.description",
+                    language,
+                    Color.RED).build()).setEphemeral(true).queue();
+            return;
+        }
+
+        String subcommand = event.getSubcommandName();
+        if (subcommand == null) {
+            return;
+        }
+
+        switch (subcommand) {
+            case "enable":
+                handleEnableAutoPunish(event, discordServerId, language);
+                break;
+            case "disable":
+                handleDisableAutoPunish(event, discordServerId, language);
+                break;
         }
     }
 

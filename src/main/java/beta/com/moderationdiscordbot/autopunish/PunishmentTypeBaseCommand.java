@@ -24,7 +24,7 @@ public abstract class PunishmentTypeBaseCommand extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        if (rateLimit.isRateLimited(event, embedBuilderManager, serverSettings) || !isCommandApplicable(event)) return;
+        if (!isCommandApplicable(event)) return;
 
         String serverId = event.getGuild().getId();
         if (!serverSettings.isAutoPunishEnabled(serverId)) {

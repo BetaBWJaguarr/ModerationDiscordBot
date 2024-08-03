@@ -12,6 +12,7 @@ import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.Mute
 import beta.com.moderationdiscordbot.databasemanager.LoggingManagement.logs.WarnLog;
 import beta.com.moderationdiscordbot.databasemanager.ServerSettings.ServerSettings;
 import beta.com.moderationdiscordbot.databasemanager.VerifySystem.VerifyMongo;
+import beta.com.moderationdiscordbot.envmanager.Env;
 import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import beta.com.moderationdiscordbot.filtersortmodule.auth.AuthService;
 import beta.com.moderationdiscordbot.langmanager.LanguageManager;
@@ -53,8 +54,9 @@ public class CommandManager {
     private final WarnLog warnLog;
     private final VerifyMongo verifyMongo;
     private final VoiceManager voiceManager;
+    private final Env env;
 
-    public CommandManager(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors handleErrors, BanLog banLog, MuteLog muteLog, WarnLog warnLog, VerifyMongo verifyMongo, VoiceManager voiceManager) throws IOException {
+    public CommandManager(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors handleErrors, BanLog banLog, MuteLog muteLog, WarnLog warnLog, VerifyMongo verifyMongo, VoiceManager voiceManager, Env env) throws IOException {
         this.serverSettings = serverSettings;
         this.languageManager = languageManager;
         this.handleErrors = handleErrors;
@@ -63,6 +65,7 @@ public class CommandManager {
         this.warnLog = warnLog;
         this.verifyMongo = verifyMongo;
         this.voiceManager = voiceManager;
+        this.env = env;
         initializeCommands();
     }
 
@@ -105,7 +108,7 @@ public class CommandManager {
         commands.add(new VerifySetRole(serverSettings, languageManager, handleErrors, rateLimit));
         commands.add(new AntiSpamPunishmentTypeCommand(serverSettings, languageManager, rateLimit, handleErrors));
         commands.add(new AntiSwearPunishmentTypeCommand(serverSettings, languageManager, rateLimit, handleErrors));
-        commands.add(new PunishmentSearchCommand(serverSettings, languageManager, handleErrors, rateLimit,session_id));
+        commands.add(new PunishmentSearchCommand(serverSettings, languageManager, handleErrors, rateLimit,session_id,env));
     }
 
     public void addCommandsToJDABuilder(JDABuilder builder) {

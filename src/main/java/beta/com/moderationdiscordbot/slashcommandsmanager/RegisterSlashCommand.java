@@ -175,7 +175,7 @@ public class RegisterSlashCommand {
                 {"punishment-search", "Search for punishments",
                         new OptionData(OptionType.STRING, "type", "The type of punishment to search for (mute/ban/warn)", true),
                         new OptionData(OptionType.STRING, "predicate", "The search predicate (e.g., username, reason)", true),
-                        new OptionData(OptionType.STRING, "value", "The value to search for", false)},
+                        new OptionData(OptionType.STRING, "value", "The value to search for", true)},
         };
 
         for (Object[] command : commands) {

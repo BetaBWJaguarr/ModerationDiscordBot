@@ -1,5 +1,6 @@
 package beta.com.moderationdiscordbot.slashcommandsmanager.commands.punishmentsearchcommands;
 
+import beta.com.moderationdiscordbot.envmanager.Env;
 import beta.com.moderationdiscordbot.filtersortmodule.FilterSortModule;
 import beta.com.moderationdiscordbot.slashcommandsmanager.commands.punishmentsearchcommands.typemanager.SearchTypeManager;
 import beta.com.moderationdiscordbot.utils.EmbedBuilderManager;
@@ -24,23 +25,25 @@ public class PunishmentSearchCommand extends ListenerAdapter {
     private final HandleErrors errorManager;
     private final RateLimit rateLimit;
     private final FilterSortModule filterSortModule;
+    private final Env env;
 
     private static final Map<SearchTypeManager, List<String>> VALID_PREDICATES;
 
     static {
         VALID_PREDICATES = new EnumMap<>(SearchTypeManager.class);
-        VALID_PREDICATES.put(SearchTypeManager.MUTE, Arrays.asList("username", "reason", "date_range", "duration"));
-        VALID_PREDICATES.put(SearchTypeManager.BAN, Arrays.asList("username", "reason", "date_range", "permanent"));
-        VALID_PREDICATES.put(SearchTypeManager.WARN, Arrays.asList("username", "reason", "date_range"));
+        VALID_PREDICATES.put(SearchTypeManager.MUTE, Arrays.asList("userId", "reason", "duration"));
+        VALID_PREDICATES.put(SearchTypeManager.BAN, Arrays.asList("userId", "reason", "duration"));
+        VALID_PREDICATES.put(SearchTypeManager.WARN, Arrays.asList("userId", "reason", "moderator", "warnId"));
     }
 
-    public PunishmentSearchCommand(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors errorManager, RateLimit rateLimit, String sessionId) {
+    public PunishmentSearchCommand(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors errorManager, RateLimit rateLimit, String sessionId, Env env) {
         this.serverSettings = serverSettings;
         this.languageManager = languageManager;
         this.errorManager = errorManager;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
         this.rateLimit = rateLimit;
         this.filterSortModule = new FilterSortModule(sessionId);
+        this.env = env;
     }
 
     @Override
@@ -61,7 +64,7 @@ public class PunishmentSearchCommand extends ListenerAdapter {
                     .orElse(null);
 
             if (typeOption == null || predicateOption == null) {
-                event.replyEmbeds(embedBuilderManager.createEmbed("commands.punishmentsearch.missing_arguments", null,
+                event.getHook().sendMessageEmbeds(embedBuilderManager.createEmbed("commands.punishmentsearch.missing_arguments", null,
                                 serverSettings.getLanguage(event.getGuild().getId())).build())
                         .setEphemeral(true).queue();
                 return;
@@ -75,21 +78,21 @@ public class PunishmentSearchCommand extends ListenerAdapter {
             try {
                 searchType = getSearchType(typeOption);
             } catch (IllegalArgumentException e) {
-                event.replyEmbeds(embedBuilderManager.createEmbed("commands.punishmentsearch.invalid_type", null,
+                event.getHook().sendMessageEmbeds(embedBuilderManager.createEmbed("commands.punishmentsearch.invalid_type", null,
                                 serverSettings.getLanguage(event.getGuild().getId())).build())
                         .setEphemeral(true).queue();
                 return;
             }
 
             if (!isValidPredicate(predicateOption, searchType)) {
-                event.replyEmbeds(embedBuilderManager.createEmbed("commands.punishmentsearch.invalid_predicate", null,
+                event.getHook().sendMessageEmbeds(embedBuilderManager.createEmbed("commands.punishmentsearch.invalid_predicate", null,
                                 serverSettings.getLanguage(event.getGuild().getId())).build())
                         .setEphemeral(true).queue();
                 return;
             }
 
             if (isPredicateRequiringValue(predicateOption) && (valueOption == null || valueOption.isEmpty())) {
-                event.replyEmbeds(embedBuilderManager.createEmbed("commands.punishmentsearch.missing_value", null,
+                event.getHook().sendMessageEmbeds(embedBuilderManager.createEmbed("commands.punishmentsearch.missing_value", null,
                                 serverSettings.getLanguage(event.getGuild().getId())).build())
                         .setEphemeral(true).queue();
                 return;
@@ -147,9 +150,9 @@ public class PunishmentSearchCommand extends ListenerAdapter {
     }
 
     private String createJsonPayload(SearchTypeManager searchType, String predicate, String value) {
-        String dbName = "ModDatabase";
+        String dbName = env.getProperty("MONGODB_DATABASE_NAME");
         String collectionName = getCollectionName(searchType);
-        String connectionString = "mongodb+srv://tunarasimocak:zaUOcIge12qAf0rC@moddatabase.vrwz9ix.mongodb.net/?retryWrites=true&w=majority&appName=ModDatabase";
+        String connectionString = env.getProperty("MONGODB_CONNECTION_STRING");
 
         JSONObject json = new JSONObject();
         json.put("db_name", dbName);
@@ -162,10 +165,11 @@ public class PunishmentSearchCommand extends ListenerAdapter {
                 break;
             case MUTE:
                 json.put("filter", createFilterPayload(predicate, value));
+                json.put("sort", new JSONObject().put("duration", 1));
                 break;
             case BAN:
                 json.put("filters", createMultiFilterPayload(predicate, value));
-                json.put("sort_data", "date");
+                json.put("sort_data", "duration");
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported search type");
@@ -195,7 +199,9 @@ public class PunishmentSearchCommand extends ListenerAdapter {
 
     private JSONObject createFilterPayload(String predicate, String value) {
         JSONObject filterPayload = new JSONObject();
-        filterPayload.put(predicate, value);
+        JSONObject elemMatch = new JSONObject();
+        filterPayload.put("mutes", new JSONObject().put("$elemMatch", elemMatch));
+        elemMatch.put(predicate, value);
         return filterPayload;
     }
 

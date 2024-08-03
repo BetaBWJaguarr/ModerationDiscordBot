@@ -73,7 +73,7 @@ public class EmbedBuilderManager {
 
     public void sendDM(SlashCommandInteractionEvent event, String userId, MessageEmbed embed) {
         event.getJDA().openPrivateChannelById(userId).queue(privateChannel -> {
-            privateChannel.sendMessageEmbeds(embed);
+            privateChannel.sendMessageEmbeds(embed).queue();
         });
     }
 }

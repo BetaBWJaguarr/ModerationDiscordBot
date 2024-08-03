@@ -22,25 +22,20 @@ import java.util.concurrent.CompletableFuture;
 public class VoiceSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(VoiceSession.class);
 
-    private final AudioManager audioManager;
-    private final String userDir;
-    private final AntiSwear antiSwear;
-    private final Member member;
-    private final ServerSettings serverSettings;
-    private final LanguageManager languageManager;
     private final AudioReceiver audioReceiver;
+    private final Member member;
+    private final AntiSwear antiSwear;
     private final EmbedBuilderManager embedBuilderManager;
-    private static final String VOSK_MODEL_PATH = "C:\\Users\\tuna\\Downloads\\vosk-model-en-us-0.22";
+    private final String userDir;
+    private final String voskModelPath = "C:\\Users\\tuna\\Downloads\\vosk-model-en-us-0.22";
 
-    public VoiceSession(AudioManager audioManager, String userDir, AntiSwear antiSwear, Member member, ServerSettings serverSettings, LanguageManager languageManager, AudioReceiver audioReceiver) {
-        this.audioManager = audioManager;
-        this.userDir = userDir;
-        this.antiSwear = antiSwear;
-        this.member = member;
-        this.serverSettings = serverSettings;
-        this.languageManager = languageManager;
+    public VoiceSession(String userDir, AntiSwear antiSwear, Member member,
+                         LanguageManager languageManager, AudioReceiver audioReceiver) {
         this.audioReceiver = audioReceiver;
+        this.member = member;
+        this.antiSwear = antiSwear;
         this.embedBuilderManager = new EmbedBuilderManager(languageManager);
+        this.userDir = userDir;
     }
 
     public void startRecording() {
@@ -55,7 +50,7 @@ public class VoiceSession {
                 audioReceiver.saveAudioToFile(userDir, member.getUser());
 
                 if (audioFile.exists()) {
-                    String text = SpeechToTextAPI.convertSpeechToText(audioFile.getAbsolutePath(), VOSK_MODEL_PATH);
+                    String text = SpeechToTextAPI.convertSpeechToText(audioFile.getAbsolutePath(), voskModelPath);
                     if (antiSwear.containsProfanity(text, member.getGuild().getId())) {
                         LOGGER.warn("Profanity detected for user: {}", member.getEffectiveName());
                         sendWarningDM();
@@ -75,11 +70,10 @@ public class VoiceSession {
     }
 
     private void sendWarningDM() {
-        String language = serverSettings.getLanguage(member.getGuild().getId());
         EmbedBuilder embed = embedBuilderManager.createEmbedWithColor(
                 "events.voice.warning.title",
                 "events.voice.warning.description",
-                language,
+                member.getGuild().getId(),
                 Color.RED
         );
         member.getUser().openPrivateChannel().queue(channel ->
