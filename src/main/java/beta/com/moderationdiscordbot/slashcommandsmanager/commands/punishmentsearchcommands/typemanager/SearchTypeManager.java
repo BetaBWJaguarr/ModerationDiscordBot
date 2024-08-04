@@ -24,7 +24,8 @@ public enum SearchTypeManager {
 
         public enum Filters {
             REASON(ReasonFilter.CONTAINS, ReasonFilter.EQUALS),
-            DATE_RANGE(DateRangeFilter.START_DATE, DateRangeFilter.END_DATE);
+            DATE_RANGE(DateRangeFilter.START_DATE, DateRangeFilter.END_DATE),
+            USERID(UserIdFilter.EQUALS);  // USERID filtresini ekledik
 
             private final Enum<?>[] subcategories;
 
@@ -44,6 +45,10 @@ public enum SearchTypeManager {
             public enum DateRangeFilter {
                 START_DATE,
                 END_DATE;
+            }
+
+            public enum UserIdFilter {
+                EQUALS;
             }
         }
     }

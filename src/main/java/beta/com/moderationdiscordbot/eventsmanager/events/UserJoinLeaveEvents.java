@@ -85,6 +85,11 @@ public class UserJoinLeaveEvents extends ListenerAdapter {
                         Status.PENDING
                 );
                 verifyMongo.upsertMemberVerifySystem(memberVerify, discordServerId);
+            } else if (action.equals("Leave")) {
+                MemberVerifySystem memberVerify = verifyMongo.findMemberVerifySystem(user.getName(), discordServerId);
+                if (memberVerify != null) {
+                    verifyMongo.removeMemberVerifySystem(memberVerify.getId(), discordServerId);
+                }
             }
 
             sendMemberEventMessage(channel, action, eventTime, user.getAvatarUrl(), isBot, roleCount, hasGifAvatar, isVerified, discordServerId, hasProfilePicture, user);

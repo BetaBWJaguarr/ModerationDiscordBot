@@ -10,9 +10,13 @@ import beta.com.moderationdiscordbot.expectionmanagement.HandleErrors;
 import beta.com.moderationdiscordbot.slashcommandsmanager.RateLimit;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -25,15 +29,16 @@ public class PunishmentSearchCommand extends ListenerAdapter {
     private final HandleErrors errorManager;
     private final RateLimit rateLimit;
     private final FilterSortModule filterSortModule;
+    private String discordid;
     private final Env env;
 
     private static final Map<SearchTypeManager, List<String>> VALID_PREDICATES;
 
     static {
         VALID_PREDICATES = new EnumMap<>(SearchTypeManager.class);
-        VALID_PREDICATES.put(SearchTypeManager.MUTE, Arrays.asList("userId", "reason", "duration"));
+        VALID_PREDICATES.put(SearchTypeManager.MUTE, Arrays.asList("userId", "reason"));
         VALID_PREDICATES.put(SearchTypeManager.BAN, Arrays.asList("userId", "reason", "duration"));
-        VALID_PREDICATES.put(SearchTypeManager.WARN, Arrays.asList("userId", "reason", "moderator", "warnId"));
+        VALID_PREDICATES.put(SearchTypeManager.WARN, Arrays.asList("userId", "reason", "moderator", "warnid"));
     }
 
     public PunishmentSearchCommand(ServerSettings serverSettings, LanguageManager languageManager, HandleErrors errorManager, RateLimit rateLimit, String sessionId, Env env) {
@@ -51,12 +56,14 @@ public class PunishmentSearchCommand extends ListenerAdapter {
         if (event.getName().equalsIgnoreCase("punishment-search")) {
             event.deferReply().queue();
 
+            discordid = event.getGuild().getId();
+
             String typeOption = Optional.ofNullable(event.getOption("type"))
                     .map(option -> option.getAsString().toLowerCase())
                     .orElse(null);
 
             String predicateOption = Optional.ofNullable(event.getOption("predicate"))
-                    .map(option -> option.getAsString().toLowerCase())
+                    .map(option -> option.getAsString())
                     .orElse(null);
 
             String valueOption = Optional.ofNullable(event.getOption("value"))
@@ -111,11 +118,12 @@ public class PunishmentSearchCommand extends ListenerAdapter {
     }
 
     private boolean isValidPredicate(String predicate, SearchTypeManager searchType) {
-        return VALID_PREDICATES.get(searchType).contains(predicate.toLowerCase());
+        return VALID_PREDICATES.get(searchType).contains(predicate);
     }
 
     private boolean isPredicateRequiringValue(String predicate) {
         return Arrays.asList(
+                SearchTypeManager.SearchCategory.Filters.UserIdFilter.EQUALS.name(),
                 SearchTypeManager.SearchCategory.Filters.REASON.name(),
                 SearchTypeManager.SearchCategory.Filters.ReasonFilter.CONTAINS.name(),
                 SearchTypeManager.SearchCategory.Filters.ReasonFilter.EQUALS.name(),
@@ -127,7 +135,7 @@ public class PunishmentSearchCommand extends ListenerAdapter {
         String language = serverSettings.getLanguage(event.getGuild().getId());
 
         performSearch(event, searchType, predicate, value, result -> {
-            String resultsFormatted = formatResults(result);
+            String resultsFormatted = formatResults(result, searchType);
 
             event.getHook().sendMessageEmbeds(embedBuilderManager.createEmbed("commands.punishmentsearch.result", null, language)
                     .addField(languageManager.getMessage("commands.punishmentsearch.field_result", language), resultsFormatted, false)
@@ -162,14 +170,24 @@ public class PunishmentSearchCommand extends ListenerAdapter {
         switch (searchType) {
             case WARN:
                 json.put("match", createMatchPayload(predicate, value));
+                JSONObject projection = new JSONObject();
+                projection.put("_id", 0);
+                projection.put("warns.$", 1);
+                json.put("projection", projection);
                 break;
             case MUTE:
                 json.put("filter", createFilterPayload(predicate, value));
                 json.put("sort", new JSONObject().put("duration", 1));
                 break;
             case BAN:
-                json.put("filters", createMultiFilterPayload(predicate, value));
-                json.put("sort_data", "duration");
+                json.put("filters", createBanFilterPayload(predicate, value));
+                json.put("sort_data", new JSONObject().put("users.duration", -1));
+                JSONObject projectionban = new JSONObject();
+                projectionban.put("_id", 0);
+                projectionban.put("users.userId", 1);
+                projectionban.put("users.reason", 1);
+                projectionban.put("users.duration", 1);
+                json.put("projection", projectionban);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported search type");
@@ -205,12 +223,38 @@ public class PunishmentSearchCommand extends ListenerAdapter {
         return filterPayload;
     }
 
-    private JSONObject createMultiFilterPayload(String predicate, String value) {
-        JSONObject multiFilterPayload = new JSONObject();
-        multiFilterPayload.put("field", predicate);
-        multiFilterPayload.put("value", value);
-        return multiFilterPayload;
+    private JSONArray createBanFilterPayload(String predicate, String value) {
+        JSONArray filters = new JSONArray();
+
+        if (predicate.equalsIgnoreCase("userId")) {
+            JSONObject userIdFilter = new JSONObject();
+            userIdFilter.put("users.userId", value);
+            filters.put(userIdFilter);
+        }
+
+        if (predicate.equalsIgnoreCase("reason")) {
+            JSONObject reasonFilter = new JSONObject();
+            reasonFilter.put("users.reason", value);
+            filters.put(reasonFilter);
+        }
+
+        if (predicate.equalsIgnoreCase("duration")) {
+            String currentDate = DateTimeFormatter.ISO_INSTANT
+                    .format(Instant.now().atOffset(ZoneOffset.UTC));
+
+            JSONObject durationFilter = new JSONObject();
+            JSONObject durationRange = new JSONObject();
+            durationRange.put("$gte", value);
+            durationRange.put("$lt", currentDate);
+            durationFilter.put("users.duration", durationRange);
+            filters.put(durationFilter);
+        }
+
+        return filters;
     }
+
+
+
 
     private String sendRequest(String jsonPayload, SearchTypeManager searchType) throws IOException {
         switch (searchType) {
@@ -231,9 +275,85 @@ public class PunishmentSearchCommand extends ListenerAdapter {
                 .collect(Collectors.toList());
     }
 
-    private String formatResults(List<String> results) {
-        return results.stream()
-                .map(result -> "- " + result)
-                .collect(Collectors.joining("\n"));
+    private String formatResults(List<String> result, SearchTypeManager searchType) {
+        String combinedResponse = String.join("\n", result);
+        JSONArray jsonArray = new JSONArray(combinedResponse);
+
+        StringBuilder formattedResults = new StringBuilder();
+        String language = serverSettings.getLanguage(discordid);
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+            switch (searchType) {
+                case WARN:
+                    JSONArray warnsArray = jsonObject.optJSONArray("warns");
+                    if (warnsArray != null) {
+                        for (int j = 0; j < warnsArray.length(); j++) {
+                            JSONObject warnObject = warnsArray.getJSONObject(j);
+                            String warnUserId = warnObject.optString("userId", "N/A");
+                            String warnReason = warnObject.optString("reason", "N/A");
+                            String warnWarningId = warnObject.optString("warningId", "N/A");
+                            String warnModerator = warnObject.optString("moderator", "N/A");
+
+                            formattedResults.append(languageManager.getMessage("commands.punishmentsearch.warn_user_id", language))
+                                    .append(warnUserId).append("\n")
+                                    .append(languageManager.getMessage("commands.punishmentsearch.warn_reason", language))
+                                    .append(warnReason).append("\n")
+                                    .append(languageManager.getMessage("commands.punishmentsearch.warn_warning_id", language))
+                                    .append(warnWarningId).append("\n")
+                                    .append(languageManager.getMessage("commands.punishmentsearch.warn_moderator", language))
+                                    .append(warnModerator).append("\n")
+                                    .append("---------\n");
+                        }
+                    }
+                    break;
+
+                case MUTE:
+                    JSONArray mutesArray = jsonObject.optJSONArray("mutes");
+                    if (mutesArray != null) {
+                        for (int j = 0; j < mutesArray.length(); j++) {
+                            JSONObject muteObject = mutesArray.getJSONObject(j);
+                            String muteUserId = muteObject.optString("userId", "N/A");
+                            String muteReason = muteObject.optString("reason", "N/A");
+                            String muteDuration = muteObject.optString("duration", "N/A");
+
+                            formattedResults.append(languageManager.getMessage("commands.punishmentsearch.mute_user_id", language))
+                                    .append(muteUserId).append("\n")
+                                    .append(languageManager.getMessage("commands.punishmentsearch.mute_reason", language))
+                                    .append(muteReason).append("\n")
+                                    .append(languageManager.getMessage("commands.punishmentsearch.mute_duration", language))
+                                    .append(muteDuration).append("\n")
+                                    .append("---------\n");
+                        }
+                    }
+                    break;
+
+                case BAN:
+                    JSONArray bansArray = jsonObject.optJSONArray("users");
+                    if (bansArray != null) {
+                        for (int j = 0; j < bansArray.length(); j++) {
+                            JSONObject banObject = bansArray.getJSONObject(j);
+                            String banUserId = banObject.optString("userId", "N/A");
+                            String banReason = banObject.optString("reason", "N/A");
+                            String banDuration = banObject.optString("duration", "N/A");
+
+                            formattedResults.append(languageManager.getMessage("commands.punishmentsearch.ban_user_id", language))
+                                    .append(banUserId).append("\n")
+                                    .append(languageManager.getMessage("commands.punishmentsearch.ban_reason", language))
+                                    .append(banReason).append("\n")
+                                    .append(languageManager.getMessage("commands.punishmentsearch.ban_duration", language))
+                                    .append(banDuration).append("\n")
+                                    .append("---------\n");
+                        }
+                    }
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Unsupported search type");
+            }
+        }
+
+        return formattedResults.toString();
     }
 }

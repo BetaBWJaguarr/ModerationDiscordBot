@@ -30,6 +30,12 @@ public class VerifyMongo {
         collection.updateOne(filter, update, new UpdateOptions().upsert(true));
     }
 
+    public void removeMemberVerifySystem(UUID memberId, String guildId) {
+        Document filter = new Document("guildId", guildId);
+        Document update = new Document("$unset", new Document("verified_list." + memberId.toString(), ""));
+        collection.updateOne(filter, update);
+    }
+
     public MemberVerifySystem findMemberVerifySystem(String username, String guildId) {
         Document filter = new Document("guildId", guildId);
         Document guildDocument = collection.find(filter).first();
