@@ -1,6 +1,10 @@
 no_reason: "Sebep belirtilmedi."
 commands:
   rate_limit: "Lütfen {0} saniye bekleyin ve tekrar deneyin."
+  moderation_manager:
+    invalid_type: "Geçersiz tür belirtildi. Lütfen geçerli bir tür seçin."
+    invalid_predicate: "Geçersiz öznitelik belirtildi. Lütfen geçerli bir öznitelik seçin."
+    predicate_not_valid: "Belirttiğiniz öznitelik, seçilen tür için geçerli değil."
   punishment-type:
     punishment_type_set: "Ceza türü başarıyla ayarlandı: {0}"
     invalid_type: "Geçersiz ceza türü. Lütfen 'warn' veya 'mute' girin."

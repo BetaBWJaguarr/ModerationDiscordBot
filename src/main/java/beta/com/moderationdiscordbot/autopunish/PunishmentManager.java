@@ -35,28 +35,28 @@ public class PunishmentManager {
     }
 
     public void warn(Member targetMember, String reason, String serverId) {
-        String dmDescription = MessageFormat.format(languageManager.getMessage("commands.warn.dm_description", serverSettings.getLanguage(serverId)), reason);
+        String language = serverSettings.getLanguage(serverId);
+        String dmDescription = MessageFormat.format(languageManager.getMessage("commands.warn.dm_description", language), reason);
+
         MessageEmbed dmEmbed = new EmbedBuilder()
-                .setTitle(languageManager.getMessage("commands.warn.dm_title", serverSettings.getLanguage(serverId)))
+                .setTitle(languageManager.getMessage("commands.warn.dm_title", language))
                 .setDescription(dmDescription)
                 .setColor(Color.ORANGE)
                 .build();
-        targetMember.getUser().openPrivateChannel().queue(privateChannel -> {
-            privateChannel.sendMessageEmbeds(dmEmbed).queue(
-                    success -> System.out.println("Warn DM sent to " + targetMember.getUser().getAsTag()),
-                    error -> System.err.println("Failed to send warn DM to " + targetMember.getUser().getAsTag() + ": " + error.getMessage())
-            );
-        }, error -> {
-            System.err.println("Failed to open private channel with " + targetMember.getUser().getAsTag() + ": " + error.getMessage());
-        });
+
+        targetMember.getUser().openPrivateChannel().queue(
+                privateChannel -> privateChannel.sendMessageEmbeds(dmEmbed).queue(
+                        success -> System.out.println("Warn DM sent to " + targetMember.getUser().getAsTag()),
+                        error -> System.err.println("Failed to send warn DM: " + error.getMessage())
+                ),
+                error -> System.err.println("Failed to open private channel: " + error.getMessage())
+        );
 
         modLogEmbed.sendLog(serverId, null, "commands.warn.log.title", "commands.warn.log.user", "commands.warn.log.reason", targetMember.getUser().getName(), reason);
     }
 
     public void mute(Member targetMember, Long durationInSeconds, String reason, String serverId) {
-        if (durationInSeconds == null) {
-            durationInSeconds = DEFAULT_MUTE_DURATION;
-        }
+        durationInSeconds = durationInSeconds != null ? durationInSeconds : DEFAULT_MUTE_DURATION;
 
         List<Role> muteRoles = targetMember.getGuild().getRolesByName("Muted", true);
         if (muteRoles.isEmpty()) {
@@ -69,33 +69,28 @@ public class PunishmentManager {
         targetMember.getGuild().addRoleToMember(targetMember, muteRole).queue(
                 success -> {
                     sendMuteNotification(targetMember, reason, finalDurationInSeconds, serverId);
-
-                    if (finalDurationInSeconds == -2) {
-                        muteLog.addMuteLog(serverId, targetMember.getUser().getId(), reason, null);
-                    } else {
-                        muteLog.addMuteLog(serverId, targetMember.getUser().getId(), reason, new Date(System.currentTimeMillis() + finalDurationInSeconds * 1000L));
-                    }
+                    muteLog.addMuteLog(serverId, targetMember.getUser().getId(), reason, finalDurationInSeconds == -2 ? null : new Date(System.currentTimeMillis() + finalDurationInSeconds * 1000L));
                 },
-                error -> {
-                    System.err.println("Failed to mute " + targetMember.getUser().getAsTag() + ": " + error.getMessage());
-                }
+                error -> System.err.println("Failed to mute " + targetMember.getUser().getAsTag() + ": " + error.getMessage())
         );
     }
 
     private void sendMuteNotification(Member mutedMember, String reason, long durationInSeconds, String serverId) {
         String durationFormatted = FormatDuration.formatDuration(durationInSeconds);
+        String language = serverSettings.getLanguage(serverId);
 
-        mutedMember.getUser().openPrivateChannel().queue(privateChannel -> {
-            privateChannel.sendMessageEmbeds(embedBuilderManager.createEmbed("commands.mute.dm_notification", null, serverSettings.getLanguage(serverId))
-                    .setColor(Color.RED)
-                    .setDescription(String.format(languageManager.getMessage("commands.mute.notification.description", serverSettings.getLanguage(serverId)), mutedMember.getGuild().getName()))
-                    .addField(languageManager.getMessage("commands.mute.notification.muted_by", serverSettings.getLanguage(serverId)), "System", false)
-                    .addField(languageManager.getMessage("commands.mute.notification.reason", serverSettings.getLanguage(serverId)), reason, false)
-                    .addField(languageManager.getMessage("commands.mute.notification.duration", serverSettings.getLanguage(serverId)), durationFormatted, false)
-                    .setTimestamp(new Date().toInstant())
-                    .build()).queue();
-        }, error -> {
-            System.err.println("Failed to send mute notification DM to " + mutedMember.getUser().getAsTag() + ": " + error.getMessage());
-        });
+        MessageEmbed embed = embedBuilderManager.createEmbed("commands.mute.dm_notification", null, language)
+                .setColor(Color.RED)
+                .setDescription(String.format(languageManager.getMessage("commands.mute.notification.description", language), mutedMember.getGuild().getName()))
+                .addField(languageManager.getMessage("commands.mute.notification.muted_by", language), "System", false)
+                .addField(languageManager.getMessage("commands.mute.notification.reason", language), reason, false)
+                .addField(languageManager.getMessage("commands.mute.notification.duration", language), durationFormatted, false)
+                .setTimestamp(new Date().toInstant())
+                .build();
+
+        mutedMember.getUser().openPrivateChannel().queue(
+                privateChannel -> privateChannel.sendMessageEmbeds(embed).queue(),
+                error -> System.err.println("Failed to send mute notification DM: " + error.getMessage())
+        );
     }
 }

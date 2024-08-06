@@ -1,6 +1,10 @@
 no_reason: "No reason provided."
 commands:
   rate_limit: "Please wait {0} seconds and try again."
+  moderation_manager:
+    invalid_type: "Invalid type specified. Please choose a valid type."
+    invalid_predicate: "Invalid predicate specified. Please choose a valid predicate."
+    predicate_not_valid: "The predicate you provided is not valid for the selected type."
   punishment-type:
     punishment_type_set: "Punishment type successfully set to: {0}"
     invalid_type: "Invalid punishment type. Please enter 'warn' or 'mute'."
